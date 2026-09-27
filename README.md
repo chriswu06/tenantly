@@ -67,21 +67,21 @@ _Slides coming soon._
 
 | Technology | How we use it |
 | --- | --- |
-| **Next.js 16** (App Router) | The whole app: server-rendered pages, route groups for the tenant flow, info pages and advocate console, Server Actions for every form and button that changes data, route handlers for PDFs, CSV exports and speech, loading and error boundaries, streaming search results, and the proxy that protects the console. |
-| **React 19** | Server Components for data fetching, and Client Components with `useActionState` and `useOptimistic` for forms and instant checklist updates. |
-| **TypeScript** | End to end, including database types generated from the Supabase schema. |
-| **Tailwind CSS 4** | All styling, driven by design tokens (colors, type scale, radii) taken from our Figma design. |
-| **Figma** | The design system and every screen, for mobile and desktop (65+ frames). We built each page against its frames, with the Figma MCP integration. |
-| **Supabase** | Postgres database for cases, license checks, license records, activity, organizations, advocates and invitations; row-level security so advocates see only their organization's shared cases; Auth for advocate sign-in, invitations and password reset; private Storage for uploaded summonses; and a scheduled `pg_cron` job that deletes expired unshared cases. |
-| **Gemini API** | Reads the summons photo or PDF and returns structured JSON (every field with a confidence level), validated against a schema before we use it. |
-| **ArcGIS** | The ArcGIS geocoding service turns the address into a verified, normalized location. Baltimore City's public ArcGIS boundary service then confirms whether it's inside the city. |
-| **ElevenLabs** | Text-to-speech for the read-aloud buttons, streamed as MP3 from our own API route. |
-| **OpenCV** (OpenCV.js) | In the browser, before upload: edge detection (Canny), finding the page outline, and a perspective warp that flattens angled photos of the summons to a clean, upright page. It loads only when a tenant uploads a photo. |
-| **Playwright** | End-to-end tests of the real product against the live services: the full tenant flow from upload to outcome, edge cases (validation errors, out-of-city addresses, expired sessions), advocate sign-in, and the console (search, filters, pagination, case detail, exports), on mobile and desktop screen sizes. We also used it to verify each screen against the Figma designs, and to test the OpenCV scanner on angled photos. |
-| **React PDF + pdf-lib** | Generate the downloadable PDFs (summary, court checklist, case export), with page numbers stamped by pdf-lib. |
-| **Zod** | Validates every form and API input on the server, and Gemini's output. |
-| **Lucide** | Icons. |
-| **Vercel** | Hosting, with functions in the region closest to our Supabase database. |
+| <img src="https://cdn.simpleicons.org/nextdotjs/black/white" height="16" alt=""> **Next.js 16** (App Router) | The whole app: server-rendered pages, route groups for the tenant flow, info pages and advocate console, Server Actions for every form and button that changes data, route handlers for PDFs, CSV exports and speech, loading and error boundaries, streaming search results, and the proxy that protects the console. |
+| <img src="https://cdn.simpleicons.org/react" height="16" alt=""> **React 19** | Server Components for data fetching, and Client Components with `useActionState` and `useOptimistic` for forms and instant checklist updates. |
+| <img src="https://cdn.simpleicons.org/typescript" height="16" alt=""> **TypeScript** | End to end, including database types generated from the Supabase schema. |
+| <img src="https://cdn.simpleicons.org/tailwindcss" height="16" alt=""> **Tailwind CSS 4** | All styling, driven by design tokens (colors, type scale, radii) taken from our Figma design. |
+| <img src="https://cdn.simpleicons.org/figma" height="16" alt=""> **Figma** | The design system and every screen, for mobile and desktop (65+ frames). We built each page against its frames, with the Figma MCP integration. |
+| <img src="https://cdn.simpleicons.org/supabase" height="16" alt=""> **Supabase** | Postgres database for cases, license checks, license records, activity, organizations, advocates and invitations; row-level security so advocates see only their organization's shared cases; Auth for advocate sign-in, invitations and password reset; private Storage for uploaded summonses; and a scheduled `pg_cron` job that deletes expired unshared cases. |
+| <img src="https://cdn.simpleicons.org/googlegemini" height="16" alt=""> **Gemini API** | Reads the summons photo or PDF and returns structured JSON (every field with a confidence level), validated against a schema before we use it. |
+| <img src="https://cdn.simpleicons.org/arcgis" height="16" alt=""> **ArcGIS** | The ArcGIS geocoding service turns the address into a verified, normalized location. Baltimore City's public ArcGIS boundary service then confirms whether it's inside the city. |
+| <img src="https://cdn.simpleicons.org/elevenlabs/black/white" height="16" alt=""> **ElevenLabs** | Text-to-speech for the read-aloud buttons, streamed as MP3 from our own API route. |
+| <img src="https://cdn.simpleicons.org/opencv" height="16" alt=""> **OpenCV** (OpenCV.js) | In the browser, before upload: edge detection (Canny), finding the page outline, and a perspective warp that flattens angled photos of the summons to a clean, upright page. It loads only when a tenant uploads a photo. |
+| <img src="https://playwright.dev/img/playwright-logo.svg" height="16" alt=""> **Playwright** | End-to-end tests of the real product against the live services: the full tenant flow from upload to outcome, edge cases (validation errors, out-of-city addresses, expired sessions), advocate sign-in, and the console (search, filters, pagination, case detail, exports), on mobile and desktop screen sizes. We also used it to verify each screen against the Figma designs, and to test the OpenCV scanner on angled photos. |
+| <img src="https://cdn.jsdelivr.net/npm/lucide-static/icons/file-text.svg" height="16" alt=""> **React PDF + pdf-lib** | Generate the downloadable PDFs (summary, court checklist, case export), with page numbers stamped by pdf-lib. |
+| <img src="https://cdn.simpleicons.org/zod" height="16" alt=""> **Zod** | Validates every form and API input on the server, and Gemini's output. |
+| <img src="https://cdn.simpleicons.org/lucide" height="16" alt=""> **Lucide** | Icons. |
+| <img src="https://cdn.simpleicons.org/vercel/black/white" height="16" alt=""> **Vercel** | Hosting, with functions in the region closest to our Supabase database. |
 
 ## Challenges we faced
 
