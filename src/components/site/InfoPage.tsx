@@ -125,7 +125,9 @@ export function NoteCard({ icon, title, children }: { icon: LucideIcon; title: s
   );
 }
 
-const contactEmail = "hello@tenantly.example";
+// Shown address and the inbox the mailto link actually goes to.
+const contactEmail = "tenantly-org@gmail.com";
+const contactMailto = "chriswu.cwu06@gmail.com";
 
 /** Blue "Questions? Email us" card at the end of Privacy and Accessibility. */
 export function ContactCard({ title, children }: { title: string; children: ReactNode }) {
@@ -134,7 +136,7 @@ export function ContactCard({ title, children }: { title: string; children: Reac
       <h2 className="text-15 leading-[1.45] font-semibold">{title}</h2>
       <p className="text-13 leading-[1.45] text-text-secondary">{children}</p>
       <a
-        href={`mailto:${contactEmail}`}
+        href={`mailto:${contactMailto}`}
         className="flex items-center gap-2 rounded-md text-13 leading-[1.45] font-semibold text-accent hover:underline"
       >
         <Icon icon={Mail} size={16} />

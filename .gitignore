@@ -59,3 +59,6 @@ CLAUDE.md
 
 # copied from node_modules on install (scripts/copy-opencv.mjs)
 /public/vendor/
+
+# promo video renders from /brag
+/brag-output*/
