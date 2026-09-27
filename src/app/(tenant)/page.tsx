@@ -1,3 +1,9 @@
-export default function Page() {
-  return <main className="p-5 text-text-secondary">Start</main>;
+import { StartScreen } from "@/components/tenant/scan/StartScreen";
+
+export default function StartPage() {
+  return (
+    <main className="flex flex-1 flex-col">
+      <StartScreen />
+    </main>
+  );
 }

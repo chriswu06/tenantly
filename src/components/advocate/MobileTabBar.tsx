@@ -17,7 +17,7 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Console"
-      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-border-default bg-bg-surface px-2 pt-2 pb-6 lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-10 flex border-t print:hidden border-border-default bg-bg-surface px-2 pt-2 pb-6 lg:hidden"
     >
       {consoleNav.map((item) => {
         const active = isNavActive(pathname, item.href);

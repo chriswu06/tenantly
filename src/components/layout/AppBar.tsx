@@ -40,7 +40,7 @@ export function AppBar({
   return (
     <header
       className={cn(
-        "flex items-center border-b border-border-default bg-bg-surface py-2 pr-3",
+        "flex items-center border-b border-border-default bg-bg-surface py-2 pr-3 print:hidden",
         isHome ? "gap-2 pl-4" : "gap-1 pl-1",
         className,
       )}

@@ -1,4 +1,9 @@
-// Placeholder. Owner: C. Figma frames 26 · 24 (mobile · desktop).
-export default function Page() {
-  return <main className="p-5 text-text-secondary">Advocate sign up</main>;
+import type { Metadata } from "next";
+import { SignUpForm } from "@/components/advocate/AuthForm";
+
+export const metadata: Metadata = { title: "Create your account" };
+
+// Figma 26 · Advocate sign up (invitation) — mobile, 24 · desktop.
+export default function AdvocateSignUpPage() {
+  return <SignUpForm />;
 }

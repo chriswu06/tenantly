@@ -10,15 +10,21 @@ type StepperProps = {
 };
 
 /**
+ * Tenant progress bar. Full width on mobile (frame 03); centred 200px steps
+ * with 13px labels from `md` up (web frames 15–18).
+ *
  * @example <Stepper current={1} />
  */
 export function Stepper({ current, steps = TENANT_STEPS, className }: StepperProps) {
   return (
     <nav
       aria-label="Progress"
-      className={cn("border-b border-border-default bg-bg-surface px-4 pt-3 pb-3.5", className)}
+      className={cn(
+        "border-b border-border-default bg-bg-surface px-4 pt-3 pb-3.5 md:px-6 md:pt-3.5 md:pb-4",
+        className,
+      )}
     >
-      <ol className="flex items-start gap-2">
+      <ol className="flex items-start gap-2 md:justify-center md:gap-3">
         {steps.map((step, index) => {
           const isDone = index < current;
           const isCurrent = index === current;
@@ -26,7 +32,7 @@ export function Stepper({ current, steps = TENANT_STEPS, className }: StepperPro
             <li
               key={step}
               aria-current={isCurrent ? "step" : undefined}
-              className="flex min-w-0 flex-1 flex-col gap-1.5"
+              className="flex min-w-0 flex-1 flex-col gap-1.5 md:max-w-[200px] md:gap-2"
             >
               <span
                 aria-hidden
@@ -34,7 +40,7 @@ export function Stepper({ current, steps = TENANT_STEPS, className }: StepperPro
               />
               <span
                 className={cn(
-                  "truncate text-12 leading-none",
+                  "truncate text-12 leading-none md:text-13",
                   isCurrent ? "font-semibold text-accent" : "font-medium",
                   isDone && "text-text-secondary",
                   !isDone && !isCurrent && "text-text-tertiary",

@@ -37,7 +37,7 @@ function DesktopTopBar({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
   const trail: Crumb[] = [{ label: currentAdvocate.organization }, ...breadcrumbs];
 
   return (
-    <header className="hidden h-15 shrink-0 items-center gap-3 border-b border-border-default bg-bg-surface px-6 lg:flex">
+    <header className="hidden h-15 shrink-0 print:hidden items-center gap-3 border-b border-border-default bg-bg-surface px-6 lg:flex">
       <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
         <ol className="flex items-center gap-2 text-14 leading-[1.4] whitespace-nowrap">
           {trail.map((crumb, i) => {
@@ -100,7 +100,7 @@ function DesktopTopBar({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
 
 function MobileAppBar({ title }: { title: string }) {
   return (
-    <header className="flex items-center gap-2.5 border-b border-border-default bg-bg-surface px-4 py-2.5 lg:hidden">
+    <header className="flex items-center gap-2.5 border-b border-border-default bg-bg-surface px-4 py-2.5 lg:hidden print:hidden">
       <Link
         href="/advocate"
         aria-label="Standing home"
@@ -142,7 +142,7 @@ function MobileAppBar({ title }: { title: string }) {
 
 function MobileDetailBar({ title, backHref }: { title: string; backHref: string }) {
   return (
-    <header className="flex items-center gap-1 bg-bg-surface py-2 pr-2 pl-1 lg:hidden">
+    <header className="flex items-center gap-1 bg-bg-surface py-2 pr-2 pl-1 lg:hidden print:hidden">
       <Link
         href={backHref}
         aria-label="Back"

@@ -20,7 +20,7 @@ export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="hidden h-16 shrink-0 items-center gap-8 border-b border-border-default bg-bg-surface px-6 md:flex lg:px-12">
+    <header className="hidden h-16 shrink-0 print:hidden items-center gap-8 border-b border-border-default bg-bg-surface px-6 md:flex lg:px-12">
       <Logo />
 
       <nav aria-label="Main" className="flex-1">

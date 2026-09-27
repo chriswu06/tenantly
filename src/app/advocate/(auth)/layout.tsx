@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Check, Lock } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/layout/Logo";
+import { MobileInviteNote } from "@/components/advocate/auth/MobileInviteNote";
 
 const points = [
   "Review verifications alongside the DHCD license records",
@@ -55,10 +56,7 @@ export default function AdvocateAuthLayout({ children }: Readonly<{ children: Re
 
         <main className="flex flex-1 flex-col px-5 py-4 lg:items-center lg:justify-center lg:p-12">
           <div className="w-full lg:max-w-[400px]">{children}</div>
-          <p className="mt-auto flex items-center justify-center gap-1.5 pt-6 text-12 text-text-tertiary lg:hidden">
-            <Icon icon={Lock} size={14} />
-            {inviteNote}
-          </p>
+          <MobileInviteNote note={inviteNote} />
         </main>
 
         <p className="flex items-center justify-center gap-1 border-t border-border-default bg-bg-app px-5 pt-3.5 pb-6.5 text-13 lg:hidden">

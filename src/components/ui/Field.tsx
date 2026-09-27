@@ -12,6 +12,7 @@ type FieldProps = Omit<ComponentPropsWithRef<"input">, "children"> & {
   warning?: ReactNode;
   /** Validation error; takes precedence over `warning` and `hint`. */
   error?: ReactNode;
+  leadingIcon?: LucideIcon;
   trailingIcon?: LucideIcon;
 };
 
@@ -26,6 +27,7 @@ export function Field({
   hint,
   warning,
   error,
+  leadingIcon,
   trailingIcon,
   id,
   className,
@@ -56,6 +58,7 @@ export function Field({
               : "border-border-strong",
         )}
       >
+        {leadingIcon && <Icon icon={leadingIcon} size={16} className="text-text-tertiary" />}
         <input
           id={inputId}
           aria-invalid={error ? true : undefined}

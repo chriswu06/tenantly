@@ -11,7 +11,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-1 border-r border-border-default bg-bg-surface px-3 py-4 lg:flex">
+    <aside className="sticky top-0 hidden h-dvh print:hidden w-60 shrink-0 flex-col gap-1 border-r border-border-default bg-bg-surface px-3 py-4 lg:flex">
       <Link href="/advocate" className="flex items-center gap-2.5 rounded-md px-2 pt-1 pb-4">
         <span className="flex size-7 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse">
           S
@@ -63,7 +63,14 @@ function NavLink({ item, active, count }: { item: ConsoleNavItem; active: boolea
       <Icon icon={item.icon} size={18} />
       <span className="flex-1">{item.label}</span>
       {count !== undefined && (
-        <span className="rounded-[10px] bg-accent px-[7px] py-px text-11 font-semibold text-text-inverse">{count}</span>
+        <span
+          className={cn(
+            "rounded-[10px] px-[7px] py-px text-11 font-semibold",
+            active ? "bg-accent text-text-inverse" : "bg-bg-subtle text-text-secondary",
+          )}
+        >
+          {count}
+        </span>
       )}
     </Link>
   );

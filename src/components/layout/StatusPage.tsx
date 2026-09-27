@@ -37,10 +37,3 @@ export function StatusPage({ icon, title, description, children }: StatusPagePro
     </div>
   );
 }
-
-// Button styles from the Figma Button/primary and Button/secondary (48px mobile, 44px desktop).
-// Swap for ui/Button once it lands.
-const buttonBase =
-  "flex h-12 items-center justify-center gap-2 rounded-lg px-4 text-15 leading-none font-semibold md:h-11 md:text-14";
-export const primaryActionClass = `${buttonBase} bg-accent text-text-inverse hover:bg-accent/90`;
-export const secondaryActionClass = `${buttonBase} border border-border-strong bg-bg-surface text-text-primary hover:bg-bg-subtle`;
