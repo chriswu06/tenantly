@@ -17,6 +17,7 @@
   --color-bg-app: #f8fafc;
   --color-bg-surface: #ffffff;
   --color-bg-subtle: #f1f5f9;
+  --color-bg-inverse: #0f172a;
 
   /* Text */
   --color-text-primary: #0f172a;
@@ -79,9 +80,15 @@
   --text-24: 24px;
   --text-24--line-height: 1.2;
   --text-24--letter-spacing: -0.36px;
+  --text-26: 26px;
+  --text-26--line-height: 1.2;
+  --text-26--letter-spacing: -0.39px;
   --text-28: 28px;
   --text-28--line-height: 1.15;
   --text-28--letter-spacing: -0.56px;
+  --text-36: 36px;
+  --text-36--line-height: 1.18;
+  --text-36--letter-spacing: -0.72px;
   --text-40: 40px;
   --text-40--line-height: 1.15;
   --text-40--letter-spacing: -1px;
@@ -105,6 +112,11 @@
 
   body {
     @apply bg-bg-app font-sans text-15 text-text-primary antialiased;
+  }
+
+  /* Lock page scroll while a modal <dialog> (e.g. MobileMenu) is open */
+  html:has(dialog[open]:modal) {
+    overflow: hidden;
   }
 
   :focus-visible {
