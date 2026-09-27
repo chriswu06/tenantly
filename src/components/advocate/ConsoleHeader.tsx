@@ -87,7 +87,6 @@ function DesktopTopBar({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
         <Icon icon={Bell} size={18} />
       </button>
 
-      {/* Swap for B's ui/Button once it lands. */}
       <Link
         href={NEW_CHECK_HREF}
         className="flex h-9 items-center gap-1.5 rounded-md bg-accent pr-3.5 pl-3 text-13 leading-none font-semibold text-text-inverse hover:bg-accent/90"
