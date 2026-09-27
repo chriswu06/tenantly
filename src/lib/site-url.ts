@@ -1,5 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * The site's origin for links we hand out (invites, reset emails): the request's
@@ -12,5 +13,5 @@ export async function siteUrl() {
     const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
     return `${proto}://${host}`;
   }
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return SITE_URL;
 }

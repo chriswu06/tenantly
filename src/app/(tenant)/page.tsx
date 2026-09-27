@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { Clock } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { StartScreen } from "@/components/tenant/scan/StartScreen";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = SITE_URL;
 
 // Structured data for search engines (schema.org WebApplication).
 const jsonLd = {
