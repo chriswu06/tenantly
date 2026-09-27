@@ -1,0 +1,33 @@
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "Standing",
+    template: "%s · Standing",
+  },
+  description:
+    "Check whether your landlord was licensed to take you to Baltimore City rent court, and get your next steps.",
+  icons: { icon: "/logo.svg" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#ffffff",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" className={inter.variable}>
+      <body>{children}</body>
+    </html>
+  );
+}
