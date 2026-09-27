@@ -6,9 +6,9 @@ import { extendTailwindMerge } from "tailwind-merge";
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      text: ["12", "13", "14", "15", "16", "17", "18", "20", "22", "40"],
+      text: ["12", "13", "14", "15", "16", "17", "18", "20", "22", "26", "36", "40"],
       color: [
-        "bg-app", "bg-surface", "bg-subtle",
+        "bg-app", "bg-surface", "bg-subtle", "bg-inverse",
         "text-primary", "text-secondary", "text-tertiary", "text-inverse",
         "border-default", "border-strong",
         "accent", "accent-subtle", "accent-border",
