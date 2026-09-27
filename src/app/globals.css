@@ -49,6 +49,11 @@
 
   /* Type: Inter, sizes named by pixel value as they appear in Figma */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Case and license references (STD-2026-0412, RL-2023-118804) */
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --text-11: 11px;
+  --text-11--line-height: 1.4;
 
   --text-12: 12px;
   --text-12--line-height: 1.4;
@@ -71,6 +76,12 @@
   --text-22: 22px;
   --text-22--line-height: 1.25;
   --text-22--letter-spacing: -0.33px;
+  --text-24: 24px;
+  --text-24--line-height: 1.2;
+  --text-24--letter-spacing: -0.36px;
+  --text-28: 28px;
+  --text-28--line-height: 1.15;
+  --text-28--letter-spacing: -0.56px;
   --text-40: 40px;
   --text-40--line-height: 1.15;
   --text-40--letter-spacing: -1px;
