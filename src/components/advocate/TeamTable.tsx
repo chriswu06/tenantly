@@ -4,9 +4,12 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Table, TableCard, TableHead, Td, Th, Tr } from "@/components/ui/Table";
-import type { TeamMember } from "@/lib/mock/advocate";
-import { currentAdvocate } from "./console-config";
+import { withdrawInvitation } from "@/lib/cases/advocate-actions";
+import type { TeamMember } from "@/lib/cases/queries";
+import { ActionButton } from "./ActionButton";
 import { Avatar, BadgeSkeleton, LineSkeleton, PageHeader } from "./ConsolePage";
+import { OrganizationName } from "./ConsoleSession";
+import { CopyButton } from "./CopyButton";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 
 const COLUMN_COUNT = 6;
@@ -16,7 +19,11 @@ export function TeamPageHeader() {
   return (
     <PageHeader
       title="Team"
-      description={`People at ${currentAdvocate.organization} who can see shared cases.`}
+      description={
+        <>
+          People at <OrganizationName /> who can see shared cases.
+        </>
+      }
       actions={<InviteMemberDialog trigger="desktop" />}
     />
   );
@@ -31,7 +38,7 @@ export function TeamNote() {
   );
 }
 
-function TeamTableHead() {
+function TeamTableHead({ wideActions = false }: { wideActions?: boolean }) {
   return (
     <TableHead>
       <tr>
@@ -40,7 +47,7 @@ function TeamTableHead() {
         <Th className="w-[110px]">Access</Th>
         <Th className="w-[110px]">Open cases</Th>
         <Th className="w-[110px]">Status</Th>
-        <Th className="relative w-[56px]">
+        <Th className={wideActions ? "relative w-[220px]" : "relative w-[56px]"}>
           <span className="sr-only">Actions</span>
         </Th>
       </tr>
@@ -54,7 +61,11 @@ function TeamEmptyState() {
     <EmptyState
       icon={UserPlus}
       title="No teammates yet"
-      description={`Invite colleagues at ${currentAdvocate.organization} so they can see and work on shared cases.`}
+      description={
+        <>
+          Invite colleagues at <OrganizationName /> so they can see and work on shared cases.
+        </>
+      }
       action={<InviteMemberDialog trigger="empty" />}
     />
   );
@@ -68,16 +79,18 @@ function StatusBadge({ status }: { status: TeamMember["status"] }) {
  * Team members: table on desktop (frame 62), list on mobile (frame 63).
  * With nobody but you on the team (0 or 1 members), an invite prompt follows the rows.
  */
-export function TeamTable({ members }: { members: TeamMember[] }) {
+export function TeamTable({ members, canInvite = false }: { members: TeamMember[]; canInvite?: boolean }) {
   const alone = members.length <= 1;
+  // Admins get "Copy link" and "Withdraw" on pending invitations.
+  const manageInvites = canInvite && members.some((m) => m.status === "invited");
   return (
     <>
       <TableCard className="hidden rounded-[10px] lg:block">
         <Table className="min-w-[720px]">
-          <TeamTableHead />
+          <TeamTableHead wideActions={manageInvites} />
           <tbody>
             {members.map((m) => (
-              <Tr key={m.email} className="last:border-b-0">
+              <Tr key={m.id} className="last:border-b-0">
                 <Td className="h-14.5">
                   <div className="flex items-center gap-2.5">
                     <Avatar initials={m.initials} />
@@ -97,14 +110,30 @@ export function TeamTable({ members }: { members: TeamMember[] }) {
                 <Td>
                   <StatusBadge status={m.status} />
                 </Td>
-                <Td>
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${m.name ?? m.email}`}
-                    className="flex size-7 items-center justify-center rounded-md text-text-secondary hover:bg-bg-subtle"
-                  >
-                    <Icon icon={Ellipsis} size={16} />
-                  </button>
+                <Td className="overflow-visible">
+                  {canInvite && m.status === "invited" ? (
+                    <div className="flex items-center justify-end gap-2">
+                      {m.inviteLink && (
+                        <CopyButton text={m.inviteLink} size="xs" aria-label={`Copy invite link for ${m.email}`} />
+                      )}
+                      <ActionButton
+                        size="xs"
+                        action={withdrawInvitation.bind(null, m.id)}
+                        pendingLabel={`Withdrawing the invitation for ${m.email}`}
+                        aria-label={`Withdraw invitation for ${m.email}`}
+                      >
+                        Withdraw
+                      </ActionButton>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={`More actions for ${m.name ?? m.email}`}
+                      className="ml-auto flex size-7 items-center justify-center rounded-md text-text-secondary hover:bg-bg-subtle"
+                    >
+                      <Icon icon={Ellipsis} size={16} />
+                    </button>
+                  )}
                 </Td>
               </Tr>
             ))}
@@ -122,7 +151,7 @@ export function TeamTable({ members }: { members: TeamMember[] }) {
       <ul className="overflow-hidden rounded-[10px] border border-border-default bg-bg-surface lg:hidden">
         {members.map((m) => (
           <li
-            key={m.email}
+            key={m.id}
             className="flex items-center gap-3 border-b border-border-default px-3.5 py-3 last:border-b-0"
           >
             <Avatar initials={m.initials} />
@@ -130,8 +159,28 @@ export function TeamTable({ members }: { members: TeamMember[] }) {
               <span className="truncate text-14 font-medium text-text-primary">{m.name ?? m.email}</span>
               <span className="text-12 text-text-tertiary">
                 {m.role}
-                {m.openCases !== null && ` · ${m.openCases} open cases`}
+                {m.openCases !== null && ` · ${m.openCases} open ${m.openCases === 1 ? "case" : "cases"}`}
               </span>
+              {canInvite && m.status === "invited" && (
+                <span className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5">
+                  {m.inviteLink && (
+                    <CopyButton
+                      variant="link"
+                      text={m.inviteLink}
+                      aria-label={`Copy invite link for ${m.email}`}
+                    />
+                  )}
+                  <ActionButton
+                    variant="link"
+                    action={withdrawInvitation.bind(null, m.id)}
+                    pendingLabel={`Withdrawing the invitation for ${m.email}`}
+                    aria-label={`Withdraw invitation for ${m.email}`}
+                    className="text-danger-fg"
+                  >
+                    Withdraw
+                  </ActionButton>
+                </span>
+              )}
             </div>
             {m.status === "invited" ? (
               <StatusBadge status={m.status} />

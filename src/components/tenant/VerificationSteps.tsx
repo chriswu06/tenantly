@@ -1,7 +1,8 @@
 import { Check, Circle, LoaderCircle } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
-import type { VerificationStepState } from "@/lib/mock/scan";
 import { cn } from "@/lib/utils";
+
+export type VerificationStepState = "done" | "active" | "waiting";
 
 const stateStyles: Record<VerificationStepState, { tile: string; icon: typeof Check; srLabel: string }> = {
   done: { tile: "bg-success-bg text-success-fg", icon: Check, srLabel: "Done" },

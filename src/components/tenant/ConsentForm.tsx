@@ -1,9 +1,8 @@
 "use client";
 
-import { useId, useState, type ComponentProps, type FormEvent, type ReactNode } from "react";
+import { useActionState, useId, useState, type ComponentProps, type ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Check, ChevronDown, Lock, Phone, ShieldCheck, Users } from "lucide-react";
+import { Check, ChevronDown, CircleAlert, Lock, Phone, ShieldCheck, Users } from "lucide-react";
 import { MobileActionBar } from "@/components/tenant/results/MobileActionBar";
 import { PageHeading } from "@/components/tenant/results/PageHeading";
 
@@ -12,8 +11,12 @@ import { Icon } from "@/components/ui/Icon";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/tenant/SubmitButton";
+import { shareCase } from "@/lib/cases/actions";
+import type { FormState } from "@/lib/validation/schemas";
 
 export type ConsentOrg = {
+  /** Organization slug, posted as `org`. */
   id: string;
   name: string;
   /** Mobile subtitle. */
@@ -37,37 +40,23 @@ type ConsentFormProps = {
   defaultPhone?: string;
   /** Where "Not now" goes. */
   cancelHref: string;
-  /** Confirmation route; the chosen org id is added as `?org=`. */
-  confirmationPath: string;
 };
 
 /**
  * Consent to share a case with a legal aid organization (Figma 29 and 27).
- * Everything is local state; submitting navigates to the confirmation screen.
+ * Posts to `shareCase`, which redirects to the confirmation screen.
  */
-export function ConsentForm({
-  orgs,
-  items,
-  defaultFirstName = "",
-  defaultPhone = "",
-  cancelHref,
-  confirmationPath,
-}: ConsentFormProps) {
-  const router = useRouter();
+export function ConsentForm({ orgs, items, defaultFirstName = "", defaultPhone = "", cancelHref }: ConsentFormProps) {
+  const [state, formAction, pending] = useActionState<FormState, FormData>(shareCase, {});
   const [orgId, setOrgId] = useState(orgs[0]?.id ?? "");
   const [optional, setOptional] = useState<Record<string, boolean>>({});
   const [firstName, setFirstName] = useState(defaultFirstName);
   const [phone, setPhone] = useState(defaultPhone);
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState("English");
   const [agreed, setAgreed] = useState(true);
   const org = orgs.find((candidate) => candidate.id === orgId) ?? orgs[0];
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!agreed) return;
-    // TODO: POST the consent and shared fields. Static build: go to the confirmation.
-    router.push(`${confirmationPath}?org=${encodeURIComponent(orgId)}`);
-  }
+  const errors = state.fieldErrors ?? {};
+  const errorOf = (name: string) => errors[name]?.[0];
 
   const actions = (
     <>
@@ -77,27 +66,38 @@ export function ConsentForm({
       >
         Not now
       </Link>
-      <button
-        type="submit"
-        aria-disabled={!agreed || undefined}
-        className={buttonClassName("primary", "responsive", cn("min-w-0 flex-1 md:h-[46px] md:flex-none md:px-[18px]", !agreed && "cursor-not-allowed opacity-50"))}
+      <SubmitButton
+        pending={pending}
+        icon={<Icon icon={Users} size={18} />}
+        className={buttonClassName("primary", "responsive", "min-w-0 flex-1 md:h-[46px] md:flex-none md:px-[18px]")}
       >
-        <Icon icon={Users} size={18} />
-        Share my case
-      </button>
+        {pending ? "Sharing…" : "Share my case"}
+      </SubmitButton>
     </>
   );
 
   return (
-    <form onSubmit={submit} className="flex flex-1 flex-col">
+    <form action={formAction} noValidate className="flex flex-1 flex-col">
       <div className="flex flex-col gap-3.5 p-5 md:gap-5 md:p-0">
         <PageHeading
           title="Share your case with legal aid"
           description="A lawyer can review your case before your hearing and help you raise the license defense. Sharing is optional."
         />
 
-        <fieldset className={panelClass}>
+        {(state.error || Object.keys(errors).length > 0) && (
+          <p role="alert" className="flex items-start gap-2 rounded-lg border border-danger-border bg-danger-bg p-3 text-13 leading-[1.45] text-danger-fg">
+            <Icon icon={CircleAlert} size={16} className="mt-px" />
+            {state.error ?? "Check the highlighted answers, then try again."}
+          </p>
+        )}
+
+        <fieldset
+          className={cn(panelClass, errorOf("org") && "border-danger-fg")}
+          aria-invalid={errorOf("org") ? true : undefined}
+          aria-describedby={errorOf("org") ? "org-error" : undefined}
+        >
           <PanelLegend title="Choose an organization" subtitle="They provide free legal help to Baltimore City tenants." />
+          {errorOf("org") && <FieldError id="org-error">{errorOf("org")}</FieldError>}
           {orgs.map((candidate) => {
             const selected = candidate.id === orgId;
             return (
@@ -167,10 +167,12 @@ export function ConsentForm({
         <fieldset className={panelClass}>
           <PanelLegend title="How should they contact you?" />
           <div className="flex flex-col gap-3 p-3.5 md:flex-row md:p-4">
-            <ContactField label="First name">
-              {(id) => (
+            <ContactField label="First name" error={errorOf("firstName")}>
+              {(id, describedBy) => (
                 <input
                   id={id}
+                  aria-invalid={describedBy ? true : undefined}
+                  aria-describedby={describedBy}
                   name="firstName"
                   autoComplete="given-name"
                   value={firstName}
@@ -179,10 +181,16 @@ export function ConsentForm({
                 />
               )}
             </ContactField>
-            <ContactField label="Phone" leadingIcon={<Icon icon={Phone} size={16} className="text-text-tertiary" />}>
-              {(id) => (
+            <ContactField
+              label="Phone"
+              error={errorOf("phone")}
+              leadingIcon={<Icon icon={Phone} size={16} className="text-text-tertiary" />}
+            >
+              {(id, describedBy) => (
                 <input
                   id={id}
+                  aria-invalid={describedBy ? true : undefined}
+                  aria-describedby={describedBy}
                   name="phone"
                   type="tel"
                   autoComplete="tel"
@@ -204,8 +212,8 @@ export function ConsentForm({
                   onChange={(event) => setLanguage(event.target.value)}
                   className={cn(inputClass, "cursor-pointer appearance-none")}
                 >
-                  <option value="en">English</option>
-                  <option value="es">Español</option>
+                  <option value="English">English</option>
+                  <option value="Español">Español</option>
                 </select>
               )}
             </ContactField>
@@ -214,22 +222,32 @@ export function ConsentForm({
 
         <p className="flex items-start gap-2.5 rounded-lg border border-border-default bg-bg-app p-3 text-12 leading-[1.45] text-text-secondary md:hidden">
           <Icon icon={ShieldCheck} size={16} className="text-success-fg" />
-          Only the organization you choose can see your case. If you don’t share, nothing is saved after you
-          leave this page.
+          Only the organization you choose can see your case. If you don’t share, your case stays private and is
+          deleted automatically after your hearing.
         </p>
 
-        <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-border-default bg-bg-surface p-3.5 text-13 leading-[1.5] text-text-primary md:rounded-[10px]">
-          <SmallCheckbox
-            checked={agreed}
-            required
-            onChange={(event) => setAgreed(event.target.checked)}
-            className="mt-px"
-          />
-          <span className="min-w-0 flex-1">
-            I agree to share this information with {org?.name} so they can contact me about my case. I can
-            withdraw at any time, and my information will be deleted.
-          </span>
-        </label>
+        <div className="flex flex-col gap-1.5">
+          <label
+            className={cn(
+              "flex cursor-pointer items-start gap-2.5 rounded-lg border bg-bg-surface p-3.5 text-13 leading-[1.5] text-text-primary md:rounded-[10px]",
+              errorOf("consent") ? "border-danger-fg" : "border-border-default",
+            )}
+          >
+            <SmallCheckbox
+              name="consent"
+              checked={agreed}
+              aria-invalid={errorOf("consent") ? true : undefined}
+              aria-describedby={errorOf("consent") ? "consent-error" : undefined}
+              onChange={(event) => setAgreed(event.target.checked)}
+              className="mt-px"
+            />
+            <span className="min-w-0 flex-1">
+              I agree to share this information with {org?.name} so they can contact me about my case. I can
+              withdraw at any time, and my information will be deleted.
+            </span>
+          </label>
+          {errorOf("consent") && <FieldError id="consent-error">{errorOf("consent")}</FieldError>}
+        </div>
 
         <div className="hidden justify-end gap-3 md:flex">{actions}</div>
       </div>
@@ -261,18 +279,30 @@ function PanelLegend({ title, subtitle }: { title: string; subtitle?: string }) 
   );
 }
 
+function FieldError({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <p id={id} className="flex items-center gap-1.5 px-0.5 text-12 leading-[1.45] text-danger-fg">
+      {children}
+    </p>
+  );
+}
+
 function ContactField({
   label,
+  error,
   leadingIcon,
   trailingIcon,
   children,
 }: {
   label: string;
+  error?: string;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
-  children: (id: string) => ReactNode;
+  /** Renders the control; `describedBy` is set when there's an error to point at. */
+  children: (id: string, describedBy?: string) => ReactNode;
 }) {
   const id = useId();
+  const errorId = `${id}-error`;
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       <label htmlFor={id} className="text-13 leading-[1.45] font-medium text-text-secondary">
@@ -280,14 +310,16 @@ function ContactField({
       </label>
       <div
         className={cn(
-          "relative flex h-[46px] items-center gap-2 rounded-lg border border-border-strong bg-bg-surface px-3 md:h-11",
+          "relative flex h-[46px] items-center gap-2 rounded-lg border bg-bg-surface px-3 md:h-11",
+          error ? "border-[1.5px] border-danger-fg" : "border-border-strong",
           "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
         )}
       >
         {leadingIcon}
-        {children(id)}
+        {children(id, error ? errorId : undefined)}
         {trailingIcon && <span className="pointer-events-none absolute right-3 flex">{trailingIcon}</span>}
       </div>
+      {error && <FieldError id={errorId}>{error}</FieldError>}
     </div>
   );
 }
@@ -396,8 +428,8 @@ export function ConsentFormSkeleton() {
 
           <p className="flex items-start gap-2.5 rounded-lg border border-border-default bg-bg-app p-3 text-12 leading-[1.45] text-text-secondary md:hidden">
             <Icon icon={ShieldCheck} size={16} className="text-success-fg" />
-            Only the organization you choose can see your case. If you don’t share, nothing is saved after you
-            leave this page.
+            Only the organization you choose can see your case. If you don’t share, your case stays private and is
+            deleted automatically after your hearing.
           </p>
 
           <div className="flex items-start gap-2.5 rounded-lg border border-border-default bg-bg-surface p-3.5 md:rounded-[10px]">

@@ -1,15 +1,13 @@
 "use client";
 
 import { useId, useState, type ChangeEvent, type DragEvent } from "react";
-import { useRouter } from "next/navigation";
 import { CircleAlert, Upload } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
+import { Spinner } from "@/components/ui/Spinner";
+import { UPLOAD_ACCEPT, useSummonsUpload } from "@/hooks/useSummonsUpload";
 
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/Button";
-
-const MAX_BYTES = 10 * 1024 * 1024;
-const ACCEPT = "image/jpeg,image/png,image/heic,application/pdf";
 
 type FileUploadProps = {
   /** Show the "Upload didn't finish" state (frame 37). */
@@ -19,32 +17,31 @@ type FileUploadProps = {
 
 /**
  * Drag-and-drop summons dropzone from the web upload card (frames 13 and 37).
- * No upload happens yet: a file under 10 MB moves on to extraction, a larger
- * one goes to the upload-failed screen.
+ * Dropping or choosing a file uploads it and starts reading on /scan/extracting.
  */
 export function FileUpload({ error, className }: FileUploadProps) {
-  const router = useRouter();
   const inputId = useId();
   const [dragging, setDragging] = useState(false);
-
-  function handleFile(file: File | undefined) {
-    if (!file) return;
-    router.push(file.size > MAX_BYTES ? "/scan/upload-failed" : "/scan/extracting");
-  }
+  const { upload, pending } = useSummonsUpload();
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setDragging(false);
-    handleFile(event.dataTransfer.files[0]);
+    if (!pending) upload(event.dataTransfer.files[0]);
   }
 
   const input = (
     <input
       id={inputId}
       type="file"
-      accept={ACCEPT}
+      name="summons"
+      accept={UPLOAD_ACCEPT}
+      disabled={pending}
       className="sr-only"
-      onChange={(event: ChangeEvent<HTMLInputElement>) => handleFile(event.target.files?.[0])}
+      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+        upload(event.target.files?.[0]);
+        event.target.value = "";
+      }}
     />
   );
 
@@ -56,15 +53,26 @@ export function FileUpload({ error, className }: FileUploadProps) {
       }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
+      aria-busy={pending || undefined}
       className={cn(
         "flex flex-col items-center gap-3 rounded-[10px] border-[1.5px] border-dashed px-6 py-9 text-center",
-        error ? "border-danger-fg bg-danger-bg" : "border-border-strong bg-bg-app",
+        error && !pending ? "border-danger-fg bg-danger-bg" : "border-border-strong bg-bg-app",
         dragging && "border-accent bg-accent-subtle",
         "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
         className,
       )}
     >
-      {error ? (
+      {pending ? (
+        <>
+          <span className="flex size-12 items-center justify-center rounded-3xl bg-accent-subtle text-accent">
+            <Spinner size={22} />
+          </span>
+          <p role="status" className="flex flex-col gap-1">
+            <span className="text-16 leading-[1.45] font-semibold">Uploading your summons…</span>
+            <span className="text-13 leading-[1.45] text-text-secondary">This takes a few seconds.</span>
+          </p>
+        </>
+      ) : error ? (
         <>
           <span className="flex size-12 items-center justify-center rounded-3xl bg-bg-surface text-danger-fg">
             <Icon icon={CircleAlert} size={22} />

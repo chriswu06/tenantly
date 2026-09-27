@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { StatusPage } from "@/components/layout/StatusPage";
 import { buttonClassName } from "@/components/ui/Button";
 
-export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function Error({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -18,7 +18,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       title="Something went wrong"
       description="We couldn't load this page. Try again, or go back to the start."
     >
-      <button type="button" onClick={reset} className={buttonClassName("primary", "responsive")}>
+      <button type="button" onClick={retry} className={buttonClassName("primary", "responsive")}>
         <Icon icon={RotateCcw} size={18} />
         Try again
       </button>

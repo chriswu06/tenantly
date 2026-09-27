@@ -21,24 +21,14 @@ import { Icon } from "@/components/ui/Icon";
 import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { Tabs } from "@/components/ui/Tabs";
 import { cn } from "@/lib/utils";
-import {
-  daysUntil,
-  formatDate,
-  formatTime,
-  formatWeekday,
-  licenseResultBadge,
-  shortAddress,
-  type ActivityEvent,
-  type AdvocateCase,
-  type CaseDetailData,
-  type NextAction,
-} from "@/lib/mock/advocate";
+import { assignToMe, recordCertification, rerunLookup } from "@/lib/cases/advocate-actions";
+import type { ActivityEvent, AdvocateCase, CaseDetailData, NextAction } from "@/lib/cases/queries";
 import type { CaseStage } from "@/types/case";
-import { notFound } from "next/navigation";
-import { getAdvocateCase } from "@/lib/mock/advocate";
 import { Button, buttonClassName } from "@/components/ui/Button";
+import { ActionButton } from "./ActionButton";
 import { ConsoleHeader } from "./ConsoleHeader";
 import { BadgeSkeleton, LineSkeleton, PageBody, Panel, PanelHeader } from "./ConsolePage";
+import { daysFromToday, formatDate, formatTime, formatWeekday, licenseResultBadge, shortAddress } from "./display";
 
 /*
  * Case detail pieces (Figma frames 12 desktop, 12m / 52 / 53 mobile).
@@ -53,17 +43,39 @@ const stageBadge: Partial<Record<CaseStage, { label: string; shortLabel: string;
   closed: { label: "Closed", shortLabel: "Closed", tone: "neutral" },
 };
 
-/** Looks the case up by reference from the route's `caseId`, or 404s. */
-export function loadCase(caseId: string): AdvocateCase {
-  const found = getAdvocateCase(decodeURIComponent(caseId));
-  if (!found) notFound();
-  return found;
-}
-
 const casePdfHref = (reference: string) => `/api/cases/${reference}/report?type=case`;
 
+/** Next actions as the panel shows them; `href` makes the due text a link (e.g. the tenant's phone). */
+export type CaseAction = NextAction & { href?: string };
+
+const CONFIRM_WITH_TENANT = "Confirm documents with tenant";
+
+/**
+ * The case's next actions, with the tenant's first name and phone on "Confirm documents with tenant"
+ * once they have shared the case (and nothing there before that).
+ */
+export function caseActions(c: AdvocateCase, actions: NextAction[]): CaseAction[] {
+  return actions.map((a) => {
+    if (a.label !== CONFIRM_WITH_TENANT) return a;
+    if (!c.sharedAt || !c.tenantPhone) return { ...a, due: "" };
+    const name = c.tenantFirstName ? `${c.tenantFirstName} · ` : "";
+    return { ...a, due: `${name}${c.tenantPhone}`, href: `tel:${c.tenantPhone.replace(/[^\d+]/g, "")}` };
+  });
+}
+
 /** Page frame shared by the three case detail routes. */
-export function CaseDetailShell({ caseData: c, tab, children }: { caseData: AdvocateCase; tab: CaseTab; children: ReactNode }) {
+export function CaseDetailShell({
+  caseData: c,
+  tab,
+  certificationRecorded,
+  children,
+}: {
+  caseData: AdvocateCase;
+  tab: CaseTab;
+  /** The DHCD certification is on file, so "Record certification" is done. */
+  certificationRecorded: boolean;
+  children: ReactNode;
+}) {
   return (
     <>
       <ConsoleHeader
@@ -71,15 +83,65 @@ export function CaseDetailShell({ caseData: c, tab, children }: { caseData: Advo
         title={c.reference}
         backHref="/advocate/cases"
       />
-      <CaseHeader caseData={c} tab={tab} />
+      <CaseHeader caseData={c} tab={tab} certificationRecorded={certificationRecorded} />
       <PageBody className="gap-3 lg:pt-5">{children}</PageBody>
-      <CaseFooter reference={c.reference} />
+      <CaseFooter reference={c.reference} certificationRecorded={certificationRecorded} />
     </>
   );
 }
 
+/** "Record certification", or a done state once it's recorded. */
+function RecordCertificationButton({
+  reference,
+  recorded,
+  size = "sm",
+  className,
+}: {
+  reference: string;
+  recorded: boolean;
+  size?: "sm" | "lg";
+  className?: string;
+}) {
+  if (recorded) {
+    return (
+      <Button size={size} variant="secondary" leadingIcon={Check} disabled className={className}>
+        Certification recorded
+      </Button>
+    );
+  }
+  return (
+    <ActionButton
+      variant="primary"
+      size={size}
+      icon="file"
+      action={recordCertification.bind(null, reference)}
+      pendingLabel="Recording certification"
+      className={className}
+    >
+      Record certification
+    </ActionButton>
+  );
+}
+
 /** Case title block. The Overview / Records / Activity tabs are mobile only: frame 12 shows everything at once. */
-export function CaseHeader({ caseData: c, tab }: { caseData: AdvocateCase; tab: CaseTab }) {
+export function CaseHeader({
+  caseData: c,
+  tab,
+  certificationRecorded,
+}: {
+  caseData: AdvocateCase;
+  tab: CaseTab;
+  certificationRecorded: boolean;
+}) {
+  const assign = !c.assignee && (
+    <ActionButton
+      variant="link"
+      action={assignToMe.bind(null, c.reference)}
+      pendingLabel="Assigning the case to you"
+    >
+      Assign to me
+    </ActionButton>
+  );
   const license = licenseResultBadge[c.licenseResult];
   const stage = stageBadge[c.stage];
   const base = `/advocate/cases/${c.reference}`;
@@ -100,7 +162,7 @@ export function CaseHeader({ caseData: c, tab }: { caseData: AdvocateCase; tab: 
     <>
       {/* Mobile (frame 12m): white block under the back bar, whose <h1> is the case reference. */}
       <div className="flex flex-col gap-1.5 border-b border-border-default bg-bg-surface px-4 pt-1 lg:hidden">
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Badge tone={license.tone} dot>
             {license.label}
           </Badge>
@@ -109,10 +171,11 @@ export function CaseHeader({ caseData: c, tab }: { caseData: AdvocateCase; tab: 
               {stage.shortLabel}
             </Badge>
           )}
+          {assign && <span className="ml-auto">{assign}</span>}
         </div>
         <h2 className="text-20 leading-[1.25] font-semibold text-text-primary">{address}</h2>
         <p className="text-13 leading-[1.4] text-text-secondary">
-          {c.landlordName} · {c.caseNumber}
+          {[c.landlordName, c.caseNumber].filter(Boolean).join(" · ")}
         </p>
         {tabs}
       </div>
@@ -134,17 +197,27 @@ export function CaseHeader({ caseData: c, tab }: { caseData: AdvocateCase; tab: 
             </div>
             <h1 className="text-24 font-semibold text-text-primary">{address}</h1>
             <p className="text-14 leading-[1.45] text-text-secondary">
-              {c.landlordName} v. Tenant · Case {c.caseNumber}
+              {c.landlordName || "Landlord"} v. Tenant{c.caseNumber && ` · Case ${c.caseNumber}`}
+              {" · "}
+              {c.assignee ? `Assigned to ${c.assignee}` : "Unassigned"}
             </p>
           </div>
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 items-center gap-2">
+            {!c.assignee && (
+              <ActionButton
+                size="sm"
+                icon="user-plus"
+                action={assignToMe.bind(null, c.reference)}
+                pendingLabel="Assigning the case to you"
+              >
+                Assign to me
+              </ActionButton>
+            )}
             <a href={casePdfHref(c.reference)} download className={buttonClassName("secondary", "sm")}>
               <Icon icon={Download} size={16} />
               Export case PDF
             </a>
-            <Button size="sm" leadingIcon={FileText}>
-              Record certification
-            </Button>
+            <RecordCertificationButton reference={c.reference} recorded={certificationRecorded} />
           </div>
         </div>
       </div>
@@ -156,7 +229,7 @@ export function CaseHeader({ caseData: c, tab }: { caseData: AdvocateCase; tab: 
  * Mobile action bar pinned to the bottom (frame 12m). Takes the place of the tab bar.
  * Without a `reference` (while the case loads) both actions show but are disabled.
  */
-export function CaseFooter({ reference }: { reference?: string }) {
+export function CaseFooter({ reference, certificationRecorded = false }: { reference?: string; certificationRecorded?: boolean }) {
   const exportClass =
     "flex size-12 shrink-0 items-center justify-center rounded-lg border border-border-strong bg-bg-surface text-text-primary";
   return (
@@ -177,9 +250,13 @@ export function CaseFooter({ reference }: { reference?: string }) {
             <Icon icon={Download} size={20} />
           </span>
         )}
-        <Button leadingIcon={FileText} className="flex-1" disabled={!reference}>
-          Record certification
-        </Button>
+        {reference ? (
+          <RecordCertificationButton reference={reference} recorded={certificationRecorded} size="lg" className="flex-1" />
+        ) : (
+          <Button leadingIcon={FileText} className="flex-1" disabled>
+            Record certification
+          </Button>
+        )}
       </div>
     </>
   );
@@ -195,12 +272,12 @@ export function CaseDesktopView({ caseData, detail }: { caseData: AdvocateCase; 
       <CaseColumns
         aside={
           <>
-            <NextActionsPanel actions={detail.nextActions} />
+            <NextActionsPanel actions={caseActions(caseData, detail.nextActions)} />
             <ActivityPanel events={detail.activity} />
           </>
         }
       >
-        <LicenseVerificationPanel detail={detail} />
+        <LicenseVerificationPanel reference={caseData.reference} detail={detail} />
         <SummonsPanel caseData={caseData} />
       </CaseColumns>
     </div>
@@ -266,8 +343,18 @@ export function ResultStrip({
 
 /** Mobile hearing summary (frame 12m). */
 export function HearingCard({ caseData: c }: { caseData: AdvocateCase }) {
+  if (!c.hearingDate) {
+    return (
+      <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-surface p-3">
+        <span className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
+          <span className="text-14 font-semibold text-text-primary">No hearing date yet</span>
+          <span className="text-12 text-text-secondary">It wasn’t on the summons the tenant scanned.</span>
+        </span>
+      </div>
+    );
+  }
   const [month, day] = formatDate(c.hearingDate, "month").split(" ");
-  const days = daysUntil(c.hearingDate);
+  const days = daysFromToday(c.hearingDate);
   const court = c.court.replace(/^District Court, /, "");
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-surface p-3">
@@ -277,10 +364,17 @@ export function HearingCard({ caseData: c }: { caseData: AdvocateCase }) {
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
         <span className="text-14 font-semibold text-text-primary">
-          {days > 0 ? `Hearing in ${days} days` : days === 0 ? "Hearing today" : "Hearing passed"}
+          {days > 1
+            ? `Hearing in ${days} days`
+            : days === 1
+              ? "Hearing tomorrow"
+              : days === 0
+                ? "Hearing today"
+                : "Hearing passed"}
         </span>
         <span className="text-12 text-text-secondary">
-          {formatWeekday(c.hearingDate)} · {formatTime(c.hearingDate)} · {court}
+          {formatWeekday(c.hearingDate)} · {formatTime(c.hearingDate)}
+          {court && ` · ${court}`}
         </span>
       </span>
     </div>
@@ -288,7 +382,8 @@ export function HearingCard({ caseData: c }: { caseData: AdvocateCase }) {
 }
 
 /** License verification: result, DHCD records and lookup details. */
-export function LicenseVerificationPanel({ detail }: { detail: CaseDetailData }) {
+export function LicenseVerificationPanel({ reference, detail }: { reference: string; detail: CaseDetailData }) {
+  const rerun = rerunLookup.bind(null, reference);
   const meta = [
     { icon: Clock, text: detail.lookupMeta.checked },
     { icon: Database, text: detail.lookupMeta.source },
@@ -300,16 +395,24 @@ export function LicenseVerificationPanel({ detail }: { detail: CaseDetailData })
       title="License verification"
       aside={
         <>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-md border border-border-strong bg-bg-surface px-2.5 py-1.25 text-12 leading-none font-medium text-text-primary hover:bg-bg-subtle lg:hidden"
+          <ActionButton
+            size="xs"
+            icon="refresh"
+            action={rerun}
+            pendingLabel="Re-running the license lookup"
+            className="h-6.5 px-2.5 text-12 lg:hidden"
           >
-            <Icon icon={RefreshCw} size={14} />
             Re-run
-          </button>
-          <Button variant="secondary" size="sm" leadingIcon={RefreshCw} className="hidden lg:inline-flex">
+          </ActionButton>
+          <ActionButton
+            size="sm"
+            icon="refresh"
+            action={rerun}
+            pendingLabel="Re-running the license lookup"
+            className="hidden lg:inline-flex"
+          >
             Re-run
-          </Button>
+          </ActionButton>
         </>
       }
     >
@@ -438,7 +541,10 @@ const summonsFields: { label: string; value: (c: AdvocateCase) => string; mono?:
   { label: "Court", value: (c) => c.court },
   { label: "Plaintiff", value: (c) => c.landlordName },
   { label: "Filed", value: (c) => formatDate(c.filingDate, "long") },
-  { label: "Hearing", value: (c) => `${formatDate(c.hearingDate, "long")} · ${formatTime(c.hearingDate)}` },
+  {
+    label: "Hearing",
+    value: (c) => (c.hearingDate ? `${formatDate(c.hearingDate, "long")} · ${formatTime(c.hearingDate)}` : "—"),
+  },
   { label: "License # on complaint", value: (c) => c.licenseNumberOnComplaint ?? "Not listed" },
 ];
 
@@ -476,7 +582,7 @@ export function SummonsPanel({ caseData: c }: { caseData: AdvocateCase }) {
 }
 
 /** Checklist of next steps with due dates. */
-export function NextActionsPanel({ actions }: { actions: NextAction[] }) {
+export function NextActionsPanel({ actions }: { actions: CaseAction[] }) {
   const done = actions.filter((a) => a.done).length;
   return (
     <CasePanel
@@ -507,14 +613,23 @@ export function NextActionsPanel({ actions }: { actions: NextAction[] }) {
             >
               {a.label}
             </span>
-            <span
-              className={cn(
-                "shrink-0 text-12 leading-[1.4] font-medium whitespace-nowrap",
-                a.urgent ? "text-warning-fg" : "text-text-tertiary",
-              )}
-            >
-              {a.due}
-            </span>
+            {a.href ? (
+              <a
+                href={a.href}
+                className="shrink-0 text-12 leading-[1.4] font-medium whitespace-nowrap text-accent hover:underline"
+              >
+                {a.due}
+              </a>
+            ) : (
+              <span
+                className={cn(
+                  "shrink-0 text-12 leading-[1.4] font-medium whitespace-nowrap",
+                  a.urgent ? "text-warning-fg" : "text-text-tertiary",
+                )}
+              >
+                {a.due}
+              </span>
+            )}
           </li>
         ))}
       </ul>

@@ -1,13 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink, MapPin, Pencil, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { FlowLayout, PageHeading } from "@/components/tenant/scan/FlowLayout";
 
-import { outsideAddress, outsideAreaResources } from "@/lib/mock/scan";
 import { buttonClassName } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/tenant/SubmitButton";
+import { startOver } from "@/lib/cases/actions";
+import { requireTenantCase } from "@/lib/cases/session";
+import { normalizedAddressOf } from "@/lib/cases/tenant";
+import { courtHelpCenter, marylandLegalAid, peoplesLawLibraryUrl } from "@/lib/contacts";
 
-export default function OutsideAreaPage() {
+export const metadata: Metadata = { title: "Outside Baltimore City", robots: { index: false, follow: false } };
+
+const outsideAreaResources = [
+  { name: marylandLegalAid.name, detail: "Free civil legal help statewide", action: "call", href: `tel:${marylandLegalAid.tel}` },
+  {
+    name: "Maryland People’s Law Library",
+    detail: "Plain-language guides to landlord-tenant law",
+    action: "open",
+    href: peoplesLawLibraryUrl,
+  },
+  { name: "District Court Self-Help Center", detail: "Free help by phone or chat", action: "call", href: `tel:${courtHelpCenter.tel}` },
+] as const;
+
+export default async function OutsideAreaPage() {
+  const row = await requireTenantCase();
+  const address = normalizedAddressOf(row);
+  const jurisdiction = row.jurisdiction ?? "Outside Baltimore City";
+
   return (
     <FlowLayout
       title="Verify license"
@@ -20,9 +42,9 @@ export default function OutsideAreaPage() {
             <Icon icon={Pencil} size={18} />
             Edit address
           </Link>
-          <Link href="/" className={buttonClassName("primary", "lg", "min-w-0 flex-1 px-4.5 text-14")}>
-            Start over
-          </Link>
+          <form action={startOver} className="flex min-w-0 flex-1">
+            <SubmitButton className={buttonClassName("primary", "lg", "w-full px-4.5 text-14")}>Start over</SubmitButton>
+          </form>
         </div>
       }
     >
@@ -43,9 +65,9 @@ export default function OutsideAreaPage() {
           >
             Address on your summons
           </h2>
-          <Badge tone="warn">{outsideAddress.jurisdiction}</Badge>
+          <Badge tone="warn">{jurisdiction}</Badge>
         </div>
-        <p className="font-mono text-13 leading-[1.45]">{outsideAddress.value}</p>
+        <p className="font-mono text-13 leading-[1.45]">{address}</p>
         <Link
           href="/scan/review"
           className="flex items-center gap-1.5 self-start rounded-md text-13 leading-[1.45] font-semibold text-accent hover:underline"
@@ -96,9 +118,9 @@ export default function OutsideAreaPage() {
           <Icon icon={Pencil} size={18} />
           Edit address
         </Link>
-        <Link href="/" className={buttonClassName("primary", "md", "h-11.5")}>
-          Start over
-        </Link>
+        <form action={startOver}>
+          <SubmitButton className={buttonClassName("primary", "md", "h-11.5")}>Start over</SubmitButton>
+        </form>
       </div>
     </FlowLayout>
   );

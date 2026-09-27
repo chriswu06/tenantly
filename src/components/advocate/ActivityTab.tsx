@@ -1,4 +1,4 @@
-import type { CaseDetailData } from "@/lib/mock/advocate";
+import type { CaseDetailData } from "@/lib/cases/queries";
 import { ActivityPanel } from "./CaseDetail";
 
 /** Activity tab on mobile (frame 53): the case timeline. */

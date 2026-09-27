@@ -1,11 +1,17 @@
+import type { Metadata } from "next";
 import { ConsoleHeader } from "@/components/advocate/ConsoleHeader";
 import { PageBody } from "@/components/advocate/ConsolePage";
 import { ImpactChart, OutcomeBars, ReportsPageHeader } from "@/components/advocate/ImpactChart";
 import { StatCard, StatGrid } from "@/components/advocate/StatCard";
-import { checksPerMonth, outcomesLast6Months, reportMetrics } from "@/lib/mock/advocate";
+import { getReports } from "@/lib/cases/queries";
+
+export const metadata: Metadata = { title: "Impact reports" };
 
 /** Impact reports (Figma frames 60 desktop, 61 mobile). */
-export default function ReportsPage() {
+export default async function ReportsPage() {
+  const { reportMetrics, checksPerMonth, outcomesLast6Months, range } = await getReports();
+  const responses = outcomesLast6Months.reduce((sum, o) => sum + o.count, 0);
+
   return (
     <>
       <ConsoleHeader breadcrumbs={[{ label: "Impact reports" }]} title="Impact reports" />
@@ -25,8 +31,8 @@ export default function ReportsPage() {
           <div className="lg:w-100 lg:shrink-0">
             <OutcomeBars
               outcomes={outcomesLast6Months}
-              period="Last 6 months"
-              footnote="From anonymous tenant reports. 212 responses."
+              period={range}
+              footnote={`From anonymous tenant reports. ${responses} ${responses === 1 ? "response" : "responses"}.`}
             />
           </div>
         </div>

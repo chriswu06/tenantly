@@ -1,23 +1,24 @@
 import { Document, Font, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { ReactNode } from "react";
+import "server-only";
 import { courtHelpCenter, dhcdRentalLicensingUrl, marylandLegalAid, publicJusticeCenter } from "@/lib/contacts";
+import { formatDateOnly, hearingParts } from "@/lib/cases/format";
+import type { AdvocateCase, CaseDetailData, LicenseResult } from "@/lib/cases/queries";
 import {
-  formatDate,
-  formatTime,
-  getAdvocateCase,
-  getCaseDetail,
-  licenseResultBadge,
-  type AdvocateCase,
-} from "@/lib/mock/advocate";
-import { courtChecklist, dhcdOffice, licenseRecords, resultsCase } from "@/lib/mock/results";
-import { lookupAddress } from "@/lib/mock/scan";
+  dhcdOffice,
+  isUnverified,
+  licenseResultCopy,
+  lookupAddressOf,
+  type TenantView,
+} from "@/lib/cases/tenant";
 
 /*
  * Downloadable PDFs, served by /api/cases/[caseId]/report?type=…
- *   summary    tenant license-check summary (results page; `&result=unverified` for guided check)
+ *   summary    tenant license-check summary (results and guided check pages)
  *   checklist  tenant court-preparation checklist
  *   case       advocate case export
+ * The route decides who may see which case; these functions only render.
  * Colors are the hex values of the design tokens in globals.css (PDFs can't read CSS variables).
  */
 
@@ -208,66 +209,67 @@ function Contacts() {
   );
 }
 
-function caseRows(): [string, string][] {
-  const c = resultsCase;
+function caseRows(v: TenantView): [string, string][] {
   return [
-    ["Property", `${c.street}, ${c.cityLine}`],
-    ["Landlord (plaintiff)", c.landlordName],
-    ["Case number", c.caseNumber],
-    ["Court", c.court],
-    ["Filed", c.filingDate],
-    ["Hearing", `${c.hearing.dateTime} · ${c.hearing.arrive}`],
+    ["Property", [v.street, v.cityLine].filter(Boolean).join(", ") || "Not entered"],
+    ["Landlord (plaintiff)", v.landlordName || "Not entered"],
+    ["Case number", v.caseNumber || "Not entered"],
+    ["Court", v.hearing?.courtName ?? (v.court || "District Court, 501 E Fayette St")],
+    ["Filed", v.filingDate || "Not entered"],
+    ["Hearing", v.hearing ? `${v.hearing.dateTime} · ${v.hearing.arrive}` : "Not entered"],
   ];
 }
 
+const recordColumns: Column[] = [
+  { header: "License #", width: "26%", mono: true },
+  { header: "Status", width: "14%" },
+  { header: "Valid from", width: "18%" },
+  { header: "Valid to", width: "18%" },
+  { header: "Source", width: "24%" },
+];
+
 /* ------------------------------------------------------------------------------------------------ */
 
-function TenantSummary({ unverified }: { unverified: boolean }) {
-  const c = resultsCase;
+function TenantSummary({ v }: { v: TenantView }) {
+  const unverified = isUnverified(v.licenseResult);
+  const copy = licenseResultCopy(v);
   return (
-    <Shell title="License check summary" reference={c.reference}>
-      <Text style={s.eyebrow}>Checked {c.checkedAt}</Text>
-      <Text style={s.title}>{unverified ? "We couldn’t verify the rental license" : "No active rental license found"}</Text>
-      <Text style={s.subtitle}>{c.street} · Hearing {c.hearing.dateTime}</Text>
+    <Shell title="License check summary" reference={v.reference}>
+      {v.checkedAt && <Text style={s.eyebrow}>Checked {v.checkedAt}</Text>}
+      <Text style={s.title}>{copy.title}</Text>
+      <Text style={s.subtitle}>
+        {v.street}
+        {v.hearing ? ` · Hearing ${v.hearing.dateTime}` : ""}
+      </Text>
 
-      {unverified ? (
-        <Callout tone="warning" title="This is not a negative result">
-          Baltimore City DHCD records did not respond. Check the license yourself on the city’s website, or ask
-          DHCD for an official certification.
-        </Callout>
-      ) : (
-        <Callout tone="success" title="Possible defense">
-          DHCD records show no active license on the filing date ({c.filingDate}). The landlord may not be
-          permitted to pursue this case.
-        </Callout>
-      )}
+      <Callout tone={copy.tone === "ok" ? "success" : "warning"} title={copy.badge}>
+        {copy.text}
+      </Callout>
 
       <Section title="Case details" keepTogether>
-        <KeyValues rows={caseRows()} />
+        <KeyValues rows={caseRows(v)} />
       </Section>
 
       {unverified ? (
         <Section title="Check it yourself">
           <Numbered
             items={[
-              { title: `Search for ${lookupAddress}`, detail: "Street number and name only. Leave out the apartment number." },
+              { title: `Search for ${lookupAddressOf(v)}`, detail: "Street number and name only. Leave out the apartment number." },
               { title: "Open the Baltimore City rental license lookup", detail: dhcdRentalLicensingUrl },
-              { title: "Note whether an active license shows for the filing date", detail: c.filingDate },
+              { title: "Note whether an active license shows for the filing date", detail: v.filingDate || undefined },
             ]}
           />
         </Section>
       ) : (
         <Section title="License records">
-          <Table
-            columns={[
-              { header: "License #", width: "26%", mono: true },
-              { header: "Status", width: "14%" },
-              { header: "Valid from", width: "18%" },
-              { header: "Valid to", width: "18%" },
-              { header: "Source", width: "24%" },
-            ]}
-            rows={licenseRecords.map((r) => [r.number, r.status === "active" ? "Active" : "Expired", r.validFrom, r.validTo, r.source])}
-          />
+          {v.records.length ? (
+            <Table
+              columns={recordColumns}
+              rows={v.records.map((r) => [r.number, r.status === "active" ? "Active" : "Expired", r.validFrom, r.validTo, r.source])}
+            />
+          ) : (
+            <Text style={s.muted}>No license records found for this address.</Text>
+          )}
         </Section>
       )}
 
@@ -296,39 +298,52 @@ const checklistTodo: Record<string, string> = {
   repairs: "Collect repair photos or messages",
 };
 
-function CourtChecklist() {
-  const c = resultsCase;
+function CourtChecklist({ v }: { v: TenantView }) {
+  const court = v.hearing?.courtName ?? "District Court, 501 E Fayette St";
+  const script =
+    v.licenseResult === "active"
+      ? "“I have a rent court case today. Can you check whether I have any defenses?”"
+      : "“My landlord doesn’t have an active rental license. Can you help me raise that defense?”";
   return (
-    <Shell title="Court preparation checklist" reference={c.reference}>
+    <Shell title="Court preparation checklist" reference={v.reference}>
       <Text style={s.title}>Court preparation</Text>
       <Text style={s.subtitle}>Things to do before and on the day of your hearing.</Text>
 
       <Section title="Your hearing" keepTogether>
         <KeyValues
           rows={[
-            ["When", `${c.hearing.dateTime} · ${c.hearing.arrive}`],
-            ["Where", c.hearing.courtName],
-            ["Case number", c.caseNumber],
-            ["Property", c.street],
+            ["When", v.hearing ? `${v.hearing.dateTime} · ${v.hearing.arrive}` : "Not entered"],
+            ["Where", court],
+            ["Case number", v.caseNumber || "Not entered"],
+            ["Property", v.street || "Not entered"],
           ]}
         />
       </Section>
 
       <Section title="Before your hearing">
-        <Numbered items={courtChecklist.map((item) => ({ title: checklistTodo[item.id] ?? item.label, tag: item.tag }))} />
+        <Numbered
+          items={v.checklist.map((item) => ({
+            title: checklistTodo[item.id] ?? item.label,
+            detail: item.done ? "Done" : undefined,
+            tag: item.tag,
+          }))}
+        />
       </Section>
 
       <Section title="On the day">
         <Numbered
           items={[
-            { title: `Arrive by 8:30 AM at ${c.hearing.courtName}`, detail: `Your hearing starts at 9:00 AM. Case ${c.caseNumber}.` },
+            {
+              title: v.hearing ? `${v.hearing.arrive.replace(/^Arrive/, "Arrive by")} at ${court}` : `Arrive 30 minutes early at ${court}`,
+              detail: v.hearing ? `Your hearing starts at ${v.hearing.time}. Case ${v.caseNumber}.` : `Case ${v.caseNumber}.`,
+            },
             { title: "Ask for the Tenant Volunteer Lawyer of the Day", detail: "Free volunteer attorneys are at the courthouse during morning rent court dockets." },
           ]}
         />
       </Section>
 
       <Section title="What to say to the attorney">
-        <Text style={s.quote}>“My landlord doesn’t have an active rental license. Can you help me raise that defense?”</Text>
+        <Text style={s.quote}>{script}</Text>
       </Section>
 
       <Contacts />
@@ -336,15 +351,25 @@ function CourtChecklist() {
   );
 }
 
-function AdvocateCaseExport({ c }: { c: AdvocateCase }) {
-  const detail = getCaseDetail(c);
-  const result = licenseResultBadge[c.licenseResult];
+const resultLabel: Record<LicenseResult, string> = {
+  pending: "Not checked",
+  no_license: "No license found",
+  expired: "License expired",
+  active: "Active license",
+  needs_review: "Needs review",
+  could_not_verify: "Could not verify",
+};
+
+function AdvocateCaseExport({ c, detail }: { c: AdvocateCase; detail: CaseDetailData }) {
+  const hearing = c.hearingDate ? hearingParts(c.hearingDate) : null;
   return (
     <Shell title="Case export" reference={c.reference}>
-      <Text style={s.eyebrow}>{c.reference} · {result.label}</Text>
-      <Text style={s.title}>{c.propertyAddress}</Text>
+      <Text style={s.eyebrow}>
+        {c.reference} · {resultLabel[c.licenseResult]}
+      </Text>
+      <Text style={s.title}>{c.propertyAddress || "Address not entered"}</Text>
       <Text style={s.subtitle}>
-        {c.landlordName} v. Tenant · Case {c.caseNumber}
+        {c.landlordName || "Landlord"} v. Tenant · Case {c.caseNumber || "not entered"}
       </Text>
 
       <Callout tone={detail.result.tone === "ok" ? "success" : "warning"} title="License verification">
@@ -353,16 +378,7 @@ function AdvocateCaseExport({ c }: { c: AdvocateCase }) {
 
       <Section title="License records">
         {detail.records.length ? (
-          <Table
-            columns={[
-              { header: "License #", width: "26%", mono: true },
-              { header: "Status", width: "14%" },
-              { header: "Valid from", width: "18%" },
-              { header: "Valid to", width: "18%" },
-              { header: "Source", width: "24%" },
-            ]}
-            rows={detail.records.map((r) => [r.number, r.status, r.validFrom, r.validTo, r.source])}
-          />
+          <Table columns={recordColumns} rows={detail.records.map((r) => [r.number, r.status, r.validFrom, r.validTo, r.source])} />
         ) : (
           <Text style={s.muted}>No license records found.</Text>
         )}
@@ -374,11 +390,11 @@ function AdvocateCaseExport({ c }: { c: AdvocateCase }) {
       <Section title="Summons details" keepTogether>
         <KeyValues
           rows={[
-            ["Case number", c.caseNumber],
-            ["Court", c.court],
-            ["Plaintiff", c.landlordName],
-            ["Filed", formatDate(c.filingDate, "long")],
-            ["Hearing", `${formatDate(c.hearingDate, "long")} · ${formatTime(c.hearingDate)}`],
+            ["Case number", c.caseNumber || "Not entered"],
+            ["Court", c.court || "District Court, 501 E Fayette St"],
+            ["Plaintiff", c.landlordName || "Not entered"],
+            ["Filed", formatDateOnly(c.filingDate) || "Not entered"],
+            ["Hearing", hearing ? hearing.dateTime : "Not entered"],
             ["License # on complaint", c.licenseNumberOnComplaint ?? "Not listed"],
             ["Assignee", c.assignee ?? "Unassigned"],
           ]}
@@ -397,13 +413,17 @@ function AdvocateCaseExport({ c }: { c: AdvocateCase }) {
       </Section>
 
       <Section title="Activity">
-        <Table
-          columns={[
-            { header: "Event", width: "65%" },
-            { header: "By · when", width: "35%" },
-          ]}
-          rows={detail.activity.map((e) => [e.title, e.meta])}
-        />
+        {detail.activity.length ? (
+          <Table
+            columns={[
+              { header: "Event", width: "65%" },
+              { header: "By · when", width: "35%" },
+            ]}
+            rows={detail.activity.map((e) => [e.title, e.meta])}
+          />
+        ) : (
+          <Text style={s.muted}>No activity yet.</Text>
+        )}
       </Section>
     </Shell>
   );
@@ -437,23 +457,27 @@ async function render(element: React.ReactElement<React.ComponentProps<typeof Do
   return addPageNumbers(await renderToBuffer(element), reference);
 }
 
-/** Renders a report, or returns null when the case or type is unknown. */
-export async function renderCaseReport(caseId: string, type: string, options: { unverified?: boolean } = {}) {
-  if (type === "case") {
-    const c = getAdvocateCase(caseId);
-    if (!c) return null;
-    return { buffer: await render(<AdvocateCaseExport c={c} />, c.reference), filename: `standing-case-${c.reference}.pdf` };
-  }
-  // The tenant flow only has the one mock case so far.
-  if (caseId !== resultsCase.reference) return null;
+/** The tenant's own summary or checklist. The caller must have checked the case belongs to this browser. */
+export async function renderTenantReport(view: TenantView, type: string) {
   if (type === "summary") {
     return {
-      buffer: await render(<TenantSummary unverified={Boolean(options.unverified)} />, caseId),
-      filename: `standing-summary-${caseId}.pdf`,
+      buffer: await render(<TenantSummary v={view} />, view.reference),
+      filename: `standing-summary-${view.reference}.pdf`,
     };
   }
   if (type === "checklist") {
-    return { buffer: await render(<CourtChecklist />, caseId), filename: `standing-court-checklist-${caseId}.pdf` };
+    return {
+      buffer: await render(<CourtChecklist v={view} />, view.reference),
+      filename: `standing-court-checklist-${view.reference}.pdf`,
+    };
   }
   return null;
+}
+
+/** The advocate case export. The caller loads the case as the signed-in advocate (RLS limits it to their org). */
+export async function renderAdvocateReport(c: AdvocateCase, detail: CaseDetailData) {
+  return {
+    buffer: await render(<AdvocateCaseExport c={c} detail={detail} />, c.reference),
+    filename: `standing-case-${c.reference}.pdf`,
+  };
 }

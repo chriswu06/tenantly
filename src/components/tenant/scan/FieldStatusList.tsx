@@ -1,8 +1,9 @@
 import { Check, FileText, LoaderCircle, X, type LucideIcon } from "lucide-react";
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
-import type { FieldReadStatus } from "@/lib/mock/scan";
 import { cn } from "@/lib/utils";
+
+export type FieldReadStatus = "found" | "reading" | "pending" | "unreadable";
 
 const statusStyles: Record<
   FieldReadStatus,

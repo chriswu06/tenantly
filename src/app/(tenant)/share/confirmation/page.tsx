@@ -5,8 +5,11 @@ import { AppBar } from "@/components/layout/AppBar";
 import { CaseBar } from "@/components/tenant/CaseBar";
 import { MobileActionBar } from "@/components/tenant/results/MobileActionBar";
 
-import { findOrg, resultsCase, tenantContact } from "@/lib/mock/results";
+import { redirect } from "next/navigation";
 import { buttonClassName } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/tenant/SubmitButton";
+import { withdrawShare } from "@/lib/cases/actions";
+import { getTenantView } from "@/lib/cases/tenant";
 
 export const metadata: Metadata = { title: "Case shared" };
 
@@ -15,21 +18,25 @@ type ConfirmationPageProps = {
 };
 
 export default async function ShareConfirmationPage({ searchParams }: ConfirmationPageProps) {
-  const { org: orgParam } = await searchParams;
-  const org = findOrg(Array.isArray(orgParam) ? orgParam[0] : orgParam);
+  const [{ org: orgParam }, view] = await Promise.all([searchParams, getTenantView()]);
+  // The case itself says who it's shared with; `?org=` (from shareCase) must agree, or the page is stale.
+  const slug = Array.isArray(orgParam) ? orgParam[0] : orgParam;
+  if (!view.sharedWith || (slug && slug !== view.sharedWith.slug)) redirect("/share");
+  const org = view.sharedWith;
 
   const details = [
-    { label: "Reference", value: <span className="font-mono font-normal">{resultsCase.reference}</span> },
+    { label: "Reference", value: <span className="font-mono font-normal">{view.reference}</span> },
     { label: "Shared with", value: org.name },
-    { label: "Hearing", value: resultsCase.hearing.dateTime },
+    { label: "Hearing", value: view.hearing?.dateTime ?? "Not entered" },
   ];
 
   const actions = (
     <>
-      {/* TODO: call the withdraw endpoint. Static build: back to the consent form. */}
-      <Link href="/share" className={buttonClassName("secondary", "responsive", "min-w-0 flex-1 md:h-[46px] md:px-[18px]")}>
-        Withdraw sharing
-      </Link>
+      <form action={withdrawShare} className="flex min-w-0 flex-1">
+        <SubmitButton className={buttonClassName("secondary", "responsive", "w-full md:h-[46px] md:px-[18px]")}>
+          Withdraw sharing
+        </SubmitButton>
+      </form>
       <Link href="/results" className={buttonClassName("primary", "responsive", "min-w-0 flex-1 md:h-[46px] md:px-[18px]")}>
         Back to my results
       </Link>
@@ -40,7 +47,7 @@ export default async function ShareConfirmationPage({ searchParams }: Confirmati
     <>
       <AppBar title="Case shared" backHref="/share" className="md:hidden" />
       <main className="flex flex-1 flex-col">
-        <CaseBar reference={resultsCase.reference} address={resultsCase.street} />
+        <CaseBar reference={view.reference} address={view.street} />
 
         <div className="flex flex-1 flex-col items-center px-5 pt-10 pb-5 md:px-6 md:pt-14 md:pb-12">
           <section className="flex w-full flex-col items-center gap-4 text-center md:max-w-[560px] md:gap-[18px] md:rounded-xl md:border md:border-border-default md:bg-bg-surface md:p-8">
@@ -51,8 +58,8 @@ export default async function ShareConfirmationPage({ searchParams }: Confirmati
               Your case was shared with {org.name}
             </h1>
             <p className="text-15 leading-[1.45] text-text-secondary md:text-14">
-              A staff attorney will review it and call you at {tenantContact.phone}. Keep your phone on,
-              including numbers you don’t recognize.
+              A staff attorney will review it and call you{view.tenantPhone ? ` at ${view.tenantPhone}` : ""}. Keep
+              your phone on, including numbers you don’t recognize.
             </p>
             <dl className="flex w-full flex-col rounded-lg border border-border-default bg-bg-surface text-left text-13 leading-[1.45]">
               {details.map((row) => (

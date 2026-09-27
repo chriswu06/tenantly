@@ -3,7 +3,7 @@ import { LoadingPageBody } from "@/components/advocate/ConsolePage";
 import { OutcomeBarsSkeleton } from "@/components/advocate/ImpactChart";
 import { AttentionPanelSkeleton, HearingsPanelSkeleton, OverviewGreeting } from "@/components/advocate/OverviewPanels";
 import { StatGridSkeleton } from "@/components/advocate/StatCard";
-import { caseMetrics } from "@/lib/mock/advocate";
+import { caseMetricLabels } from "@/components/advocate/display";
 
 /** Advocate overview while it loads: real greeting and panel titles; placeholder metrics and rows. */
 export default function OverviewLoading() {
@@ -12,7 +12,7 @@ export default function OverviewLoading() {
       <ConsoleHeader breadcrumbs={[{ label: "Overview" }]} title="Overview" />
       <LoadingPageBody label="Loading overview">
         <OverviewGreeting />
-        <StatGridSkeleton metrics={caseMetrics} />
+        <StatGridSkeleton metrics={caseMetricLabels} />
         <div className="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:gap-5">
           {/* Mobile puts "Needs attention" first; desktop stacks it under the hearings. */}
           <div className="flex min-w-0 flex-col gap-3.5 lg:flex-1 lg:gap-5">

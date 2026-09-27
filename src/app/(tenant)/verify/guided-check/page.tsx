@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ChevronRight,
@@ -15,18 +16,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { CopyButton } from "@/components/tenant/scan/CopyButton";
 import { FlowLayout } from "@/components/tenant/scan/FlowLayout";
-
-import { getMockCase } from "@/lib/mock-data";
-import {
-  calendarTile,
-  cityLookupUrl,
-  formatHearing,
-  formatShortDate,
-  lastAttempt,
-  lookupAddress,
-} from "@/lib/mock/scan";
+import { GuidedCheckForm } from "@/components/tenant/scan/GuidedCheckForm";
+import { dhcdRentalLicensingUrl } from "@/lib/contacts";
+import { getTenantView, hearingInDays, lookupAddressOf } from "@/lib/cases/tenant";
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/Button";
+
+export const metadata: Metadata = { title: "Check the license yourself", robots: { index: false, follow: false } };
 
 const DISCLAIMER =
   "Informational only, not legal advice. An official DHCD certification is required as evidence in court, whatever the lookup shows.";
@@ -39,21 +35,30 @@ const nextSteps: NextStep[] = [
   { href: "/legal-help", icon: Scale, label: "Free legal assistance", detail: "Volunteer attorneys at court" },
 ];
 
-export default function GuidedCheckPage() {
-  const mockCase = getMockCase();
-  const summaryPdfHref = `/api/cases/${mockCase.reference}/report?type=summary&result=unverified`;
-  const hearing = formatHearing(mockCase.hearingDate);
-  const tile = calendarTile(mockCase.hearingDate);
+// The Figma file doesn't name the lookup URL; DHCD's registration page links to it.
+const cityLookupUrl = dhcdRentalLicensingUrl;
+
+const findingFor = { no_license: "none", expired: "expired", active: "active" } as const;
+
+export default async function GuidedCheckPage() {
+  const view = await getTenantView();
+  const summaryPdfHref = `/api/cases/${view.reference}/report?type=summary`;
+  const hearing = view.hearing;
+  const lookupAddress = lookupAddressOf(view);
+  const couldNotReach = view.licenseResult === "could_not_verify";
+  const lastAttempt = couldNotReach && view.checkedAt ? `Last attempt ${view.checkedAt} · DHCD records did not respond` : null;
+  const filed = view.filingDateIso
+    ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(
+        new Date(`${view.filingDateIso}T00:00:00Z`),
+      )
+    : "the filing date";
 
   const lookupOptions = [
-    { value: "none", title: "No license shows up", detail: "Nothing matches the address" },
-    {
-      value: "expired",
-      title: "License is expired",
-      detail: `End date is before ${formatShortDate(mockCase.filingDate)}`,
-    },
-    { value: "active", title: "License is active", detail: "Status says active" },
+    { value: "none" as const, title: "No license shows up", detail: "Nothing matches the address" },
+    { value: "expired" as const, title: "License is expired", detail: `End date is before ${filed}` },
+    { value: "active" as const, title: "License is active", detail: "Status says active" },
   ];
+  const previous = view.licenseResult in findingFor ? findingFor[view.licenseResult as keyof typeof findingFor] : undefined;
 
   return (
     <FlowLayout
@@ -87,9 +92,13 @@ export default function GuidedCheckPage() {
               Verification incomplete
             </Badge>
           </div>
-          <h1 className="text-18 leading-[1.3] font-semibold tracking-[-0.18px]">We couldn’t reach DHCD records</h1>
+          <h1 className="text-18 leading-[1.3] font-semibold tracking-[-0.18px]">
+            {couldNotReach ? "We couldn’t reach DHCD records" : "Check the license on the city’s website"}
+          </h1>
           <p className="text-14 leading-[1.45] text-text-secondary">
-            This is not a negative result. Retry, or open the city lookup and follow the guided check.
+            {couldNotReach
+              ? "This is not a negative result. Retry, or open the city lookup and follow the guided check."
+              : "Open the city lookup and tell us what it shows. We’ll use it for your next steps."}
           </p>
         </section>
 
@@ -97,11 +106,11 @@ export default function GuidedCheckPage() {
         <dl className="flex flex-col rounded-lg border border-border-default bg-bg-surface px-4 py-1 text-13 leading-[1.4] md:hidden">
           <div className="flex gap-3 border-b border-border-default py-2">
             <dt className="w-[110px] shrink-0 text-text-secondary">Hearing</dt>
-            <dd className="min-w-0 flex-1 font-medium">{hearing}</dd>
+            <dd className="min-w-0 flex-1 font-medium">{hearing?.dateTime ?? "Not entered"}</dd>
           </div>
           <div className="flex gap-3 py-2">
             <dt className="w-[110px] shrink-0 text-text-secondary">Reference</dt>
-            <dd className="min-w-0 flex-1 font-mono">{mockCase.reference}</dd>
+            <dd className="min-w-0 flex-1 font-mono">{view.reference}</dd>
           </div>
         </dl>
 
@@ -114,9 +123,11 @@ export default function GuidedCheckPage() {
             <Icon icon={RefreshCw} size={16} />
             Retry automatic check
           </Link>
-          <p className="text-center text-12 text-text-tertiary md:min-w-0 md:flex-1 md:text-left md:leading-[1.45]">
-            {lastAttempt}
-          </p>
+          {lastAttempt && (
+            <p className="text-center text-12 text-text-tertiary md:min-w-0 md:flex-1 md:text-left md:leading-[1.45]">
+              {lastAttempt}
+            </p>
+          )}
         </div>
 
         {/* Guided check */}
@@ -158,28 +169,16 @@ export default function GuidedCheckPage() {
               </p>
             </GuidedStep>
             <li className="flex flex-col gap-2.5 px-4 pt-3.5 pb-4">
-              <fieldset className="flex flex-col gap-2.5">
-                <legend className="mb-2.5 flex items-center gap-3 text-14 leading-[1.45] font-semibold">
-                  <StepNumber number={3} />
-                  What do you see?
-                </legend>
-                <div className="flex flex-col gap-2 md:flex-row">
-                  {lookupOptions.map((option) => (
-                    <label
-                      key={option.value}
-                      className={cn(
-                        "flex min-w-0 flex-1 cursor-pointer flex-col gap-0.5 rounded-lg border border-border-strong bg-bg-surface p-3 leading-[1.45] hover:bg-bg-app",
-                        "has-checked:border-accent has-checked:bg-accent-subtle",
-                        "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
-                      )}
-                    >
-                      <input type="radio" name="lookup-result" value={option.value} className="sr-only" />
-                      <span className="text-13 font-semibold">{option.title}</span>
-                      <span className="text-12 text-text-tertiary">{option.detail}</span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+              <GuidedCheckForm
+                options={lookupOptions}
+                defaultValue={previous}
+                legend={
+                  <legend className="mb-2.5 flex items-center gap-3 text-14 leading-[1.45] font-semibold">
+                    <StepNumber number={3} />
+                    What do you see?
+                  </legend>
+                }
+              />
             </li>
           </ol>
         </section>
@@ -209,16 +208,20 @@ export default function GuidedCheckPage() {
 
       {/* Web sidebar */}
       <aside className="hidden flex-col gap-4 md:flex lg:w-[360px] lg:shrink-0">
-        <div className="flex items-center gap-3 rounded-[10px] border border-border-default bg-bg-surface p-4">
-          <span className="flex shrink-0 flex-col items-center rounded-lg border border-accent-border bg-accent-subtle px-2.5 py-1.5 font-semibold text-accent">
-            <span className="text-11 leading-[1.2]">{tile.month}</span>
-            <span className="text-22 leading-[1.1]">{tile.day}</span>
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5 leading-[1.45]">
-            <p className="text-14 font-semibold">Hearing in 17 days</p>
-            <p className="text-12 text-text-secondary">{hearing} · 501 E Fayette St</p>
+        {hearing && (
+          <div className="flex items-center gap-3 rounded-[10px] border border-border-default bg-bg-surface p-4">
+            <span className="flex shrink-0 flex-col items-center rounded-lg border border-accent-border bg-accent-subtle px-2.5 py-1.5 font-semibold text-accent">
+              <span className="text-11 leading-[1.2]">{hearing.month}</span>
+              <span className="text-22 leading-[1.1]">{hearing.day}</span>
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 leading-[1.45]">
+              <p className="text-14 font-semibold">{hearingInDays(hearing.daysAway)}</p>
+              <p className="text-12 text-text-secondary">
+                {hearing.dateTime} · {hearing.courtAddress}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <nav
           aria-labelledby="next-steps-web"

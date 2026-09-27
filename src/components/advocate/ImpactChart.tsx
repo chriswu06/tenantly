@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react";
 import { ChevronDown, Download } from "lucide-react";
-import { Button, buttonClassName } from "@/components/ui/Button";
+import { buttonClassName } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type { OutcomeCount } from "@/lib/mock/advocate";
+import type { OutcomeCount } from "@/lib/cases/queries";
 import { LineSkeleton, PageHeader, Panel, PanelHeader, PanelMeta } from "./ConsolePage";
+
+const EXPORT_HREF = "/advocate/reports/export";
 
 function RangeButton() {
   return (
@@ -28,18 +30,19 @@ export function ReportsPageHeader() {
         actions={
           <>
             <RangeButton />
-            <Button size="sm" leadingIcon={Download}>
+            <a href={EXPORT_HREF} download className={buttonClassName("primary", "sm")}>
+              <Icon icon={Download} size={16} />
               Export report
-            </Button>
+            </a>
           </>
         }
       />
       <div className="flex gap-2 lg:hidden">
         <RangeButton />
-        <button type="button" className={buttonClassName("secondary", "sm")}>
+        <a href={EXPORT_HREF} download aria-label="Export report" className={buttonClassName("secondary", "sm")}>
           <Icon icon={Download} size={16} />
           Export
-        </button>
+        </a>
       </div>
     </>
   );
@@ -49,15 +52,16 @@ type ChartMonth = { month: string; total: number; noLicense: number };
 
 /**
  * "License checks per month" stacked columns (frames 60, 61), plain CSS.
- * Bar heights scale with the count: 0.6px per check on mobile, 0.8px on desktop.
+ * The busiest month's bar is 120px tall on mobile and 160px on desktop; the rest scale to it.
  */
 export function ImpactChart({ data }: { data: ChartMonth[] }) {
+  const max = Math.max(1, ...data.map((d) => d.total));
   return (
     <Panel>
       <ImpactChartHeader />
       <figure className="m-0">
         <div
-          className="flex items-end justify-between px-4 pt-4 pb-3 [--bar-scale:0.6px] lg:[--bar-scale:0.8px]"
+          className="flex items-end justify-between px-4 pt-4 pb-3 [--bar-max:120px] lg:[--bar-max:160px]"
           role="img"
           aria-label={`License checks per month: ${data
             .map((d) => `${d.month} ${d.total}, ${d.noLicense} with no active license found`)
@@ -69,9 +73,9 @@ export function ImpactChart({ data }: { data: ChartMonth[] }) {
               <span className="flex w-7.5 flex-col lg:w-14">
                 <span
                   className="rounded-t-[3px] bg-accent-border"
-                  style={{ height: `calc(${d.total - d.noLicense} * var(--bar-scale))` } as CSSProperties}
+                  style={{ height: `calc(${(d.total - d.noLicense) / max} * var(--bar-max))` } as CSSProperties}
                 />
-                <span className="bg-accent" style={{ height: `calc(${d.noLicense} * var(--bar-scale))` }} />
+                <span className="bg-accent" style={{ height: `calc(${d.noLicense / max} * var(--bar-max))` }} />
               </span>
               <span className="text-12 leading-[1.4] text-text-tertiary">{d.month}</span>
             </div>
@@ -142,7 +146,7 @@ type OutcomeBarsProps = {
 
 /** "Reported outcomes" horizontal bars (frames 50, 60). Bars are relative to the largest count. */
 export function OutcomeBars({ outcomes, period, footnote, scaleMax }: OutcomeBarsProps) {
-  const max = scaleMax ?? Math.max(...outcomes.map((o) => o.count));
+  const max = Math.max(1, scaleMax ?? Math.max(0, ...outcomes.map((o) => o.count)));
   return (
     <Panel>
       <PanelHeader title="Reported outcomes" aside={<PanelMeta>{period}</PanelMeta>} />

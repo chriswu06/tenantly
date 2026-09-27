@@ -1,12 +1,19 @@
+import type { Metadata } from "next";
 import { ConsoleHeader } from "@/components/advocate/ConsoleHeader";
 import { PageBody } from "@/components/advocate/ConsolePage";
 import { OutcomeBars } from "@/components/advocate/ImpactChart";
 import { AttentionPanel, HearingsPanel, OverviewGreeting } from "@/components/advocate/OverviewPanels";
 import { StatCard, StatGrid } from "@/components/advocate/StatCard";
-import { caseMetrics, hearingsThisWeek, needsAttention, outcomesLast30Days } from "@/lib/mock/advocate";
+import { getCaseMetrics, getOverview } from "@/lib/cases/queries";
+
+export const metadata: Metadata = { title: "Overview" };
 
 /** Advocate console home (Figma frames 50 desktop, 51 mobile). */
-export default function AdvocateOverviewPage() {
+export default async function AdvocateOverviewPage() {
+  const [metrics, { hearings, attention, outcomesLast30Days }] = await Promise.all([getCaseMetrics(), getOverview()]);
+  const hearingsThisWeek = Number(metrics.find((m) => m.label === "Hearings this week")?.value ?? hearings.length);
+  const responses = outcomesLast30Days.reduce((sum, o) => sum + o.count, 0);
+
   return (
     <>
       <ConsoleHeader breadcrumbs={[{ label: "Overview" }]} title="Overview" />
@@ -14,7 +21,7 @@ export default function AdvocateOverviewPage() {
         <OverviewGreeting />
 
         <StatGrid>
-          {caseMetrics.map((m) => (
+          {metrics.map((m) => (
             <StatCard key={m.label} metric={m} />
           ))}
         </StatGrid>
@@ -23,18 +30,17 @@ export default function AdvocateOverviewPage() {
           {/* Mobile puts "Needs attention" first; desktop stacks it under the hearings. */}
           <div className="flex min-w-0 flex-col gap-3.5 lg:flex-1 lg:gap-5">
             <div className="order-2 lg:order-1">
-              <HearingsPanel hearings={hearingsThisWeek} total={23} />
+              <HearingsPanel hearings={hearings} total={hearingsThisWeek} />
             </div>
             <div className="order-1 lg:order-2">
-              <AttentionPanel items={needsAttention} />
+              <AttentionPanel items={attention} />
             </div>
           </div>
           <div className="lg:w-100 lg:shrink-0">
             <OutcomeBars
               outcomes={outcomesLast30Days}
               period="Last 30 days"
-              footnote="From anonymous tenant reports. 71 responses."
-              scaleMax={46}
+              footnote={`From anonymous tenant reports. ${responses} ${responses === 1 ? "response" : "responses"}.`}
             />
           </div>
         </div>

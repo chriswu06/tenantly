@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, Database, Download, FileText, Folder, Scale, Users } from "lucide-react";
+import { Clock, Database, Download, FileText, Folder, Scale, Search, Users } from "lucide-react";
 import { AppBar } from "@/components/layout/AppBar";
 import { NextSteps, type NextStep } from "@/components/tenant/NextSteps";
 import { StatusPanel } from "@/components/tenant/StatusPanel";
@@ -12,10 +12,17 @@ import { KeyValue, Panel, PanelHeader } from "@/components/tenant/results/Panel"
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { Table, TableHead, Td, Th, Tr } from "@/components/ui/Table";
-import { licenseRecords, resultsCase } from "@/lib/mock/results";
 import { buttonClassName } from "@/components/ui/Button";
+import { getTenantView, hearingInDays, isUnverified, licenseResultCopy } from "@/lib/cases/tenant";
 
 export const metadata: Metadata = { title: "Results" };
+
+const guidedStep: NextStep = {
+  href: "/verify/guided-check",
+  icon: Search,
+  label: "Check the city license lookup",
+  description: "About 2 minutes",
+};
 
 const steps: NextStep[] = [
   { href: "/certification", icon: FileText, label: "Request DHCD certification", description: "417 E Fayette St, Room 100" },
@@ -24,14 +31,32 @@ const steps: NextStep[] = [
   { href: "/share", icon: Users, label: "Share case with legal aid", accent: true, mobileOnly: true },
 ];
 
-const summaryPdfHref = `/api/cases/${resultsCase.reference}/report?type=summary`;
+export default async function ResultsPage() {
+  const view = await getTenantView();
+  const { hearing, records } = view;
+  const copy = licenseResultCopy(view);
+  const unverified = isUnverified(view.licenseResult);
+  const summaryPdfHref = `/api/cases/${view.reference}/report?type=summary`;
 
-export default function ResultsPage() {
-  const { hearing } = resultsCase;
+  const active = records.filter((r) => r.status === "active").length;
+  const expired = records.length - active;
+  const lastExpiry = records.find((r) => r.status === "expired")?.validTo;
+  const recordsLine = [
+    records.length
+      ? `${active} active · ${expired} expired${lastExpiry ? ` (last ${lastExpiry})` : ""}`
+      : "No license records found",
+    view.checkedAt && `Checked ${view.checkedAt}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const primary = unverified
+    ? { href: guidedStep.href, label: "Check it yourself" }
+    : { href: "/certification", label: "Request certification" };
 
   return (
     <>
-      <AppBar title="Results" backHref="/verify" className="md:hidden" />
+      <AppBar title="Results" backHref={unverified ? "/verify/guided-check" : "/scan/review"} className="md:hidden" />
       <main className="flex flex-1 flex-col">
         <Stepper current={3} />
 
@@ -39,77 +64,90 @@ export default function ResultsPage() {
           <div className="mx-auto flex max-w-page flex-col gap-2.5 md:flex-row md:items-start md:gap-8">
             <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:gap-5">
               <StatusPanel
-                tone="ok"
-                badge="Possible defense"
-                title="No active rental license found"
+                tone={copy.tone}
+                badge={copy.badge}
+                title={copy.title}
                 titleAs="h1"
                 description={
                   <>
                     <span className="md:hidden">
-                      DHCD records show no active license for this address on the filing date (
-                      {resultsCase.filingDate}). The landlord may not be permitted to pursue this case.
-                      Informational only, not legal advice.
+                      {copy.text} Informational only, not legal advice.
                     </span>
-                    <span className="hidden md:inline">
-                      DHCD records show no active license on the filing date. The landlord may not be
-                      permitted to pursue this case.
-                    </span>
+                    <span className="hidden md:inline">{copy.short}</span>
                   </>
                 }
               />
 
+              {unverified && (
+                <Link
+                  href={guidedStep.href}
+                  className={buttonClassName("secondary", "compact", "hidden self-start md:inline-flex")}
+                >
+                  <Icon icon={Search} size={16} />
+                  Open the guided check
+                </Link>
+              )}
+
               {/* Mobile: case details */}
               <dl className="flex flex-col rounded-lg border border-border-default bg-bg-surface px-4 py-1 md:hidden">
-                <KeyValue label="Property">{resultsCase.street}</KeyValue>
-                <KeyValue label="Hearing">{hearing.dateTime}</KeyValue>
-                <KeyValue label="Records matched">
-                  0 active · 2 expired (last 03/31/2025) · Checked Sep 26, 10:52 PM
-                </KeyValue>
+                <KeyValue label="Property">{view.street || "Not entered"}</KeyValue>
+                <KeyValue label="Hearing">{hearing?.dateTime ?? "Not entered"}</KeyValue>
+                {!unverified && <KeyValue label="Records matched">{recordsLine}</KeyValue>}
                 <KeyValue label="Reference">
-                  <span className="font-mono font-normal">{resultsCase.reference}</span>
+                  <span className="font-mono font-normal">{view.reference}</span>
                 </KeyValue>
               </dl>
 
               {/* Desktop: license records */}
-              <Panel className="hidden md:flex">
-                <PanelHeader title={`License records for ${resultsCase.street}`} />
-                <Table>
-                  <TableHead>
-                    <tr>
-                      <Th className="h-[34px] w-[170px]">License #</Th>
-                      <Th className="h-[34px] w-[130px]">Status</Th>
-                      <Th className="h-[34px] w-[130px]">Valid from</Th>
-                      <Th className="h-[34px] w-[130px]">Valid to</Th>
-                      <Th className="h-[34px]">Source</Th>
-                    </tr>
-                  </TableHead>
-                  <tbody>
-                    {licenseRecords.map((record) => (
-                      <Tr key={record.number} className="hover:bg-transparent">
-                        <Td className="h-11 font-mono text-text-primary">{record.number}</Td>
-                        <Td className="h-11">
-                          <Badge tone={record.status === "active" ? "ok" : "danger"} dot className="py-0.5">
-                            {record.status === "active" ? "Active" : "Expired"}
-                          </Badge>
-                        </Td>
-                        <Td className="h-11 text-text-primary">{record.validFrom}</Td>
-                        <Td className="h-11 text-text-primary">{record.validTo}</Td>
-                        <Td className="h-11">{record.source}</Td>
-                      </Tr>
-                    ))}
-                  </tbody>
-                </Table>
-                <div className="flex flex-wrap gap-x-5 gap-y-1 px-4 py-3 text-12 leading-[1.45] text-text-tertiary">
-                  <span className="flex items-center gap-1.5">
-                    <Icon icon={Clock} size={14} />
-                    Checked {resultsCase.checkedAt}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Icon icon={Database} size={14} />
-                    Reference {resultsCase.reference}
-                  </span>
-                </div>
-              </Panel>
+              {!unverified && (
+                <Panel className="hidden md:flex">
+                  <PanelHeader title={`License records for ${view.street}`} />
+                  {records.length ? (
+                    <Table>
+                      <TableHead>
+                        <tr>
+                          <Th className="h-[34px] w-[170px]">License #</Th>
+                          <Th className="h-[34px] w-[130px]">Status</Th>
+                          <Th className="h-[34px] w-[130px]">Valid from</Th>
+                          <Th className="h-[34px] w-[130px]">Valid to</Th>
+                          <Th className="h-[34px]">Source</Th>
+                        </tr>
+                      </TableHead>
+                      <tbody>
+                        {records.map((record) => (
+                          <Tr key={record.number} className="hover:bg-transparent">
+                            <Td className="h-11 font-mono text-text-primary">{record.number}</Td>
+                            <Td className="h-11">
+                              <Badge tone={record.status === "active" ? "ok" : "danger"} dot className="py-0.5">
+                                {record.status === "active" ? "Active" : "Expired"}
+                              </Badge>
+                            </Td>
+                            <Td className="h-11 text-text-primary">{record.validFrom}</Td>
+                            <Td className="h-11 text-text-primary">{record.validTo}</Td>
+                            <Td className="h-11">{record.source}</Td>
+                          </Tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <p className="border-b border-border-default px-4 py-3.5 text-13 leading-[1.45] text-text-secondary">
+                      No license records found for this address.
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-x-5 gap-y-1 px-4 py-3 text-12 leading-[1.45] text-text-tertiary">
+                    {view.checkedAt && (
+                      <span className="flex items-center gap-1.5">
+                        <Icon icon={Clock} size={14} />
+                        Checked {view.checkedAt}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1.5">
+                      <Icon icon={Database} size={14} />
+                      Reference {view.reference}
+                    </span>
+                  </div>
+                </Panel>
+              )}
 
               <p className="hidden text-12 leading-[1.45] text-text-tertiary md:block">
                 Informational only, not legal advice. An official DHCD certification is required as evidence
@@ -118,15 +156,17 @@ export default function ResultsPage() {
             </div>
 
             <aside className="flex flex-col gap-2.5 md:w-[300px] md:shrink-0 md:gap-4 lg:w-[360px]">
-              <HearingCard
-                className="hidden md:flex"
-                month={hearing.month}
-                day={hearing.day}
-                title={`Hearing in ${hearing.daysAway} days`}
-                lines={[`${hearing.dateTime} · ${hearing.courtAddress}`]}
-              />
+              {hearing && (
+                <HearingCard
+                  className="hidden md:flex"
+                  month={hearing.month}
+                  day={hearing.day}
+                  title={hearingInDays(hearing.daysAway)}
+                  lines={[`${hearing.dateTime} · ${hearing.courtAddress}`]}
+                />
+              )}
 
-              <NextSteps steps={steps} />
+              <NextSteps steps={unverified ? [guidedStep, ...steps] : steps} />
 
               <section className="hidden flex-col gap-2.5 rounded-[10px] border border-accent-border bg-accent-subtle p-4 md:flex">
                 <h2 className="flex items-center gap-2 text-14 leading-[1.45] font-semibold text-text-primary">
@@ -134,18 +174,20 @@ export default function ResultsPage() {
                   Want a lawyer to review this?
                 </h2>
                 <p className="text-13 leading-[1.45] text-text-secondary">
-                  Share your case with a legal aid organization and they can call you before your hearing.
+                  {view.sharedWith
+                    ? `You shared your case with ${view.sharedWith.name}. They can call you before your hearing.`
+                    : "Share your case with a legal aid organization and they can call you before your hearing."}
                 </p>
                 <Link
-                  href="/share"
+                  href={view.sharedWith ? "/share/confirmation" : "/share"}
                   className="flex h-10 items-center justify-center rounded-lg border border-accent-border bg-bg-surface text-14 font-semibold text-accent hover:bg-accent-subtle"
                 >
-                  Share my case
+                  {view.sharedWith ? "View sharing" : "Share my case"}
                 </Link>
               </section>
 
-              <Link href="/certification" className={buttonClassName("primary", "responsive", "hidden md:flex")}>
-                Request certification
+              <Link href={primary.href} className={buttonClassName("primary", "responsive", "hidden md:flex")}>
+                {primary.label}
               </Link>
               <a href={summaryPdfHref} download className={buttonClassName("secondary", "responsive", "hidden md:flex")}>
                 <Icon icon={Download} size={18} />
@@ -156,14 +198,16 @@ export default function ResultsPage() {
         </div>
 
         <MobileActionBar>
-          <a href={summaryPdfHref} download
+          <a
+            href={summaryPdfHref}
+            download
             aria-label="Download summary (PDF)"
             className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border-strong bg-bg-surface text-text-primary hover:bg-bg-subtle"
           >
             <Icon icon={Download} size={18} />
           </a>
-          <Link href="/certification" className={buttonClassName("primary", "responsive", "min-w-0 flex-1")}>
-            Request certification
+          <Link href={primary.href} className={buttonClassName("primary", "responsive", "min-w-0 flex-1")}>
+            {primary.label}
           </Link>
         </MobileActionBar>
       </main>

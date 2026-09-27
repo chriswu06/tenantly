@@ -7,14 +7,16 @@ import { Icon } from "@/components/ui/Icon";
 export const metadata: Metadata = { title: "Check your email" };
 
 // Figma 57 · Advocate reset link sent — mobile, 55 · desktop.
-export default function AdvocateResetSentPage() {
+export default async function AdvocateResetSentPage({ searchParams }: PageProps<"/advocate/reset-password/sent">) {
+  const { email } = await searchParams;
+  const address = typeof email === "string" && email ? email : "your email";
   return (
     <div className="flex flex-col gap-4.5">
       <span className="flex size-13 items-center justify-center rounded-full bg-accent-subtle text-accent">
         <Icon icon={Mail} size={22} />
       </span>
       <AuthHeading title="Check your email" className="gap-1.5 [&>h1]:leading-[1.2]">
-        If jrivera@publicjustice.org has an account, we sent a link to reset your password. The link expires in 30
+        If {address} has an account, we sent a link to reset your password. The link expires in 30
         minutes.
       </AuthHeading>
       <Link href="/advocate/sign-in" className={authSecondaryLinkClass}>

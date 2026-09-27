@@ -1,21 +1,17 @@
 import Link from "next/link";
-import { Calendar, ChevronDown, Download, Ellipsis, FolderOpen, Funnel, Search, SearchX } from "lucide-react";
+import { Calendar, ChevronDown, Download, Ellipsis, FolderOpen, Funnel, SearchX } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Table, TableCard, TableHead, TablePagination, TableToolbar, Td, Th, Tr } from "@/components/ui/Table";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
-import {
-  caseFilters,
-  formatDate,
-  licenseResultBadge,
-  shortAddress,
-  type AdvocateCase,
-  type CaseFilter,
-} from "@/lib/mock/advocate";
+import { caseFilterDefs, type AdvocateCase, type CaseFilter } from "@/lib/cases/queries";
 import { buttonClassName } from "@/components/ui/Button";
 import { BadgeSkeleton, LineSkeleton, PageHeader } from "./ConsolePage";
+import { formatDate, hrefWith, licenseResultBadge, shortAddress } from "./display";
+
+export { CaseSearch } from "./CaseSearch";
 
 const CASES_HREF = "/advocate/cases";
 
@@ -24,15 +20,16 @@ export function caseHref(c: AdvocateCase) {
 }
 
 /**
- * Filter tabs for the cases list. While loading, pass no `active` filter: the tabs show
- * their labels only, since the counts are data and the loading state can't read the URL.
+ * Filter tabs for the cases list. Each keeps the current search (`q`).
+ * While loading, pass nothing: the tabs show their labels only, since the counts are data
+ * and the loading state can't read the URL.
  */
-export function caseFilterTabs(active?: CaseFilter): TabItem[] {
-  return caseFilters.map((f) => ({
-    href: f.key === "all" ? CASES_HREF : `${CASES_HREF}?filter=${f.key}`,
+export function caseFilterTabs(active?: CaseFilter, counts?: Record<CaseFilter, number>, q?: string): TabItem[] {
+  return caseFilterDefs.map((f) => ({
+    href: hrefWith(CASES_HREF, { filter: f.key === "all" ? undefined : f.key, q }),
     label: f.label,
     shortLabel: f.shortLabel,
-    count: active ? f.count : undefined,
+    count: counts?.[f.key],
     active: f.key === active,
   }));
 }
@@ -59,18 +56,24 @@ export function CasesPageHeader() {
 type CasesEmptyProps = {
   /** True when a filter or search is applied, so the list is empty only because of it. */
   filtered?: boolean;
+  /** The search, if any, so the message can say what didn't match. */
+  query?: string;
 };
 
 /** Shown in place of the cases table rows or cards when there are none to show. */
-export function CasesEmptyState({ filtered = false }: CasesEmptyProps) {
+export function CasesEmptyState({ filtered = false, query }: CasesEmptyProps) {
   return filtered ? (
     <EmptyState
       icon={SearchX}
-      title="No cases match this filter"
-      description="Try another filter, or clear it to see all cases."
+      title={query ? `No cases match “${query}”` : "No cases match this filter"}
+      description={
+        query
+          ? "Check the spelling, or search by reference, street address, case number or landlord."
+          : "Try another filter, or clear it to see all cases."
+      }
       action={
         <Link href={CASES_HREF} className={buttonClassName("secondary", "sm")}>
-          Clear filter
+          {query ? "Clear search" : "Clear filter"}
         </Link>
       }
     />
@@ -120,14 +123,16 @@ function CasesTableHead() {
   );
 }
 
+export type CasesPagination = { from: number; to: number; total: number; prevHref?: string; nextHref?: string };
+
 type CasesTableProps = CasesEmptyProps & {
   cases: AdvocateCase[];
   filterTabs: TabItem[];
-  total: number;
+  pagination: CasesPagination;
 };
 
 /** Desktop cases table with filter toolbar and pagination (frame 11). Hidden below `lg`. */
-export function CasesTable({ cases, filterTabs, total, filtered }: CasesTableProps) {
+export function CasesTable({ cases, filterTabs, pagination, filtered, query }: CasesTableProps) {
   return (
     <TableCard className="hidden lg:block">
       <CasesToolbar filterTabs={filterTabs} />
@@ -137,7 +142,7 @@ export function CasesTable({ cases, filterTabs, total, filtered }: CasesTablePro
           {cases.length === 0 && (
             <tr>
               <td colSpan={COLUMN_COUNT}>
-                <CasesEmptyState filtered={filtered} />
+                <CasesEmptyState filtered={filtered} query={query} />
               </td>
             </tr>
           )}
@@ -177,25 +182,31 @@ export function CasesTable({ cases, filterTabs, total, filtered }: CasesTablePro
       </Table>
       {cases.length > 0 && (
         <div className="border-t border-border-default">
-          <TablePagination from={1} to={cases.length} total={total} nextHref="?page=2" />
+          <TablePagination {...pagination} />
         </div>
       )}
     </TableCard>
   );
 }
 
-/** Mobile case cards (frame 11m). Hidden from `lg` up. */
-export function CaseCards({ cases, filtered }: CasesEmptyProps & { cases: AdvocateCase[] }) {
+/** Mobile case cards (frame 11m) with pagination under them. Hidden from `lg` up. */
+export function CaseCards({
+  cases,
+  filtered,
+  query,
+  pagination,
+}: CasesEmptyProps & { cases: AdvocateCase[]; pagination: CasesPagination }) {
   if (cases.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-bg-surface lg:hidden">
-        <CasesEmptyState filtered={filtered} />
+        <CasesEmptyState filtered={filtered} query={query} />
       </div>
     );
   }
 
   return (
-    <ul className="flex flex-col gap-3.5 lg:hidden">
+    <div className="flex flex-col gap-3.5 lg:hidden">
+    <ul className="flex flex-col gap-3.5">
       {cases.map((c) => {
         const badge = licenseResultBadge[c.licenseResult];
         return (
@@ -217,7 +228,7 @@ export function CaseCards({ cases, filtered }: CasesEmptyProps & { cases: Advoca
               <span className="flex items-center gap-3 pt-1 text-12 leading-[1.4] text-text-tertiary">
                 <span className="flex items-center gap-1">
                   <Icon icon={Calendar} size={14} />
-                  Hearing {formatDate(c.hearingDate, "month")}
+                  {c.hearingDate ? `Hearing ${formatDate(c.hearingDate, "month")}` : "No hearing date"}
                 </span>
                 <span>· {c.assignee ?? "Unassigned"}</span>
               </span>
@@ -226,29 +237,9 @@ export function CaseCards({ cases, filtered }: CasesEmptyProps & { cases: Advoca
         );
       })}
     </ul>
-  );
-}
-
-/** Mobile search field with a filter button (frame 11m). Hidden from `lg` up, where the top bar has search. */
-export function CaseSearch() {
-  return (
-    <div className="flex h-10.5 items-center gap-2 rounded-lg border border-border-strong bg-bg-surface pr-1.5 pl-3 focus-within:border-accent lg:hidden">
-      <Icon icon={Search} size={16} className="text-text-tertiary" />
-      <label className="min-w-0 flex-1">
-        <span className="sr-only">Search cases</span>
-        <input
-          type="search"
-          placeholder="Search address, case #, landlord"
-          className="w-full bg-transparent text-14 leading-none text-text-primary outline-none placeholder:text-text-tertiary"
-        />
-      </label>
-      <button
-        type="button"
-        aria-label="Filter cases"
-        className="flex size-8 items-center justify-center rounded-md text-text-secondary hover:bg-bg-subtle"
-      >
-        <Icon icon={Funnel} size={16} />
-      </button>
+      <div className="rounded-lg border border-border-default bg-bg-surface">
+        <TablePagination {...pagination} />
+      </div>
     </div>
   );
 }

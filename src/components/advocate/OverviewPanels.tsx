@@ -5,26 +5,16 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
-import { licenseResultBadge, type AttentionItem, type Hearing } from "@/lib/mock/advocate";
+import { assignToMe } from "@/lib/cases/advocate-actions";
+import type { AttentionItem, Hearing } from "@/lib/cases/queries";
+import { ActionButton } from "./ActionButton";
 import { BadgeSkeleton, LineSkeleton, Panel, PanelHeader, PanelMeta } from "./ConsolePage";
-import { currentAdvocate } from "./console-config";
+import { licenseResultBadge } from "./display";
+
+export { OverviewGreeting } from "./OverviewGreeting";
 
 const rowLink = "flex items-center gap-3 px-4 py-3 hover:bg-bg-app";
 const rowItem = "border-b border-border-default last:border-b-0";
-
-/** Overview greeting (frames 50, 51). The mobile app bar already has the page's <h1>. */
-export function OverviewGreeting() {
-  return (
-    <div className="flex flex-col gap-0.5 lg:gap-1">
-      <p className="text-20 leading-[1.25] font-semibold text-text-primary lg:hidden">Good morning, Jordan</p>
-      <h1 className="hidden text-24 font-semibold text-text-primary lg:block">Good morning, Jordan</h1>
-      <p className="text-13 leading-[1.4] text-text-secondary lg:text-14">
-        <span className="hidden lg:inline">{currentAdvocate.organization} · </span>
-        Sunday, September 27
-      </p>
-    </div>
-  );
-}
 
 /** Count in a panel header while it loads. */
 function MetaSkeleton() {
@@ -135,22 +125,51 @@ export function AttentionPanel({ items }: { items: AttentionItem[] }) {
         <ul>
           {items.map((item) => {
             const style = attentionStyle[item.kind];
+            const icon = (
+              <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", style.tile)}>
+                <Icon icon={style.icon} size={16} />
+              </span>
+            );
+            const text = (
+              <span className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
+                <span className="text-14 font-medium text-text-primary">{item.title}</span>
+                <span className="text-12 text-text-tertiary">
+                  {item.reference}
+                  {item.hearing && ` · Hearing ${item.hearing}`}
+                </span>
+              </span>
+            );
             return (
-              <li key={item.reference} className={rowItem}>
-                <Link href={`/advocate/cases/${item.reference}`} className={rowLink}>
-                  <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", style.tile)}>
-                    <Icon icon={style.icon} size={16} />
-                  </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
-                    <span className="text-14 font-medium text-text-primary">{item.title}</span>
-                    <span className="text-12 text-text-tertiary">
-                      {item.reference} · Hearing {item.hearing}
+              <li key={`${item.kind}-${item.reference}`} className={rowItem}>
+                {item.kind === "unassigned" ? (
+                  // "Assign" takes the case on the spot; the rest of the row still opens it.
+                  <div className={cn(rowLink, "relative")}>
+                    {icon}
+                    <Link
+                      href={`/advocate/cases/${item.reference}`}
+                      className="flex min-w-0 flex-1 after:absolute after:inset-0 after:content-['']"
+                    >
+                      {text}
+                    </Link>
+                    <ActionButton
+                      variant="link"
+                      action={assignToMe.bind(null, item.reference)}
+                      pendingLabel={`Assigning ${item.reference} to you`}
+                      aria-label={`Assign ${item.reference} to me`}
+                      className={style.action}
+                    >
+                      {item.action}
+                    </ActionButton>
+                  </div>
+                ) : (
+                  <Link href={`/advocate/cases/${item.reference}`} className={rowLink}>
+                    {icon}
+                    {text}
+                    <span className={cn("shrink-0 text-12 leading-[1.4] font-semibold whitespace-nowrap", style.action)}>
+                      {item.action}
                     </span>
-                  </span>
-                  <span className={cn("shrink-0 text-12 leading-[1.4] font-semibold whitespace-nowrap", style.action)}>
-                    {item.action}
-                  </span>
-                </Link>
+                  </Link>
+                )}
               </li>
             );
           })}

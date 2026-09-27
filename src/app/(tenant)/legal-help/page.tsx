@@ -8,18 +8,28 @@ import { Panel, PanelHeader } from "@/components/tenant/results/Panel";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { NextStepLink } from "@/components/tenant/results/NextStepLink";
-import { legalContacts, resultsCase } from "@/lib/mock/results";
+import { marylandLegalAid, publicJusticeCenter } from "@/lib/contacts";
+import { getTenantView } from "@/lib/cases/tenant";
 
 export const metadata: Metadata = { title: "Legal assistance" };
 
 const providers = ["Tenant Volunteer Lawyer of the Day", "Public Justice Center attorneys"];
+const legalContacts = [marylandLegalAid, publicJusticeCenter];
 
-export default function LegalHelpPage() {
+export default async function LegalHelpPage() {
+  const view = await getTenantView();
+  const court = view.hearing?.courtName ?? "District Court, 501 E Fayette St";
+  // With an active license the license defense likely doesn't apply, so ask about defenses in general.
+  const script =
+    view.licenseResult === "active"
+      ? "“I have a rent court case today. Can you check whether I have any defenses?”"
+      : "“My landlord doesn’t have an active rental license. Can you help me raise that defense?”";
+
   return (
     <>
       <AppBar title="Legal assistance" backHref="/court-prep" className="md:hidden" />
       <main className="flex flex-1 flex-col">
-        <CaseBar reference={resultsCase.reference} address={resultsCase.street} />
+        <CaseBar reference={view.reference} address={view.street} />
 
         <TwoColumn
           main={
@@ -31,7 +41,7 @@ export default function LegalHelpPage() {
 
               <Panel>
                 <PanelHeader
-                  title={`At the courthouse · ${resultsCase.court}`}
+                  title={`At the courthouse · ${court}`}
                   action={
                     <Badge tone="ok" dot className="md:py-0.5">
                       Walk-in
@@ -68,12 +78,11 @@ export default function LegalHelpPage() {
                   <h2 className="min-w-0 flex-1 text-14 leading-[1.4] font-semibold text-text-primary md:leading-[1.45]">
                     What to say to the attorney
                   </h2>
-                  {/* TODO: wire to read-aloud playback. */}
-                  <ReadAloudButton variant="inline" />
+                  <ReadAloudButton variant="inline" text={script} />
                 </div>
                 <div className="md:p-4">
                   <blockquote className="border-l-3 border-accent py-1 pl-3 text-14 leading-[1.5] text-text-primary md:pl-3.5 md:text-16">
-                    “My landlord doesn’t have an active rental license. Can you help me raise that defense?”
+                    {script}
                   </blockquote>
                 </div>
               </Panel>

@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/Badge";
 import { buttonClassName } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
-import { Table, TableCard, TableHead, Td, Th, Tr } from "@/components/ui/Table";
+import { Table, TableCard, TableHead, TablePagination, Td, Th, Tr } from "@/components/ui/Table";
 import { cn } from "@/lib/utils";
-import { licenseResultBadge, type Lookup } from "@/lib/mock/advocate";
+import type { Lookup } from "@/lib/cases/queries";
 import { BadgeSkeleton, LineSkeleton, PageHeader } from "./ConsolePage";
+import { licenseResultBadge } from "./display";
 
 const LOOKUPS_HREF = "/advocate/lookups";
 
@@ -23,10 +24,14 @@ export function LookupsActions({ failedOnly = false }: { failedOnly?: boolean })
         <Icon icon={Funnel} size={16} />
         Failed only
       </Link>
-      <button type="button" className={buttonClassName("secondary", "sm")}>
+      <a
+        href={failedOnly ? `${LOOKUPS_HREF}/export?filter=failed` : `${LOOKUPS_HREF}/export`}
+        download
+        className={buttonClassName("secondary", "sm")}
+      >
         <Icon icon={Download} size={16} />
         Export CSV
-      </button>
+      </a>
     </>
   );
 }
@@ -78,14 +83,23 @@ function LookupsEmptyState({ failedOnly }: { failedOnly: boolean }) {
   );
 }
 
+type Pagination = { from: number; to: number; total: number; prevHref?: string; nextHref?: string };
+
 type LookupsTableProps = {
   lookups: Lookup[];
   /** The list is filtered to failed lookups (`?filter=failed`). */
   failedOnly?: boolean;
+  pagination?: Pagination;
 };
 
+/** Response time, "Guided check" for tenant-run checks, or "Timed out". */
+function responseText(l: Lookup) {
+  return l.response ?? (l.method === "guided" ? "Guided check" : "Timed out");
+}
+const timedOut = (l: Lookup) => !l.response && l.method !== "guided";
+
 /** License lookup log: table on desktop (frame 58), cards on mobile (frame 59). */
-export function LookupsTable({ lookups, failedOnly = false }: LookupsTableProps) {
+export function LookupsTable({ lookups, failedOnly = false, pagination }: LookupsTableProps) {
   if (lookups.length === 0) {
     return (
       <>
@@ -114,10 +128,10 @@ export function LookupsTable({ lookups, failedOnly = false }: LookupsTableProps)
         <Table className="min-w-[720px]">
           <LookupsTableHead />
           <tbody>
-            {lookups.map((l) => {
+            {lookups.map((l, i) => {
               const badge = licenseResultBadge[l.result];
               return (
-                <Tr key={`${l.reference}-${l.time}`} className="last:border-b-0">
+                <Tr key={`${l.reference}-${l.time}-${i}`} className="last:border-b-0">
                   <Td className="h-11.5 font-mono">{l.time}</Td>
                   <Td className="font-medium text-text-primary">{l.address}</Td>
                   <Td>
@@ -125,7 +139,7 @@ export function LookupsTable({ lookups, failedOnly = false }: LookupsTableProps)
                       {badge.label}
                     </Badge>
                   </Td>
-                  <Td className={cn(!l.response && "text-danger-fg")}>{l.response ?? "Timed out"}</Td>
+                  <Td className={cn(timedOut(l) && "text-danger-fg")}>{responseText(l)}</Td>
                   <Td className="font-mono">
                     <Link href={`/advocate/cases/${l.reference}`} className="text-accent hover:underline">
                       {l.reference}
@@ -136,13 +150,18 @@ export function LookupsTable({ lookups, failedOnly = false }: LookupsTableProps)
             })}
           </tbody>
         </Table>
+        {pagination && (
+          <div className="border-t border-border-default">
+            <TablePagination {...pagination} />
+          </div>
+        )}
       </TableCard>
 
       <ul className="flex flex-col gap-3.5 lg:hidden">
-        {lookups.map((l) => {
+        {lookups.map((l, i) => {
           const badge = licenseResultBadge[l.result];
           return (
-            <li key={`${l.reference}-${l.time}`}>
+            <li key={`${l.reference}-${l.time}-${i}`}>
               <Link
                 href={`/advocate/cases/${l.reference}`}
                 className="flex flex-col gap-1.5 rounded-lg border border-border-default bg-bg-surface p-3.5 hover:border-border-strong"
@@ -156,15 +175,18 @@ export function LookupsTable({ lookups, failedOnly = false }: LookupsTableProps)
                 <span className="text-14 leading-[1.4] font-semibold text-text-primary">{l.address}</span>
                 <span className="flex gap-2 text-12 leading-[1.4] whitespace-nowrap">
                   <span className="font-mono text-accent">{l.reference}</span>
-                  <span className={l.response ? "text-text-tertiary" : "text-danger-fg"}>
-                    · {l.response ?? "Timed out"}
-                  </span>
+                  <span className={timedOut(l) ? "text-danger-fg" : "text-text-tertiary"}>· {responseText(l)}</span>
                 </span>
               </Link>
             </li>
           );
         })}
       </ul>
+      {pagination && (
+        <div className="rounded-lg border border-border-default bg-bg-surface lg:hidden">
+          <TablePagination {...pagination} />
+        </div>
+      )}
     </>
   );
 }

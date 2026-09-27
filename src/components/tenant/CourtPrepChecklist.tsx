@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useOptimistic } from "react";
+import { setChecklistItem } from "@/lib/cases/actions";
 import { Badge } from "@/components/ui/Badge";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -19,20 +20,24 @@ type CourtPrepChecklistProps = {
 };
 
 /**
- * "Documents" progress bar and checklist (Figma 08 and 20). State is local only.
+ * "Documents" progress bar and checklist (Figma 08 and 20). Ticks save to the
+ * case right away and show before the server confirms.
  *
- * @example <CourtPrepChecklist items={courtChecklist} />
+ * @example <CourtPrepChecklist items={view.checklist} />
  */
 export function CourtPrepChecklist({ items, className }: CourtPrepChecklistProps) {
-  const [done, setDone] = useState(() => new Set(items.filter((item) => item.done).map((item) => item.id)));
-  const readyCount = items.filter((item) => done.has(item.id)).length;
+  const [optimistic, setOptimistic] = useOptimistic(
+    items,
+    (current, change: { id: string; done: boolean }) =>
+      current.map((item) => (item.id === change.id ? { ...item, done: change.done } : item)),
+  );
+  const done = new Set(optimistic.filter((item) => item.done).map((item) => item.id));
+  const readyCount = done.size;
 
   function toggle(id: string, checked: boolean) {
-    setDone((current) => {
-      const next = new Set(current);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
+    startTransition(async () => {
+      setOptimistic({ id, done: checked });
+      await setChecklistItem(id, checked);
     });
   }
 

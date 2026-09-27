@@ -1,8 +1,12 @@
-import { Fragment } from "react";
+"use client";
+
+import { Fragment, useEffect, useId, useRef } from "react";
 import Link from "next/link";
 import { Bell, ChevronDown, ChevronLeft, Ellipsis, Plus, Search } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
-import { currentAdvocate } from "./console-config";
+import { NEW_CHECK_HREF } from "./console-config";
+import { useConsoleSession } from "./ConsoleSession";
+import { useCaseSearch } from "./useCaseSearch";
 
 export type Crumb = { label: string; href?: string };
 
@@ -18,8 +22,6 @@ type ConsoleHeaderProps = {
   backHref?: string;
 };
 
-const NEW_CHECK_HREF = "/advocate/lookups";
-
 /**
  * Top of every console page: the desktop top bar (frame 11) and the mobile app bar (frames 11m, 12m).
  * Render it first inside the page.
@@ -34,7 +36,8 @@ export function ConsoleHeader({ breadcrumbs, title, backHref }: ConsoleHeaderPro
 }
 
 function DesktopTopBar({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
-  const trail: Crumb[] = [{ label: currentAdvocate.organization }, ...breadcrumbs];
+  const { organization } = useConsoleSession();
+  const trail: Crumb[] = [{ label: organization }, ...breadcrumbs];
 
   return (
     <header className="hidden h-15 shrink-0 print:hidden items-center gap-3 border-b border-border-default bg-bg-surface px-6 lg:flex">
@@ -68,16 +71,7 @@ function DesktopTopBar({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
         </ol>
       </nav>
 
-      <label className="flex h-9 w-75 items-center gap-2 rounded-md border border-border-default bg-bg-app pr-3 pl-2.5 focus-within:border-accent">
-        <Icon icon={Search} size={16} className="text-text-tertiary" />
-        <span className="sr-only">Search cases</span>
-        <input
-          type="search"
-          placeholder="Search address, case #, landlord"
-          className="min-w-0 flex-1 bg-transparent text-13 leading-[1.4] text-text-primary outline-none placeholder:text-text-tertiary"
-        />
-        <kbd className="font-sans text-11 font-medium text-text-tertiary">⌘K</kbd>
-      </label>
+      <HeaderSearch />
 
       <button
         type="button"
@@ -98,7 +92,53 @@ function DesktopTopBar({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
   );
 }
 
+/** Top bar search. On the cases list it filters as you type; elsewhere Enter opens the list. */
+function HeaderSearch() {
+  const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const search = useCaseSearch(inputRef);
+
+  // ⌘K / Ctrl+K focuses the search box.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [inputRef]);
+
+  return (
+    <form
+      role="search"
+      onSubmit={search.onSubmit}
+      className="flex h-9 w-75 items-center gap-2 rounded-md border border-border-default bg-bg-app pr-3 pl-2.5 focus-within:border-accent"
+    >
+      <Icon icon={Search} size={16} className="text-text-tertiary" />
+      <label htmlFor={inputId} className="sr-only">
+        Search cases
+      </label>
+      <input
+        id={inputId}
+        ref={inputRef}
+        type="search"
+        name="q"
+        defaultValue={search.defaultValue}
+        onChange={search.onChange}
+        placeholder="Search address, case #, landlord"
+        className="min-w-0 flex-1 bg-transparent text-13 leading-[1.4] text-text-primary outline-none placeholder:text-text-tertiary"
+      />
+      <kbd aria-hidden className="font-sans text-11 font-medium text-text-tertiary">
+        ⌘K
+      </kbd>
+    </form>
+  );
+}
+
 function MobileAppBar({ title }: { title: string }) {
+  const session = useConsoleSession();
   return (
     <header className="flex items-center gap-2.5 border-b border-border-default bg-bg-surface px-4 py-2.5 lg:hidden print:hidden">
       <Link
@@ -111,7 +151,7 @@ function MobileAppBar({ title }: { title: string }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <h1 className="text-16 leading-[1.2] font-semibold text-text-primary">{title}</h1>
         <button type="button" className="flex items-center gap-1 self-start text-12 leading-[1.2] text-text-tertiary">
-          {currentAdvocate.organization}
+          {session.organization}
           <Icon icon={ChevronDown} size={12} />
         </button>
       </div>
@@ -130,11 +170,11 @@ function MobileAppBar({ title }: { title: string }) {
         <Icon icon={Bell} size={20} />
       </button>
       <span
-        aria-label={currentAdvocate.name}
+        aria-label={session.fullName}
         role="img"
         className="flex size-8 shrink-0 items-center justify-center rounded-full bg-bg-subtle text-12 leading-none font-semibold text-text-secondary"
       >
-        {currentAdvocate.initials}
+        {session.initials}
       </span>
     </header>
   );

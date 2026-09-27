@@ -11,19 +11,24 @@ import { KeyValue, Panel, PanelHeader } from "@/components/tenant/results/Panel"
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
-import { dhcdOffice, resultsCase } from "@/lib/mock/results";
 import { buttonClassName } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/tenant/SubmitButton";
+import { markCertificationRequested } from "@/lib/cases/actions";
+import { formatDateTime } from "@/lib/cases/format";
+import { dhcdOffice, getTenantView, hearingInDays } from "@/lib/cases/tenant";
 
 export const metadata: Metadata = { title: "Request certification" };
 
 const kvRow = "py-2.5 md:gap-4 md:px-4 md:py-3 md:leading-[1.45]";
 const kvLabel = "w-24 md:w-[120px]";
 
-export default function CertificationPage() {
-  const { hearing } = resultsCase;
+export default async function CertificationPage() {
+  const view = await getTenantView();
+  const { hearing } = view;
+  const requested = view.certificationRequestedAt;
   const requestText = [
-    `${resultsCase.street}, ${resultsCase.cityLine}`,
-    `Case ${resultsCase.caseNumber} · Filed ${resultsCase.filingDate}`,
+    [view.street, view.cityLine].filter(Boolean).join(", "),
+    `Case ${view.caseNumber} · Filed ${view.filingDate}`,
   ].join("\n");
 
   const directions = (
@@ -32,18 +37,23 @@ export default function CertificationPage() {
       Get directions
     </a>
   );
-  const markRequested = (
+  const markRequested = requested ? (
     <Link href="/court-prep" className={buttonClassName("primary", "responsive", "min-w-0 flex-1 md:w-full md:flex-none")}>
-      <Icon icon={Check} size={18} />
-      Mark as requested
+      Continue to court prep
     </Link>
+  ) : (
+    <form action={markCertificationRequested} className="flex min-w-0 flex-1 md:w-full md:flex-none">
+      <SubmitButton icon={<Icon icon={Check} size={18} />} className={buttonClassName("primary", "responsive", "w-full")}>
+        Mark as requested
+      </SubmitButton>
+    </form>
   );
 
   return (
     <>
       <AppBar title="Request certification" backHref="/results" className="md:hidden" />
       <main className="flex flex-1 flex-col">
-        <CaseBar reference={resultsCase.reference} address={resultsCase.street} />
+        <CaseBar reference={view.reference} address={view.street} />
 
         <TwoColumn
           main={
@@ -89,20 +99,20 @@ export default function CertificationPage() {
                 />
                 <div className="px-3.5 pt-2 pb-3.5 font-mono text-13 leading-[1.6] text-text-primary md:p-4 md:leading-[1.7]">
                   <p>
-                    {resultsCase.street}
+                    {view.street}
                     <span className="md:hidden">
                       <br />
                     </span>
                     <span className="hidden md:inline">, </span>
-                    {resultsCase.cityLine}
+                    {view.cityLine}
                   </p>
                   <p>
-                    Case {resultsCase.caseNumber}
+                    Case {view.caseNumber}
                     <span className="md:hidden">
                       <br />
                     </span>
                     <span className="hidden md:inline"> · </span>
-                    Filed {resultsCase.filingDate}
+                    Filed {view.filingDate}
                   </p>
                 </div>
               </Panel>
@@ -110,26 +120,39 @@ export default function CertificationPage() {
           }
           sidebar={
             <>
-              <Alert
-                tone="warn"
-                icon={Clock}
-                title={`Court date in ${hearing.daysAway} days`}
-                className="md:gap-3 md:rounded-[10px] md:p-4 md:[&>div]:gap-1 md:[&>div>p:first-child]:text-14 md:[&>div>p:first-child]:leading-[1.45] md:[&>div>div]:leading-[1.5]"
-              >
-                If the certification won’t arrive in time, bring your request receipt and tell the volunteer
-                attorney at court.
-              </Alert>
+              {hearing && (
+                <Alert
+                  tone="warn"
+                  icon={Clock}
+                  title={hearingInDays(hearing.daysAway, "Court date")}
+                  className="md:gap-3 md:rounded-[10px] md:p-4 md:[&>div]:gap-1 md:[&>div>p:first-child]:text-14 md:[&>div>p:first-child]:leading-[1.45] md:[&>div>div]:leading-[1.5]"
+                >
+                  If the certification won’t arrive in time, bring your request receipt and tell the volunteer
+                  attorney at court.
+                </Alert>
+              )}
 
               <Panel className="hidden md:flex">
                 <PanelHeader
                   title="Status"
                   action={
-                    <Badge tone="neutral" dot className="py-0.5">
-                      Not requested
-                    </Badge>
+                    requested ? (
+                      <Badge tone="ok" dot className="py-0.5">
+                        Requested
+                      </Badge>
+                    ) : (
+                      <Badge tone="neutral" dot className="py-0.5">
+                        Not requested
+                      </Badge>
+                    )
                   }
                 />
                 <div className="flex flex-col gap-2.5 p-4">
+                  {requested && (
+                    <p className="text-13 leading-[1.45] text-text-secondary">
+                      You marked it requested on {formatDateTime(requested)}.
+                    </p>
+                  )}
                   {markRequested}
                   {directions}
                 </div>

@@ -30,10 +30,5 @@ export function isNavActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-// Placeholder until Supabase Auth is wired up.
-export const currentAdvocate = {
-  name: "J. Rivera",
-  initials: "JR",
-  organization: "Public Justice Center",
-  openCaseCount: 24,
-};
+/** Where "New check" goes: the tenant flow's start, to run a check on a tenant's behalf. */
+export const NEW_CHECK_HREF = "/";

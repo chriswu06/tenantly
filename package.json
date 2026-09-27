@@ -8,7 +8,12 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "invite": "node --env-file=.env.local scripts/invite.mjs",
+    "db:push": "set -a && . ./.env.local && set +a && npx -y supabase@2 db push --db-url \"$SUPABASE_DB_URL\" --include-seed",
+    "db:types": "set -a && . ./.env.local && set +a && npx -y supabase@2 gen types typescript --db-url \"$SUPABASE_DB_URL\" --schema public > src/types/database.ts",
+    "seed:demo": "node --env-file=.env.local scripts/seed-demo.mjs",
+    "postinstall": "node scripts/copy-opencv.mjs"
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.69.0",
@@ -16,12 +21,14 @@
     "@react-pdf/renderer": "^4.9.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
+    "@techstark/opencv-js": "^5.0.0-release.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.48.0",
     "next": "^16.3.6",
     "pdf-lib": "^1.17.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.5"
   },

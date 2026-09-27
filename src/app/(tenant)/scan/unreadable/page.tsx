@@ -1,21 +1,26 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Camera, Check, Pencil, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { DocThumb } from "@/components/tenant/scan/DocThumb";
-import { FieldStatusList } from "@/components/tenant/scan/FieldStatusList";
 import { FlowLayout, PageHeading } from "@/components/tenant/scan/FlowLayout";
 
-import { photoTips, unreadableFields, uploadedFile } from "@/lib/mock/scan";
 import { buttonClassName } from "@/components/ui/Button";
 
-export default function UnreadablePage() {
-  const readable = unreadableFields.filter((field) => field.status === "found").length;
+export const metadata: Metadata = { title: "We couldn’t read your summons", robots: { index: false, follow: false } };
 
+const photoTips = [
+  "Lay the page flat on a dark surface",
+  "Use even light and avoid glare",
+  "Fit the whole first page in the frame",
+];
+
+export default function UnreadablePage() {
   return (
     <FlowLayout
       title="Scan summons"
-      backHref="/scan/capture"
+      backHref="/"
       step={0}
       className="gap-3.5 p-5 md:gap-5 md:px-0"
       mobileFooter={
@@ -38,15 +43,11 @@ export default function UnreadablePage() {
       <div className="flex items-center gap-3 rounded-[10px] border border-danger-border bg-bg-surface p-3.5">
         <DocThumb faded />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5 leading-[1.45]">
-          <p className="truncate text-14 font-medium">{uploadedFile.name}</p>
-          <p className="text-12 text-text-tertiary">
-            Only {readable} of {unreadableFields.length} fields could be read
-          </p>
+          <p className="truncate text-14 font-medium">Your summons</p>
+          <p className="text-12 text-text-tertiary">The photo was deleted. Nothing was saved from it.</p>
         </div>
         <Badge tone="danger">Unreadable</Badge>
       </div>
-
-      <FieldStatusList fields={unreadableFields} dense className="rounded-[10px]" />
 
       <section
         aria-labelledby="photo-tips"

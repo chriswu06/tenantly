@@ -9,16 +9,18 @@ import { PageHeading, TwoColumn } from "@/components/tenant/results/PageHeading"
 
 import { Icon } from "@/components/ui/Icon";
 import { NextStepLink } from "@/components/tenant/results/NextStepLink";
-import { courtChecklist, hearingIcsHref, resultsCase } from "@/lib/mock/results";
 import { buttonClassName } from "@/components/ui/Button";
+import { getTenantView, hearingIcsHref } from "@/lib/cases/tenant";
 
 export const metadata: Metadata = { title: "Court preparation" };
 
-export default function CourtPrepPage() {
-  const { hearing } = resultsCase;
+export default async function CourtPrepPage() {
+  const view = await getTenantView();
+  const { hearing } = view;
+  const icsHref = hearingIcsHref(view);
 
   const exportButton = (
-    <a href={`/api/cases/${resultsCase.reference}/report?type=checklist`} download className={buttonClassName("primary", "responsive", "w-full")}>
+    <a href={`/api/cases/${view.reference}/report?type=checklist`} download className={buttonClassName("primary", "responsive", "w-full")}>
       <Icon icon={Download} size={18} />
       Export checklist (PDF)
     </a>
@@ -28,7 +30,7 @@ export default function CourtPrepPage() {
     <>
       <AppBar title="Court preparation" backHref="/certification" className="md:hidden" />
       <main className="flex flex-1 flex-col">
-        <CaseBar reference={resultsCase.reference} address={resultsCase.street} />
+        <CaseBar reference={view.reference} address={view.street} />
 
         <TwoColumn
           main={
@@ -38,26 +40,30 @@ export default function CourtPrepPage() {
                 description="Gather these documents before your hearing."
                 className="sr-only md:not-sr-only"
               />
-              <CourtPrepChecklist items={courtChecklist} />
+              <CourtPrepChecklist items={view.checklist} />
             </>
           }
           sidebar={
             <>
-              <HearingCard
-                month={hearing.month}
-                day={hearing.day}
-                title="Rent court hearing"
-                lines={[`${hearing.dateTime} · ${hearing.arrive}`, hearing.courtName]}
-              >
-                <a
-                  href={hearingIcsHref()}
-                  download="rent-court-hearing.ics"
-                  className="flex items-center gap-1.5 self-start rounded-md text-13 leading-[1.4] font-semibold text-accent hover:underline md:leading-[1.45]"
+              {hearing && (
+                <HearingCard
+                  month={hearing.month}
+                  day={hearing.day}
+                  title="Rent court hearing"
+                  lines={[`${hearing.dateTime} · ${hearing.arrive}`, hearing.courtName]}
                 >
-                  <Icon icon={Calendar} size={16} />
-                  Add to calendar (.ics)
-                </a>
-              </HearingCard>
+                  {icsHref && (
+                    <a
+                      href={icsHref}
+                      download="rent-court-hearing.ics"
+                      className="flex items-center gap-1.5 self-start rounded-md text-13 leading-[1.4] font-semibold text-accent hover:underline md:leading-[1.45]"
+                    >
+                      <Icon icon={Calendar} size={16} />
+                      Add to calendar (.ics)
+                    </a>
+                  )}
+                </HearingCard>
+              )}
               <div className="hidden flex-col gap-3 md:flex">
                 {exportButton}
                 <NextStepLink href="/legal-help">Continue to free legal help</NextStepLink>

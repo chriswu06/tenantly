@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { Metric } from "@/lib/mock/advocate";
+import type { Metric } from "@/lib/cases/queries";
 import { LineSkeleton } from "./ConsolePage";
 
 const toneClass = {

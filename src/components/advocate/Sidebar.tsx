@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
+import { signOut } from "@/lib/auth-actions";
 import { cn } from "@/lib/utils";
-import { consoleNav, currentAdvocate, isNavActive, settingsNav, type ConsoleNavItem } from "./console-config";
+import { consoleNav, isNavActive, settingsNav, type ConsoleNavItem } from "./console-config";
+import { useConsoleSession } from "./ConsoleSession";
 
 /** Desktop console navigation (Figma frame 11). Hidden below `lg`, where MobileTabBar takes over. */
 export function Sidebar() {
   const pathname = usePathname();
+  const session = useConsoleSession();
 
   return (
     <aside className="sticky top-0 hidden h-dvh print:hidden w-60 shrink-0 flex-col gap-1 border-r border-border-default bg-bg-surface px-3 py-4 lg:flex">
@@ -28,7 +32,7 @@ export function Sidebar() {
             key={item.href}
             item={item}
             active={isNavActive(pathname, item.href)}
-            count={item.href === "/advocate/cases" ? currentAdvocate.openCaseCount : undefined}
+            count={item.href === "/advocate/cases" ? session.caseCount : undefined}
           />
         ))}
         <div className="flex-1" />
@@ -37,12 +41,22 @@ export function Sidebar() {
 
       <div className="flex items-center gap-2.5 border-t border-border-default px-2 pt-3 pb-1">
         <span className="flex size-8 items-center justify-center rounded-full bg-bg-subtle text-12 leading-none font-semibold text-text-secondary">
-          {currentAdvocate.initials}
+          {session.initials}
         </span>
-        <span className="flex min-w-0 flex-col leading-[1.3]">
-          <span className="text-13 leading-[1.3] font-medium text-text-primary">{currentAdvocate.name}</span>
-          <span className="truncate text-12 leading-[1.3] text-text-tertiary">{currentAdvocate.organization}</span>
+        <span className="flex min-w-0 flex-1 flex-col leading-[1.3]">
+          <span className="truncate text-13 leading-[1.3] font-medium text-text-primary">{session.fullName}</span>
+          <span className="truncate text-12 leading-[1.3] text-text-tertiary">{session.organization}</span>
         </span>
+        <form action={signOut}>
+          <button
+            type="submit"
+            aria-label="Sign out"
+            title="Sign out"
+            className="flex size-8 items-center justify-center rounded-md text-text-tertiary hover:bg-bg-subtle hover:text-text-primary"
+          >
+            <Icon icon={LogOut} size={16} />
+          </button>
+        </form>
       </div>
     </aside>
   );

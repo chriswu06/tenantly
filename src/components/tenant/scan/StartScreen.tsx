@@ -16,6 +16,8 @@ import { Icon } from "@/components/ui/Icon";
 import { FileUpload } from "@/components/tenant/FileUpload";
 import { TrustNote } from "@/components/tenant/TrustNote";
 import { advocateHref } from "@/components/layout/nav-links";
+import { SubmitButton } from "@/components/tenant/SubmitButton";
+import { startManually } from "@/lib/cases/actions";
 import { MobileActionBar } from "./FlowLayout";
 import { buttonClassName } from "@/components/ui/Button";
 
@@ -40,6 +42,8 @@ type StartScreenProps = {
   mobileAlert?: ReactNode;
   /** Web dropzone error state (frame 37). */
   uploadError?: { title: string; message: string };
+  /** Notice above the intro on both layouts, e.g. "Your previous session ended". */
+  notice?: ReactNode;
   /**
    * Render only the web layout as an inert backdrop, e.g. behind the webcam
    * modal (frame 14). Its heading becomes a <p> so the modal owns the <h1>.
@@ -48,7 +52,7 @@ type StartScreenProps = {
 };
 
 /** Start screen: frames 01 (mobile) and 13 (web), plus the upload-failed variants 37/38. */
-export function StartScreen({ mobileAlert, uploadError, backdrop = false }: StartScreenProps) {
+export function StartScreen({ mobileAlert, uploadError, notice, backdrop = false }: StartScreenProps) {
   const Heading = backdrop ? "p" : "h1";
 
   return (
@@ -58,6 +62,7 @@ export function StartScreen({ mobileAlert, uploadError, backdrop = false }: Star
           <MobileSiteHeader />
           <div className="flex flex-1 flex-col gap-3.5 px-5 pt-4 pb-5">
             {mobileAlert}
+            {notice}
             <Badge tone="accent" className="self-start">
               Baltimore City · Rent court
             </Badge>
@@ -100,10 +105,11 @@ export function StartScreen({ mobileAlert, uploadError, backdrop = false }: Star
               <Icon icon={Camera} size={18} />
               Scan summons
             </Link>
-            <Link href="/scan/review" className={buttonClassName("secondary", "lg", "w-full")}>
-              <Icon icon={Pencil} size={18} />
-              Enter details manually
-            </Link>
+            <form action={startManually} className="contents">
+              <SubmitButton icon={<Icon icon={Pencil} size={18} />} className={buttonClassName("secondary", "lg", "w-full")}>
+                Enter details manually
+              </SubmitButton>
+            </form>
             <TrustNote />
             <Link
               href={advocateHref}
@@ -123,6 +129,7 @@ export function StartScreen({ mobileAlert, uploadError, backdrop = false }: Star
       >
         <div className="mx-auto flex max-w-page flex-col gap-10 pt-18 pb-12 lg:flex-row lg:items-start lg:gap-16">
           <div className="flex min-w-0 flex-1 flex-col gap-6">
+            {!backdrop && notice}
             <Badge tone="accent" className="self-start px-2.5 py-1 text-13">
               Baltimore City · Rent court
             </Badge>
@@ -178,13 +185,15 @@ function UploadCard({ error }: { error?: StartScreenProps["uploadError"] }) {
         <Icon icon={Camera} size={18} />
         Use webcam
       </Link>
-      <Link
-        href="/scan/review"
-        className="flex items-center justify-center gap-1.5 self-center rounded-md text-14 leading-[1.45] font-semibold text-accent hover:underline"
-      >
-        <Icon icon={Pencil} size={16} />
-        Enter details manually instead
-      </Link>
+      <form action={startManually} className="flex justify-center">
+        <SubmitButton
+          icon={<Icon icon={Pencil} size={16} />}
+          iconSize={16}
+          className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md text-14 leading-[1.45] font-semibold text-accent hover:underline"
+        >
+          Enter details manually instead
+        </SubmitButton>
+      </form>
       <TrustNote className="leading-[1.45]" />
     </section>
   );
