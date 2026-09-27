@@ -10,8 +10,8 @@ type StepperProps = {
 };
 
 /**
- * Tenant progress bar. Full width on mobile (frame 03); centred 200px steps
- * with 13px labels from `md` up (web frames 15–18).
+ * Tenant progress bar. Full width on mobile; centred fixed-width steps with
+ * labels from `md` up.
  *
  * @example <Stepper current={1} />
  */

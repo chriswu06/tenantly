@@ -21,7 +21,6 @@ function MetaSkeleton() {
   return <LineSkeleton className="w-4 shrink-0 text-12 leading-[1.4]" />;
 }
 
-/** "Hearings this week" panel (frames 50, 51). */
 export function HearingsPanel({ hearings, total }: { hearings: Hearing[]; total: number }) {
   return (
     <Panel>
@@ -110,7 +109,6 @@ const attentionStyle: Record<AttentionItem["kind"], { icon: LucideIcon; tile: st
   },
 };
 
-/** "Needs attention" panel (frames 50, 51). */
 export function AttentionPanel({ items }: { items: AttentionItem[] }) {
   return (
     <Panel>
@@ -179,7 +177,7 @@ export function AttentionPanel({ items }: { items: AttentionItem[] }) {
   );
 }
 
-/** Loading "Hearings this week": rows sized like the real ones (70px mobile, 46px desktop). */
+/** Loading "Hearings this week": rows sized like the real ones. */
 export function HearingsPanelSkeleton({ rows = 4 }: { rows?: number }) {
   return (
     <Panel>

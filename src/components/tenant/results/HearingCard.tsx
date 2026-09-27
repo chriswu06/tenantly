@@ -51,7 +51,7 @@ export function HearingCard({ month, day, title, lines, children, className }: H
   );
 }
 
-/** Loading stand-in for `HearingCard`: date tile, title and detail line placeholders. */
+/** Loading state for `HearingCard`: date tile, title and detail line placeholders. */
 export function HearingCardSkeleton({
   lines = 1,
   withAction = false,
@@ -74,7 +74,6 @@ export function HearingCardSkeleton({
       <div className="flex items-center gap-3">
         <Skeleton className="h-[51px] w-[46px] shrink-0 rounded-lg" />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          {/* Title: 15px/21px on mobile, 14px/20.3px from md. Lines: 13px/18.2px, then 12px/17.4px. */}
           <div className="flex h-[21px] items-center md:h-[20.3px]">
             <Skeleton className="h-4 w-36 md:h-3.5" />
           </div>

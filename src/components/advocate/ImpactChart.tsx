@@ -20,7 +20,7 @@ function RangeButton() {
   );
 }
 
-/** Impact reports title and actions: page header on desktop (frame 60), a row of buttons on mobile (frame 61). */
+/** Impact reports title and actions: page header on desktop, a row of buttons on mobile. */
 export function ReportsPageHeader() {
   return (
     <>
@@ -51,7 +51,7 @@ export function ReportsPageHeader() {
 type ChartMonth = { month: string; total: number; noLicense: number };
 
 /**
- * "License checks per month" stacked columns (frames 60, 61), plain CSS.
+ * "License checks per month" stacked columns, plain CSS.
  * The busiest month's bar is 120px tall on mobile and 160px on desktop; the rest scale to it.
  */
 export function ImpactChart({ data }: { data: ChartMonth[] }) {
@@ -100,7 +100,7 @@ function ImpactChartLegend() {
   );
 }
 
-/** Stand-in column heights, in checks (scaled like the real bars). */
+/** Loading column heights, in checks (scaled like the real bars). */
 const skeletonColumns = [70, 100, 125, 150, 180, 200];
 
 /** Loading chart: real title and legend, grey columns in place of the bars and labels. */
@@ -144,7 +144,7 @@ type OutcomeBarsProps = {
   scaleMax?: number;
 };
 
-/** "Reported outcomes" horizontal bars (frames 50, 60). Bars are relative to the largest count. */
+/** "Reported outcomes" horizontal bars, relative to the largest count. */
 export function OutcomeBars({ outcomes, period, footnote, scaleMax }: OutcomeBarsProps) {
   const max = Math.max(1, scaleMax ?? Math.max(0, ...outcomes.map((o) => o.count)));
   return (

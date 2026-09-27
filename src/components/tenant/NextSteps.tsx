@@ -8,7 +8,7 @@ export type NextStep = {
   href: string;
   icon: LucideIcon;
   label: string;
-  /** Second line, shown on desktop only (Figma 18). */
+  /** Second line, shown on desktop only. */
   description?: string;
   /** Accent-colored row, e.g. "Share case with legal aid". */
   accent?: boolean;
@@ -23,7 +23,7 @@ type NextStepsProps = {
 };
 
 /**
- * "Recommended next steps" link list (Figma 06 and 18).
+ * "Recommended next steps" link list.
  *
  * @example <NextSteps steps={[{ href: "/certification", icon: FileText, label: "Request DHCD certification" }]} />
  */
@@ -72,7 +72,7 @@ export function NextSteps({ steps, title = "Recommended next steps", className }
   );
 }
 
-/** Loading stand-in for `NextSteps`: the real heading over placeholder rows. */
+/** Loading state for `NextSteps`: the real heading over placeholder rows. */
 export function NextStepsSkeleton({
   rows = 3,
   mobileRows = rows,
@@ -111,7 +111,6 @@ export function NextStepsSkeleton({
           >
             <Skeleton className="size-[18px] shrink-0 rounded-sm" />
             <div className="flex min-w-0 flex-1 flex-col gap-px">
-              {/* 14px label (21px line); 12px description (16.8px), md only. */}
               <div className="flex h-[21px] items-center">
                 <Skeleton className={cn("h-3.5", index % 2 ? "w-44" : "w-52")} />
               </div>

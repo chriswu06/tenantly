@@ -7,7 +7,7 @@
 
 create extension if not exists pgcrypto;
 
--- Enums ---------------------------------------------------------------------
+-- Enums
 
 create type public.case_stage as enum (
   'needs_review',        -- summons read, details not yet confirmed
@@ -38,7 +38,7 @@ create type public.case_outcome as enum (
 
 create type public.advocate_role as enum ('staff_attorney', 'supervising_attorney', 'paralegal', 'intake_specialist');
 
--- Organizations and advocates -------------------------------------------------
+-- Organizations and advocates
 
 create table public.organizations (
   id uuid primary key default gen_random_uuid(),
@@ -81,7 +81,7 @@ create table public.invitations (
 create index invitations_organization_idx on public.invitations (organization_id);
 create unique index invitations_open_email_idx on public.invitations (organization_id, lower(email)) where accepted_at is null;
 
--- Cases -------------------------------------------------------------------------
+-- Cases
 
 create sequence public.case_reference_seq start 1000;
 
@@ -174,7 +174,7 @@ create table public.case_events (
 );
 create index case_events_case_idx on public.case_events (case_id, created_at);
 
--- Housekeeping ------------------------------------------------------------------
+-- Housekeeping
 
 create function public.touch_updated_at() returns trigger
 language plpgsql as $$

@@ -2,7 +2,7 @@ import { Book, Eye, House, Info, Lock, Scale, type LucideIcon } from "lucide-rea
 
 type NavLink = { href: string; label: string; icon: LucideIcon };
 
-// Desktop header links (Figma 13) and the first group in the mobile menu (Figma 49).
+// Desktop header links and the first group in the mobile menu.
 export const primaryLinks: NavLink[] = [
   { href: "/how-it-works", label: "How it works", icon: Info },
   { href: "/free-legal-help", label: "Free legal help", icon: Scale },

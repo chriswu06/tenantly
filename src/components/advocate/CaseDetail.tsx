@@ -30,10 +30,7 @@ import { ConsoleHeader } from "./ConsoleHeader";
 import { BadgeSkeleton, LineSkeleton, PageBody, Panel, PanelHeader } from "./ConsolePage";
 import { daysFromToday, formatDate, formatTime, formatWeekday, licenseResultBadge, shortAddress } from "./display";
 
-/*
- * Case detail pieces (Figma frames 12 desktop, 12m / 52 / 53 mobile).
- * The three routes (Overview, Records, Activity) share <CaseHeader> and <CaseFooter>.
- */
+/* The three case detail routes (Overview, Records, Activity) share <CaseHeader> and <CaseFooter>. */
 
 export type CaseTab = "overview" | "records" | "activity";
 
@@ -123,7 +120,7 @@ function RecordCertificationButton({
   );
 }
 
-/** Case title block. The Overview / Records / Activity tabs are mobile only: frame 12 shows everything at once. */
+/** Case title block. The Overview / Records / Activity tabs are mobile only: desktop shows everything at once. */
 export function CaseHeader({
   caseData: c,
   tab,
@@ -160,7 +157,7 @@ export function CaseHeader({
 
   return (
     <>
-      {/* Mobile (frame 12m): white block under the back bar, whose <h1> is the case reference. */}
+      {/* Mobile: white block under the back bar, whose <h1> is the case reference. */}
       <div className="flex flex-col gap-1.5 border-b border-border-default bg-bg-surface px-4 pt-1 lg:hidden">
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge tone={license.tone} dot>
@@ -180,7 +177,7 @@ export function CaseHeader({
         {tabs}
       </div>
 
-      {/* Desktop (frame 12). */}
+      {/* Desktop */}
       <div className="hidden flex-col gap-4 px-6 pt-6 lg:flex">
         <div className="flex items-end gap-4">
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -226,7 +223,7 @@ export function CaseHeader({
 }
 
 /**
- * Mobile action bar pinned to the bottom (frame 12m). Takes the place of the tab bar.
+ * Mobile action bar pinned to the bottom, in place of the tab bar.
  * Without a `reference` (while the case loads) both actions show but are disabled.
  */
 export function CaseFooter({ reference, certificationRecorded = false }: { reference?: string; certificationRecorded?: boolean }) {
@@ -263,8 +260,8 @@ export function CaseFooter({ reference, certificationRecorded = false }: { refer
 }
 
 /**
- * Desktop case detail (frame 12): records on the left, next actions and activity on the right.
- * All three case routes show this on desktop; their tabs only split it up on mobile (12m, 52, 53).
+ * Desktop case detail: records on the left, next actions and activity on the right.
+ * All three case routes show this on desktop; their tabs only split it up on mobile.
  */
 export function CaseDesktopView({ caseData, detail }: { caseData: AdvocateCase; detail: CaseDetailData }) {
   return (
@@ -284,7 +281,7 @@ export function CaseDesktopView({ caseData, detail }: { caseData: AdvocateCase; 
   );
 }
 
-/** Two columns on desktop: `children` on the left, `aside` (340px) on the right. Mobile shows only `children`. */
+/** Two columns on desktop: `children` on the left, `aside` on the right. Mobile shows only `children`. */
 export function CaseColumns({ children, aside }: { children: ReactNode; aside: ReactNode }) {
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-5">
@@ -294,9 +291,6 @@ export function CaseColumns({ children, aside }: { children: ReactNode; aside: R
   );
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-
-/** Case detail panels are 8px-radius cards with a tighter header on mobile. */
 function CasePanel({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
     <Panel className="rounded-lg">
@@ -321,7 +315,7 @@ export function ResultStrip({
 }: {
   result: CaseDetailData["result"];
   text: string;
-  /** Records tab (frame 52): 10px padding, 16px icon. */
+  /** Tighter padding and a smaller icon, for the Records tab. */
   compact?: boolean;
   className?: string;
 }) {
@@ -341,7 +335,7 @@ export function ResultStrip({
   );
 }
 
-/** Mobile hearing summary (frame 12m). */
+/** Mobile hearing summary. */
 export function HearingCard({ caseData: c }: { caseData: AdvocateCase }) {
   if (!c.hearingDate) {
     return (
@@ -416,7 +410,7 @@ export function LicenseVerificationPanel({ reference, detail }: { reference: str
         </>
       }
     >
-      {/* Mobile (frame 52) */}
+      {/* Mobile */}
       <div className="flex flex-col gap-2.5 p-3.5 lg:hidden">
         <ResultStrip result={detail.result} text={detail.result.recordsText} compact />
         {detail.records.length === 0 && (
@@ -443,7 +437,7 @@ export function LicenseVerificationPanel({ reference, detail }: { reference: str
         ))}
       </div>
 
-      {/* Desktop (frame 12) */}
+      {/* Desktop */}
       <div className="hidden flex-col gap-3 p-4 lg:flex">
         <div
           className={cn(
@@ -668,7 +662,6 @@ export function ActivityPanel({ events }: { events: ActivityEvent[] }) {
   );
 }
 
-/* ---------------------------------------------------------------------------------------------- */
 /* Loading states. The case reference isn't known until the data arrives, so the header says "Case". */
 
 const caseTabLabels: { tab: CaseTab; label: string }[] = [
@@ -750,7 +743,7 @@ function CaseHeaderSkeleton({ tab }: { tab: CaseTab }) {
   );
 }
 
-/** Frame 12 on desktop while loading. Hidden below `lg`, like <CaseDesktopView>. */
+/** Desktop view while loading. Hidden below `lg`, like <CaseDesktopView>. */
 export function CaseDesktopViewSkeleton() {
   return (
     <div className="hidden lg:block">
@@ -769,7 +762,7 @@ export function CaseDesktopViewSkeleton() {
   );
 }
 
-/** Mobile Overview tab (frame 12m) while loading: result strip, hearing card, next actions. */
+/** Mobile Overview tab while loading: result strip, hearing card, next actions. */
 export function CaseOverviewSkeleton() {
   return (
     <div className="flex flex-col gap-3 lg:hidden">

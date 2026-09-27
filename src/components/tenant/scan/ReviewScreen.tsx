@@ -27,7 +27,7 @@ type ReviewScreenProps = {
 
 const FORM_ID = "review-form";
 
-/** Review details (frames 04 and 16): confirm the summons fields, then check the address. */
+/** Confirm the summons fields, then check the address. */
 export function ReviewScreen({ values, confidence, source }: ReviewScreenProps) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(confirmDetails, {});
   const formRef = useRef<HTMLFormElement>(null);

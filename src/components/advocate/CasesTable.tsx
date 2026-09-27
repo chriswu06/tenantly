@@ -34,7 +34,7 @@ export function caseFilterTabs(active?: CaseFilter, counts?: Record<CaseFilter, 
   }));
 }
 
-/** Desktop page title with the date range button (frame 11). */
+/** Desktop page title with the date range button. */
 export function CasesPageHeader() {
   return (
     <PageHeader
@@ -131,7 +131,7 @@ type CasesTableProps = CasesEmptyProps & {
   pagination: CasesPagination;
 };
 
-/** Desktop cases table with filter toolbar and pagination (frame 11). Hidden below `lg`. */
+/** Desktop cases table with filter toolbar and pagination. Hidden below `lg`. */
 export function CasesTable({ cases, filterTabs, pagination, filtered, query }: CasesTableProps) {
   return (
     <TableCard className="hidden lg:block">
@@ -189,7 +189,7 @@ export function CasesTable({ cases, filterTabs, pagination, filtered, query }: C
   );
 }
 
-/** Mobile case cards (frame 11m) with pagination under them. Hidden from `lg` up. */
+/** Mobile case cards with pagination under them. Hidden from `lg` up. */
 export function CaseCards({
   cases,
   filtered,

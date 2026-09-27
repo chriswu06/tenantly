@@ -14,7 +14,6 @@ type StatusPageProps = {
 /**
  * Full-page message for not-found and error states. These render outside
  * the route-group layouts, so they bring their own header and footer.
- * No Figma frame exists for these; built from the Start screen's patterns.
  */
 export function StatusPage({ icon, title, description, children }: StatusPageProps) {
   return (

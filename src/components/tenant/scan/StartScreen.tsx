@@ -38,20 +38,20 @@ const webSteps: { icon: LucideIcon; label: string }[] = [
 ];
 
 type StartScreenProps = {
-  /** Mobile alert above the intro (frame 38 · Upload failed). */
+  /** Mobile alert above the intro, e.g. after a failed upload. */
   mobileAlert?: ReactNode;
-  /** Web dropzone error state (frame 37). */
+  /** Web dropzone error state. */
   uploadError?: { title: string; message: string };
   /** Notice above the intro on both layouts, e.g. "Your previous session ended". */
   notice?: ReactNode;
   /**
    * Render only the web layout as an inert backdrop, e.g. behind the webcam
-   * modal (frame 14). Its heading becomes a <p> so the modal owns the <h1>.
+   * modal. Its heading becomes a <p> so the modal owns the <h1>.
    */
   backdrop?: boolean;
 };
 
-/** Start screen: frames 01 (mobile) and 13 (web), plus the upload-failed variants 37/38. */
+/** Start screen for both layouts, including the upload-failed states. */
 export function StartScreen({ mobileAlert, uploadError, notice, backdrop = false }: StartScreenProps) {
   const Heading = backdrop ? "p" : "h1";
 

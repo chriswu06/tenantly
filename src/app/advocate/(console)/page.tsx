@@ -8,7 +8,6 @@ import { getCaseMetrics, getOverview } from "@/lib/cases/queries";
 
 export const metadata: Metadata = { title: "Overview" };
 
-/** Advocate console home (Figma frames 50 desktop, 51 mobile). */
 export default async function AdvocateOverviewPage() {
   const [metrics, { hearings, attention, outcomesLast30Days }] = await Promise.all([getCaseMetrics(), getOverview()]);
   const hearingsThisWeek = Number(metrics.find((m) => m.label === "Hearings this week")?.value ?? hearings.length);

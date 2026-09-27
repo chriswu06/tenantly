@@ -3,7 +3,7 @@
 import { useConsoleSession } from "./ConsoleSession";
 import { greetingFor } from "./display";
 
-/** Overview greeting (frames 50, 51). The mobile app bar already has the page's <h1>. */
+/** The mobile app bar already has the page's <h1>, so this greeting has none. */
 export function OverviewGreeting() {
   const { firstName, organization } = useConsoleSession();
   const { greeting, date } = greetingFor();

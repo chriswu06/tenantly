@@ -17,7 +17,6 @@ const panelHeaderClass =
   "flex items-center gap-2 border-b border-border-default px-4 py-3 md:h-12 md:py-0";
 const panelTitleClass = "min-w-0 flex-1 text-14 leading-[1.4] font-semibold md:leading-[1.45]";
 
-// Figma 48 · Free legal help (from menu) — mobile, 47 · Web — Free legal help (from menu).
 export default function FreeLegalHelpPage() {
   return (
     <>

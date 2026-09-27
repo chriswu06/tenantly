@@ -2,12 +2,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
-/*
- * Layout pieces shared by the console pages (Figma frames 11, 50–65).
- * Render <ConsoleHeader> first, then <PageBody>.
- */
+/* Layout pieces shared by the console pages. Render <ConsoleHeader> first, then <PageBody>. */
 
-/** Page content: 16px padding and 14px gaps on mobile, 24px padding and 20px gaps on desktop. */
 export function PageBody({ className, ...props }: ComponentProps<"main">) {
   return <main className={cn("flex min-w-0 flex-col gap-3.5 p-4 lg:gap-5 lg:p-6", className)} {...props} />;
 }
@@ -67,7 +63,7 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
   );
 }
 
-/** White card with a header row (frames 50, 60, 62, 64 panels). */
+/** White card with a header row. */
 export function Panel({ className, ...props }: ComponentProps<"section">) {
   return (
     <section
@@ -86,7 +82,6 @@ type PanelHeaderProps = {
   className?: string;
 };
 
-/** 48px panel header: 14px semibold title, optional aside. */
 export function PanelHeader({ title, as: Heading = "h2", aside, className }: PanelHeaderProps) {
   return (
     <div className={cn("flex h-12 items-center gap-2 border-b border-border-default px-4", className)}>
@@ -96,12 +91,10 @@ export function PanelHeader({ title, as: Heading = "h2", aside, className }: Pan
   );
 }
 
-/** Light 12px aside text for panel headers. */
 export function PanelMeta({ className, ...props }: ComponentProps<"p">) {
   return <p className={cn("shrink-0 text-12 leading-[1.4] whitespace-nowrap text-text-tertiary", className)} {...props} />;
 }
 
-/** 32px initials avatar. */
 export function Avatar({ initials, label, className }: { initials: string; label?: string; className?: string }) {
   return (
     <span

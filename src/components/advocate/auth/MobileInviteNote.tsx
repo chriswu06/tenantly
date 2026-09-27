@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { Lock } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 
-/** Mobile "Access is by invitation" note. Sign-up (frame 26) leaves it out: the visitor already has an invite. */
+/** Mobile "Access is by invitation" note. Sign-up leaves it out: the visitor already has an invite. */
 export function MobileInviteNote({ note }: { note: string }) {
   const pathname = usePathname();
   if (pathname === "/advocate/sign-up") return null;

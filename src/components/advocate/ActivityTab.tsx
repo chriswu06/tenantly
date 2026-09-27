@@ -1,7 +1,7 @@
 import type { CaseDetailData } from "@/lib/cases/queries";
 import { ActivityPanel } from "./CaseDetail";
 
-/** Activity tab on mobile (frame 53): the case timeline. */
+/** Activity tab on mobile: the case timeline. */
 export function ActivityTab({ detail }: { detail: CaseDetailData }) {
   return (
     <div className="lg:hidden">

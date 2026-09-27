@@ -2,7 +2,6 @@ import { AppBar } from "@/components/layout/AppBar";
 import { OutcomeFormSkeleton } from "@/components/tenant/results/OutcomeForm";
 import { LoadingRegion } from "@/components/ui/Skeleton";
 
-/** Report outcome while the form loads. Mirrors `page.tsx`. */
 export default function OutcomeLoading() {
   return (
     <>

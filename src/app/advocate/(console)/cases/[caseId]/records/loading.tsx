@@ -5,7 +5,6 @@ import {
   SummonsPanelSkeleton,
 } from "@/components/advocate/CaseDetail";
 
-/** Case detail, Records tab, while the case loads (frame 52 on mobile, frame 12 on desktop). */
 export default function CaseRecordsLoading() {
   return (
     <CaseDetailLoadingShell tab="records">

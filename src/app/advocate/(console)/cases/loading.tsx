@@ -5,7 +5,6 @@ import { StatGridSkeleton } from "@/components/advocate/StatCard";
 import { Tabs } from "@/components/ui/Tabs";
 import { caseMetricLabels } from "@/components/advocate/display";
 
-/** Cases list while it loads: real header, search and filter labels; placeholder metrics, cards and rows. */
 export default function CasesLoading() {
   const filterTabs = caseFilterTabs();
   return (

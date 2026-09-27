@@ -9,7 +9,6 @@ import { KeyValue, Panel, PanelHeaderSkeleton } from "@/components/tenant/result
 import { Button } from "@/components/ui/Button";
 import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 
-/** Results while the license check loads. Mirrors `page.tsx`. */
 export default function ResultsLoading() {
   return (
     <>
@@ -95,7 +94,6 @@ function ResultsSkeleton() {
   );
 }
 
-/** Placeholder for a 13px value (18.2px lines) inside a `KeyValue`. */
 function SkeletonLines({ lines }: { lines: number }) {
   return (
     <div className="flex flex-col">

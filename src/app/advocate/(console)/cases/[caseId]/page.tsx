@@ -14,7 +14,6 @@ export async function generateMetadata({ params }: { params: Promise<{ caseId: s
   return { title: `${decodeURIComponent(caseId)}` };
 }
 
-/** Case detail, Overview tab (Figma frames 12 desktop, 12m mobile). */
 export default async function CaseOverviewPage({ params }: PageProps<"/advocate/cases/[caseId]">) {
   const { caseData, detail, certificationReceivedAt } = await getCaseDetail(decodeURIComponent((await params).caseId));
 

@@ -27,7 +27,7 @@ test("tenant checks their landlord's license and prepares for court", async ({ p
   const pdf = await page.request.get(summaryHref!);
   expect(pdf.status()).toBe(200);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
-  expect((await request.get(summaryHref!)).status()).toBe(404); // a different browser gets nothing
+  expect((await request.get(summaryHref!)).status()).toBe(404); // A different browser gets nothing.
 
   await page.goto("/certification");
   await page.getByRole("button", { name: "Mark as requested" }).last().click();

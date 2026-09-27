@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 
 /*
- * Data table pieces, measured from the cases table in Figma frame 11.
+ * Data table pieces.
  *
  * <TableCard>
  *   <TableToolbar>…tabs and buttons…</TableToolbar>
@@ -70,7 +70,7 @@ export function Tr({ className, ...props }: ComponentProps<"tr">) {
   return <tr className={cn("border-b border-border-default hover:bg-bg-app", className)} {...props} />;
 }
 
-/** Body cell: 48px row, 13px secondary text. Override the color for the primary column. */
+/** Body cell in secondary text. Override the color for the primary column. */
 export function Td({ className, ...props }: ComponentProps<"td">) {
   return (
     <td

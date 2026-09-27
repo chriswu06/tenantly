@@ -5,7 +5,6 @@ import { dhcdRentalLicensingUrl, peoplesLawLibraryUrl } from "@/lib/contacts";
 
 export const metadata: Metadata = { title: "About the license law" };
 
-// Figma 42 · About the license law — mobile, 41 · Web — About the license law.
 export default function LicenseLawPage() {
   return (
     <InfoPage

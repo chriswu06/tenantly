@@ -1,10 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Design tokens from the Figma file "Standing — Tenant Rent Court App".
- * Color names mirror the Figma variables: `text/primary` → `text-primary`,
- * so Figma's `var(--text/primary)` becomes `text-text-primary`,
- * `bg/app` becomes `bg-bg-app`, `accent/default` becomes `bg-accent`.
+ * Design tokens. Color names follow the design's variables: `text/primary` is
+ * `--color-text-primary`, used as `text-text-primary`; `bg/app` becomes
+ * `bg-bg-app`, `accent/default` becomes `bg-accent`.
  *
  * The default Tailwind palette is removed on purpose: use these tokens only.
  */
@@ -48,7 +47,7 @@
   --color-neutral-bg: #f1f5f9;
   --color-neutral-border: #cbd5e1;
 
-  /* Type: Inter, sizes named by pixel value as they appear in Figma */
+  /* Type: Inter, sizes named by pixel value */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   /* Case and license references (STD-2026-0412, RL-2023-118804) */
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
@@ -101,7 +100,7 @@
   /* Elevation */
   --shadow-card: 0 4px 16px 0 rgb(15 23 41 / 0.06);
 
-  /* Layout: desktop content width in the 1440 frames */
+  /* Layout: desktop content width */
   --container-page: 1152px;
 }
 

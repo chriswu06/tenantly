@@ -15,8 +15,8 @@ type TabsProps = {
   /** Accessible name for the tab list, e.g. "Case filters". */
   label: string;
   /**
-   * - `filter`: list filters. Pills on mobile (frame 11m), segmented on desktop (frame 11 table toolbar).
-   * - `underline`: section tabs with an accent underline (frame 12m: Overview, Records, Activity).
+   * - `filter`: list filters. Pills on mobile, segmented on desktop.
+   * - `underline`: section tabs with an accent underline (e.g. Overview, Records, Activity).
    */
   variant?: "filter" | "underline";
   className?: string;

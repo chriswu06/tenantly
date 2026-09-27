@@ -5,7 +5,6 @@ import { FlowLayout, PageHeading } from "@/components/tenant/scan/FlowLayout";
 import { Button } from "@/components/ui/Button";
 import { LoadingRegion } from "@/components/ui/Skeleton";
 
-/** Review details while the extracted fields load. Mirrors `page.tsx`. */
 export default function ReviewLoading() {
   return (
     <FlowLayout

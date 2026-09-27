@@ -4,7 +4,6 @@ import { ImpactChartSkeleton, OutcomeBarsSkeleton, ReportsPageHeader } from "@/c
 import { StatGridSkeleton } from "@/components/advocate/StatCard";
 import { reportMetricLabels } from "@/components/advocate/display";
 
-/** Impact reports while they load: real header and chart titles; placeholder metrics, bars and counts. */
 export default function ReportsLoading() {
   return (
     <>

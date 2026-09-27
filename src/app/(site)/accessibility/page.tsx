@@ -4,7 +4,6 @@ import { ContactCard, InfoPage, Panel, PanelItem } from "@/components/site/InfoP
 
 export const metadata: Metadata = { title: "Accessibility" };
 
-// Figma 46 · Accessibility — mobile, 45 · Web — Accessibility.
 export default function AccessibilityPage() {
   return (
     <InfoPage

@@ -6,7 +6,6 @@ import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = { title: "Check your email" };
 
-// Figma 57 · Advocate reset link sent — mobile, 55 · desktop.
 export default async function AdvocateResetSentPage({ searchParams }: PageProps<"/advocate/reset-password/sent">) {
   const { email } = await searchParams;
   const address = typeof email === "string" && email ? email : "your email";

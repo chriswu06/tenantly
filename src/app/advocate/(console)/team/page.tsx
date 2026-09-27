@@ -7,7 +7,6 @@ import { getTeam } from "@/lib/cases/queries";
 
 export const metadata: Metadata = { title: "Team" };
 
-/** Team members and invitations (Figma frames 62 desktop, 63 mobile). */
 export default async function TeamPage() {
   const { team, canInvite } = await getTeam();
   return (

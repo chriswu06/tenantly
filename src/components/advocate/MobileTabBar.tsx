@@ -6,10 +6,10 @@ import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { consoleNav, isNavActive } from "./console-config";
 
-// Case detail pages (frame 12m) show their own action footer instead of the tab bar.
+// Case detail pages show their own action footer instead of the tab bar.
 const CASE_DETAIL = /^\/advocate\/cases\/[^/]+/;
 
-/** Mobile console navigation (Figma frame 11m). Hidden from `lg` up, where Sidebar takes over. */
+/** Mobile console navigation. Hidden from `lg` up, where Sidebar takes over. */
 export function MobileTabBar() {
   const pathname = usePathname();
   if (CASE_DETAIL.test(pathname)) return null;

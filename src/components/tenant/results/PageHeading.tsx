@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Page title and lead paragraph: 22px on mobile, 28px on desktop. */
 export function PageHeading({
   title,
   description,

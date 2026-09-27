@@ -36,13 +36,13 @@ revoke all on all tables in schema public from anon;
 revoke insert, update, delete on all tables in schema public from authenticated;
 grant select on all tables in schema public to authenticated;
 
--- Organizations -----------------------------------------------------------------
+-- Organizations
 
 create policy "Advocates read their organization"
   on public.organizations for select to authenticated
   using (id = (select public.current_organization_id()));
 
--- Advocates ---------------------------------------------------------------------
+-- Advocates
 
 create policy "Advocates read their teammates"
   on public.advocates for select to authenticated
@@ -55,7 +55,7 @@ create policy "Advocates update their own profile"
   using (id = (select auth.uid()))
   with check (id = (select auth.uid()));
 
--- Invitations -------------------------------------------------------------------
+-- Invitations
 
 create policy "Advocates read their organization's invitations"
   on public.invitations for select to authenticated
@@ -79,7 +79,7 @@ create policy "Admins withdraw open invitations"
     and accepted_at is null
   );
 
--- Cases -------------------------------------------------------------------------
+-- Cases
 
 create policy "Advocates read cases shared with their organization"
   on public.cases for select to authenticated
@@ -104,7 +104,7 @@ grant select (
   outcome, outcome_reported_at, created_at, updated_at
 ) on public.cases to authenticated;
 
--- Case details ------------------------------------------------------------------
+-- Case details
 
 create policy "Advocates read lookups for their cases"
   on public.license_checks for select to authenticated

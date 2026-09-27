@@ -2,7 +2,6 @@ import type { ComponentProps, ReactNode } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
-/** White bordered card. 8px radius on mobile, 10px in the web frames. */
 export function Panel({ className, ...props }: ComponentProps<"section">) {
   return (
     <section
@@ -24,7 +23,6 @@ type PanelHeaderProps = {
   className?: string;
 };
 
-/** Panel title row: 14px semibold, 48px tall on desktop. */
 export function PanelHeader({ title, subtitle, action, className }: PanelHeaderProps) {
   return (
     <div
@@ -69,7 +67,7 @@ export function KeyValue({
 }
 
 /**
- * Loading stand-in for `PanelHeader` when the title comes from data. Pass the
+ * Loading state for `PanelHeader` when the title comes from data. Pass the
  * same `className` as the real header; `action` holds e.g. a badge placeholder.
  */
 export function PanelHeaderSkeleton({
@@ -90,7 +88,6 @@ export function PanelHeaderSkeleton({
       aria-hidden
       className={cn("flex items-center gap-2 border-b border-border-default px-4 py-3 md:h-12 md:py-0", className)}
     >
-      {/* 14px title: 19.6px lines on mobile, 20.3px from md. */}
       <div className="flex min-w-0 flex-1 flex-col md:h-[20.3px] md:justify-center">
         {Array.from({ length: mobileLines }, (_, index) => (
           <div

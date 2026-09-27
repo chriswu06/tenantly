@@ -21,7 +21,7 @@ type AppBarProps = {
 };
 
 /**
- * Mobile tenant app bar, 56px tall.
+ * Mobile tenant app bar.
  *
  * @example <AppBar title="Scan summons" backHref="/" />
  */

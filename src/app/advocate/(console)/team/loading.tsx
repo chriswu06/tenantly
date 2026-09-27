@@ -3,7 +3,6 @@ import { LoadingPageBody } from "@/components/advocate/ConsolePage";
 import { InviteMemberDialog } from "@/components/advocate/InviteMemberDialog";
 import { TeamNote, TeamPageHeader, TeamTableSkeleton } from "@/components/advocate/TeamTable";
 
-/** Team while it loads: real header, invite button and note; placeholder members. */
 export default function TeamLoading() {
   return (
     <>

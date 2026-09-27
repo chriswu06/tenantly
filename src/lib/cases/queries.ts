@@ -88,7 +88,7 @@ function toAdvocateCase(r: CaseListRow): AdvocateCase {
   };
 }
 
-/* Cases list ------------------------------------------------------------------------ */
+// Cases list
 
 export const CASES_PER_PAGE = 8;
 
@@ -162,7 +162,7 @@ export const caseFilterCounts = cache(async () => {
   return Object.fromEntries(counts) as Record<CaseFilter, number>;
 });
 
-/* Metrics ------------------------------------------------------------------------------- */
+// Metrics
 
 const DAY = 86_400_000;
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
@@ -193,7 +193,7 @@ const metricRows = cache(async (): Promise<MetricRow[]> => {
   return (data ?? []) as MetricRow[];
 });
 
-/** Overview and Cases metrics (frames 50, 11). */
+/** Overview and Cases metrics. */
 export async function getCaseMetrics(): Promise<Metric[]> {
   const rows = await metricRows();
   const now = Date.now();
@@ -225,7 +225,7 @@ export async function getCaseMetrics(): Promise<Metric[]> {
   ];
 }
 
-/* Overview ------------------------------------------------------------------------------- */
+// Overview
 
 export type Hearing = { day: string; address: string; reference: string; result: LicenseResult; certification: "requested" | "not_requested" | null };
 export type AttentionItem = { kind: "certification" | "verify" | "unassigned"; title: string; reference: string; hearing: string; action: string };
@@ -296,7 +296,7 @@ export async function getOverview() {
   return { hearings, attention: attention.slice(0, 5), outcomesLast30Days };
 }
 
-/* Case detail -------------------------------------------------------------------------------- */
+// Case detail
 
 export type NextAction = { label: string; due: string; done?: boolean; urgent?: boolean };
 export type ActivityEvent = { title: string; meta: string };
@@ -384,7 +384,7 @@ export const getCaseDetail = cache(async (reference: string) => {
   return { caseData: c, detail, certificationRequestedAt: row.certification_requested_at, certificationReceivedAt: row.certification_received_at };
 });
 
-/* License lookups -------------------------------------------------------------------------------- */
+// License lookups
 
 export type Lookup = { time: string; address: string; result: LicenseResult; response: string | null; reference: string; method: "automatic" | "guided" };
 
@@ -452,7 +452,7 @@ export async function getLookupMetrics(): Promise<Metric[]> {
   ];
 }
 
-/* Reports ---------------------------------------------------------------------------------------- */
+// Reports
 
 export async function getReports() {
   await requireAdvocate();
@@ -491,7 +491,7 @@ export async function getReports() {
   return { reportMetrics, checksPerMonth, outcomesLast6Months, range };
 }
 
-/* Team --------------------------------------------------------------------------------------------- */
+// Team
 
 export type TeamMember = {
   id: string;

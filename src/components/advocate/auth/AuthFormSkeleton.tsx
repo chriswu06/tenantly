@@ -9,7 +9,6 @@ function FieldSkeleton() {
   );
 }
 
-/** Loading state for the advocate auth forms: heading, two fields and the submit button. */
 export function AuthFormSkeleton() {
   return (
     <LoadingRegion label="Loading page" className="flex flex-col gap-4.5">

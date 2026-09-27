@@ -16,8 +16,7 @@ type CaseBarProps = {
 };
 
 /**
- * Case context strip under the app bar (Figma 07–10, 29, 30) and the
- * desktop breadcrumb bar (Figma 19–21, 27, 28).
+ * Case context strip under the mobile app bar, and the desktop breadcrumb bar.
  *
  * @example <CaseBar reference="STD-2026-0412" address="2417 E Monument St, Apt 2" backHref="/results" />
  */
@@ -53,7 +52,7 @@ export function CaseBar({ reference, address, backHref = "/results", backLabel =
   );
 }
 
-/** Loading stand-in for `CaseBar`: same bar and back link, placeholders for the reference and address. */
+/** Loading state for `CaseBar`: same bar and back link, placeholders for the reference and address. */
 export function CaseBarSkeleton({
   backHref = "/results",
   backLabel = "Results",

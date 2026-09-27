@@ -43,8 +43,8 @@ type ConsentFormProps = {
 };
 
 /**
- * Consent to share a case with a legal aid organization (Figma 29 and 27).
- * Posts to `shareCase`, which redirects to the confirmation screen.
+ * Consent to share a case with a legal aid organization. Posts to `shareCase`,
+ * which redirects to the confirmation screen.
  */
 export function ConsentForm({ orgs, items, defaultFirstName = "", defaultPhone = "", cancelHref }: ConsentFormProps) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(shareCase, {});
@@ -324,7 +324,7 @@ function ContactField({
   );
 }
 
-/** 18px checkbox from the share frames. Disabled + checked renders the grey "always shared" state. */
+/** Disabled + checked renders the grey "always shared" state. */
 function SmallCheckbox({ className, ...props }: Omit<ComponentProps<"input">, "type">) {
   return (
     <span className={cn("relative flex size-[18px] shrink-0", className)}>
@@ -348,7 +348,7 @@ function SmallCheckbox({ className, ...props }: Omit<ComponentProps<"input">, "t
 }
 
 /**
- * Loading stand-in for `ConsentForm`: the real heading and panel titles, with
+ * Loading state for `ConsentForm`: the real heading and panel titles, with
  * placeholders for the organizations, shared items and contact values. The
  * actions show but stay disabled until the form loads.
  */
@@ -434,7 +434,7 @@ export function ConsentFormSkeleton() {
 
           <div className="flex items-start gap-2.5 rounded-lg border border-border-default bg-bg-surface p-3.5 md:rounded-[10px]">
             <Skeleton className="mt-px size-[18px] shrink-0 rounded-sm" />
-            {/* 13px/19.5px agreement text: four lines on mobile, two from md. */}
+            {/* Four lines on mobile, two from md, like the agreement text. */}
             <SkeletonText lines={4} lineClassName="h-[13px]" className="min-w-0 flex-1 gap-[6.5px] py-[3.25px] md:hidden" />
             <SkeletonText lines={2} lineClassName="h-[13px]" className="hidden min-w-0 flex-1 gap-[6.5px] py-[3.25px] md:flex" />
           </div>

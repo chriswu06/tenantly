@@ -45,8 +45,8 @@ const confidenceWarning: Partial<Record<FieldConfidence, string>> = {
 };
 
 /**
- * Editable summons fields after extraction (frames 04 and 16). Single column
- * on mobile, paired rows on web. The inputs are named for `confirmDetails`.
+ * Editable summons fields after extraction. Single column on mobile, paired rows
+ * on web. The inputs are named for `confirmDetails`.
  */
 export function ExtractedFieldsForm({ defaultValues, confidence = {}, errors = {}, className }: ExtractedFieldsFormProps) {
   const [values, setValues] = useState(defaultValues);
@@ -109,7 +109,7 @@ export function ExtractedFieldsForm({ defaultValues, confidence = {}, errors = {
 }
 
 /**
- * Loading stand-in for `ExtractedFieldsForm`: the real labels, with placeholders
+ * Loading state for `ExtractedFieldsForm`: the real labels, with placeholders
  * for the confidence badges, values and the messages under them.
  */
 export function ExtractedFieldsFormSkeleton({ className }: { className?: string }) {

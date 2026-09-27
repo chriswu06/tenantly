@@ -26,8 +26,8 @@ type StatusPanelProps = {
 };
 
 /**
- * DHCD license check result (Figma component "Result status", 19:336).
- * "ok" is the tenant-favourable outcome: no active license, so a possible defense.
+ * DHCD license check result. "ok" is the tenant-favourable outcome: no active
+ * license, so a possible defense.
  *
  * @example <StatusPanel tone="ok" badge="Possible defense" title="No active rental license found" description="…" />
  */
@@ -62,7 +62,7 @@ export function StatusPanel({
 }
 
 /**
- * Loading stand-in for `StatusPanel`. The tone isn't known yet, so it uses the
+ * Loading state for `StatusPanel`. The tone isn't known yet, so it uses the
  * neutral border. Line counts match the typical description on each breakpoint.
  */
 export function StatusPanelSkeleton({
@@ -88,7 +88,6 @@ export function StatusPanelSkeleton({
         <Skeleton className="size-9 shrink-0 rounded-lg" />
         <Skeleton className="h-[23px] w-32" />
       </div>
-      {/* Title: 25px line on mobile, 23px from md. */}
       <div className="flex h-[25px] items-center md:h-[23px]">
         <Skeleton className="h-5 w-4/5 md:h-[18px] md:w-1/2" />
       </div>

@@ -10,14 +10,14 @@ import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/Button";
 
 type FileUploadProps = {
-  /** Show the "Upload didn't finish" state (frame 37). */
+  /** Show the "Upload didn't finish" state. */
   error?: { title: string; message: string };
   className?: string;
 };
 
 /**
- * Drag-and-drop summons dropzone from the web upload card (frames 13 and 37).
- * Dropping or choosing a file uploads it and starts reading on /scan/extracting.
+ * Drag-and-drop summons dropzone for the web upload card. Dropping or choosing
+ * a file uploads it and starts reading on /scan/extracting.
  */
 export function FileUpload({ error, className }: FileUploadProps) {
   const inputId = useId();

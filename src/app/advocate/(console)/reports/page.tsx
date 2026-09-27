@@ -7,7 +7,6 @@ import { getReports } from "@/lib/cases/queries";
 
 export const metadata: Metadata = { title: "Impact reports" };
 
-/** Impact reports (Figma frames 60 desktop, 61 mobile). */
 export default async function ReportsPage() {
   const { reportMetrics, checksPerMonth, outcomesLast6Months, range } = await getReports();
   const responses = outcomesLast6Months.reduce((sum, o) => sum + o.count, 0);

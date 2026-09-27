@@ -27,7 +27,7 @@ type FieldStatusListProps = {
   className?: string;
 };
 
-/** Card listing each summons field and whether it could be read (frames 03, 15, 33, 34). */
+/** Card listing each summons field and whether it could be read. */
 export function FieldStatusList({ fields, dense = false, className }: FieldStatusListProps) {
   return (
     <ul

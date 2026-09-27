@@ -35,7 +35,7 @@ const nextSteps: NextStep[] = [
   { href: "/legal-help", icon: Scale, label: "Free legal assistance", detail: "Volunteer attorneys at court" },
 ];
 
-// The Figma file doesn't name the lookup URL; DHCD's registration page links to it.
+// DHCD's registration page links to the city's license lookup.
 const cityLookupUrl = dhcdRentalLicensingUrl;
 
 const findingFor = { no_license: "none", expired: "expired", active: "active" } as const;

@@ -8,7 +8,6 @@ import { PageHeading, TwoColumn } from "@/components/tenant/results/PageHeading"
 import { Button } from "@/components/ui/Button";
 import { LoadingRegion } from "@/components/ui/Skeleton";
 
-/** Court preparation while the checklist and hearing load. Mirrors `page.tsx`. */
 export default function CourtPrepLoading() {
   const actions = (
     <>

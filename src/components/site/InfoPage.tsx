@@ -10,8 +10,8 @@ import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 /*
- * Building blocks for the public info pages (Figma 39–46):
- * How it works, About the license law, Privacy, Accessibility.
+ * Building blocks for the public info pages: How it works, About the license
+ * law, Privacy, Accessibility.
  *
  * <InfoPage appBarTitle="Privacy" title="Privacy" lead="…">
  *   <Panel title="What we handle">

@@ -36,7 +36,7 @@ export function LookupsActions({ failedOnly = false }: { failedOnly?: boolean })
   );
 }
 
-/** Desktop page title with the actions (frame 58). */
+/** Desktop page title with the actions. */
 export function LookupsPageHeader({ failedOnly = false }: { failedOnly?: boolean }) {
   return (
     <PageHeader
@@ -98,7 +98,7 @@ function responseText(l: Lookup) {
 }
 const timedOut = (l: Lookup) => !l.response && l.method !== "guided";
 
-/** License lookup log: table on desktop (frame 58), cards on mobile (frame 59). */
+/** License lookup log: table on desktop, cards on mobile. */
 export function LookupsTable({ lookups, failedOnly = false, pagination }: LookupsTableProps) {
   if (lookups.length === 0) {
     return (

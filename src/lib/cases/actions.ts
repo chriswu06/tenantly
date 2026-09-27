@@ -24,7 +24,7 @@ const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const UPLOAD_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif", "image/webp", "application/pdf"];
 const BUCKET = "summons";
 
-/* 1. Start ---------------------------------------------------------------------- */
+// 1. Start
 
 /** Upload or camera capture: `summons` is the file. Then reading starts on /scan/extracting. */
 export async function startWithUpload(formData: FormData) {
@@ -63,7 +63,7 @@ export async function startOver() {
   redirect("/");
 }
 
-/* 2. Read the summons ------------------------------------------------------------ */
+// 2. Read the summons
 
 export type ExtractionResult =
   | { status: "done"; next: "/scan/review" }
@@ -135,7 +135,7 @@ export async function readSummons(): Promise<ExtractionResult> {
   }
 }
 
-/* 3. Confirm details and check the address ---------------------------------------- */
+// 3. Confirm details and check the address
 
 const detailsSchema = z.object({
   propertyAddress: z.string().trim().min(8, "Enter the full property address, including the street number."),
@@ -198,7 +198,7 @@ export async function confirmDetails(_prev: FormState, formData: FormData): Prom
   redirect(inCity ? "/verify" : "/scan/outside-area");
 }
 
-/* 4. License check ------------------------------------------------------------------ */
+// 4. License check
 
 /** Runs the license lookup. Called by /verify once it has rendered; returns where to go next. */
 export async function runLicenseCheck(): Promise<{ next: string }> {
@@ -271,7 +271,7 @@ export async function submitGuidedCheck(_prev: FormState, formData: FormData): P
   redirect("/results");
 }
 
-/* 5. Next steps ---------------------------------------------------------------------- */
+// 5. Next steps
 
 export async function markCertificationRequested() {
   const row = await requireTenantCase();
@@ -294,7 +294,7 @@ export async function setChecklistItem(id: string, done: boolean) {
   revalidatePath("/court-prep");
 }
 
-/* 6. Share with legal aid --------------------------------------------------------------- */
+// 6. Share with legal aid
 
 const shareSchema = z.object({
   org: z.string().min(1, "Choose an organization."),
@@ -348,7 +348,7 @@ export async function withdrawShare() {
   redirect("/share");
 }
 
-/* 7. Outcome ------------------------------------------------------------------------------- */
+// 7. Outcome
 
 const outcomeSchema = z.object({
   outcome: z.enum(

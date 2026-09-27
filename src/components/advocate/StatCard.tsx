@@ -21,8 +21,8 @@ type StatCardProps = {
   metric: Metric;
   valueSize?: ValueSize;
   /**
-   * Mobile layout. `inline` puts the note next to the value ("142 +18%", frames 11m, 51);
-   * `stacked` keeps it on its own line (frames 59, 61).
+   * Mobile layout. `inline` puts the note next to the value ("142 +18%");
+   * `stacked` keeps it on its own line.
    */
   mobileLayout?: "inline" | "stacked";
 };
@@ -53,7 +53,6 @@ function StatLabel({ label, shortLabel }: Pick<Metric, "label" | "shortLabel">) 
   );
 }
 
-/** Metric tile. Mobile: 12px padding, 22px value. Desktop: 16px padding. */
 export function StatCard({ metric, valueSize = 28, mobileLayout = "inline" }: StatCardProps) {
   const { label, shortLabel, value, note, shortNote, tone = "muted" } = metric;
   const mobileNote = shortNote ?? note;
@@ -87,7 +86,7 @@ export function StatCard({ metric, valueSize = 28, mobileLayout = "inline" }: St
   );
 }
 
-/** Row of metrics: 2-column grid on mobile (10px gap), one row on desktop (16px gap). */
+/** Row of metrics: a 2-column grid on mobile, one row on desktop. */
 export function StatGrid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-2 items-start gap-2.5 lg:flex lg:gap-4">{children}</div>;
 }

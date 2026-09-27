@@ -14,7 +14,7 @@ import { InviteMemberDialog } from "./InviteMemberDialog";
 
 const COLUMN_COUNT = 6;
 
-/** Desktop page title with the invite button (frame 62). */
+/** Desktop page title with the invite button. */
 export function TeamPageHeader() {
   return (
     <PageHeader
@@ -29,7 +29,6 @@ export function TeamPageHeader() {
   );
 }
 
-/** Note under the team list (frames 62, 63). */
 export function TeamNote() {
   return (
     <p className="text-12 leading-[1.4] text-text-tertiary">
@@ -76,7 +75,7 @@ function StatusBadge({ status }: { status: TeamMember["status"] }) {
 }
 
 /**
- * Team members: table on desktop (frame 62), list on mobile (frame 63).
+ * Team members: table on desktop, list on mobile.
  * With nobody but you on the team (0 or 1 members), an invite prompt follows the rows.
  */
 export function TeamTable({ members, canInvite = false }: { members: TeamMember[]; canInvite?: boolean }) {

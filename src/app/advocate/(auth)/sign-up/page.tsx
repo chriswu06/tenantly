@@ -24,7 +24,6 @@ async function loadInvitation(token: string): Promise<Invitation | null> {
   };
 }
 
-// Figma 26 · Advocate sign up (invitation) — mobile, 24 · desktop.
 export default async function AdvocateSignUpPage({ searchParams }: PageProps<"/advocate/sign-up">) {
   const { invite: token } = await searchParams;
   const invite = typeof token === "string" && token ? await loadInvitation(token) : null;

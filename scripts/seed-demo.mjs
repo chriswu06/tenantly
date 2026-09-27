@@ -4,9 +4,9 @@
 //   npm run seed:demo -- --org pjc --remove
 //
 // Creates (or reuses) an admin advocate with that email and password, and 12
-// demo cases shared with the organization, based on the design's sample data.
-// Hearing dates are relative to today. Every demo case has a "Demo data" event,
-// which is how --remove finds and deletes them again.
+// demo cases shared with the organization. Hearing dates are relative to today.
+// Every demo case has a "Demo data" event, which is how --remove finds and
+// deletes them again.
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes, createHash } from "node:crypto";
 import { parseArgs } from "node:util";
@@ -33,7 +33,7 @@ if (values.remove) {
   process.exit(0);
 }
 
-// Advocate ------------------------------------------------------------------------
+// Advocate
 let advocateId = null;
 if (values.email) {
   if (!values.password || values.password.length < 12) throw new Error("--password must be at least 12 characters");
@@ -58,7 +58,7 @@ if (values.email) {
   console.log(`Advocate ready: ${values.email} (admin, ${org.name})`);
 }
 
-// Cases -----------------------------------------------------------------------------
+// Cases
 const day = 86_400_000;
 const at = (days, hour = 9) => {
   const d = new Date(Date.now() + days * day);

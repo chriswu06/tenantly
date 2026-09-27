@@ -17,13 +17,13 @@ type ConsoleHeaderProps = {
   title: string;
   /**
    * Mobile only: show a back button and a "more" button instead of the logo and actions
-   * (case detail, frame 12m). The title is then set in mono, since it is a case reference.
+   * (case detail). The title is then set in mono, since it is a case reference.
    */
   backHref?: string;
 };
 
 /**
- * Top of every console page: the desktop top bar (frame 11) and the mobile app bar (frames 11m, 12m).
+ * Top of every console page: the desktop top bar and the mobile app bar.
  * Render it first inside the page.
  */
 export function ConsoleHeader({ breadcrumbs, title, backHref }: ConsoleHeaderProps) {

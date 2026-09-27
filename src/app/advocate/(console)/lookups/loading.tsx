@@ -4,7 +4,6 @@ import { LookupsActions, LookupsPageHeader, LookupsTableSkeleton } from "@/compo
 import { StatGridSkeleton } from "@/components/advocate/StatCard";
 import { lookupMetricLabels } from "@/components/advocate/display";
 
-/** License lookups while they load: real header and actions; placeholder metrics and rows. */
 export default function LookupsLoading() {
   return (
     <>

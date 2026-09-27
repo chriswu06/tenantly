@@ -9,8 +9,7 @@ try {
 
 /*
  * End-to-end tests run against the real services in .env.local (Supabase,
- * Gemini, ArcGIS, ElevenLabs), so they create real tenant cases. Viewports match
- * the Figma frames: 390 × 844 (mobile) and 1440 × 900 (desktop).
+ * Gemini, ArcGIS, ElevenLabs), so they create real tenant cases.
  */
 export default defineConfig({
   testDir: "./e2e",

@@ -10,9 +10,9 @@ type SummonsPreviewProps = {
 };
 
 /**
- * Where the summons image sat next to the review form (frames 04 and 16). The
- * file is deleted as soon as it has been read, so this card says so and points
- * the tenant to their paper copy instead of showing the image.
+ * Sits where the summons image would, next to the review form. The file is
+ * deleted as soon as it has been read, so this card says so and points the
+ * tenant to their paper copy instead of showing the image.
  */
 export function SummonsPreview({ className }: SummonsPreviewProps) {
   return (
@@ -46,7 +46,7 @@ export function SummonsPreview({ className }: SummonsPreviewProps) {
   );
 }
 
-/** Loading stand-in for `SummonsPreview`, at the same size on both breakpoints. Pass the same `className`. */
+/** Loading state for `SummonsPreview`, at the same size on both breakpoints. Pass the same `className`. */
 export function SummonsPreviewSkeleton({ className }: { className?: string }) {
   return (
     <div aria-hidden className={className}>

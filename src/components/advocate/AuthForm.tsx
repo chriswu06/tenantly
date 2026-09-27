@@ -13,12 +13,11 @@ import { cn } from "@/lib/utils";
 import { advocateRoleLabels, advocateRoles, type AdvocateRole, type FormState } from "@/lib/validation/schemas";
 
 /*
- * Advocate sign in, invitation sign up and password reset forms (Figma 23–26, 54 and 56).
- * Each submits to a Server Action through useActionState: while it runs the button
- * shows a spinner and the inputs are disabled; errors come back under the fields.
+ * Advocate sign in, invitation sign up and password reset forms. Each submits to a
+ * Server Action through useActionState: while it runs the button shows a spinner
+ * and the inputs are disabled; errors come back under the fields.
  */
 
-// Inputs are 46px / 15px on mobile and 44px / 14px on desktop in these frames.
 const authFieldClass =
   "[&>div:nth-child(2)]:h-[46px] lg:[&>div:nth-child(2)]:h-11 [&_input]:text-15 lg:[&_input]:text-14";
 const submitClass = "w-full lg:h-11 lg:text-14";
@@ -55,7 +54,6 @@ function InlineLink({ prompt, href, children }: { prompt: string; href: string; 
   );
 }
 
-/** Figma 25 (mobile) and 23 (desktop). */
 export function SignInForm({ next, linkError }: { next?: string; linkError?: boolean }) {
   const [state, action, pending] = useActionState(signIn, initialState);
   const [ssoNote, setSsoNote] = useState(false);
@@ -137,7 +135,7 @@ export type Invitation = {
   role: AdvocateRole;
 };
 
-/** Figma 26 (mobile) and 24 (desktop). Needs a valid invitation; the page checks it. */
+/** Needs a valid invitation; the page checks it. */
 export function SignUpForm({ invite }: { invite: Invitation }) {
   const [state, action, pending] = useActionState(signUp, initialState);
   const roleId = useId();
@@ -229,7 +227,6 @@ export function SignUpForm({ invite }: { invite: Invitation }) {
   );
 }
 
-/** Figma 56 (mobile) and 54 (desktop). */
 export function ResetPasswordForm() {
   const [state, action, pending] = useActionState(requestPasswordReset, initialState);
 
@@ -263,7 +260,7 @@ export function ResetPasswordForm() {
   );
 }
 
-/** After the reset email's link: choose a new password. No Figma frame; follows frame 54. */
+/** After the reset email's link: choose a new password. */
 export function UpdatePasswordForm() {
   const [state, action, pending] = useActionState(updatePassword, initialState);
 

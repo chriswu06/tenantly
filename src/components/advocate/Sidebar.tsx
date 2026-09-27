@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { consoleNav, isNavActive, settingsNav, type ConsoleNavItem } from "./console-config";
 import { useConsoleSession } from "./ConsoleSession";
 
-/** Desktop console navigation (Figma frame 11). Hidden below `lg`, where MobileTabBar takes over. */
+/** Desktop console navigation. Hidden below `lg`, where MobileTabBar takes over. */
 export function Sidebar() {
   const pathname = usePathname();
   const session = useConsoleSession();

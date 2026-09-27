@@ -35,5 +35,4 @@ const unavailable: LicenseProvider = {
   },
 };
 
-/** The active provider. Swap in a real one here when a DHCD data feed exists. */
 export const licenseProvider: LicenseProvider = unavailable;

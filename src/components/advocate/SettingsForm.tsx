@@ -23,7 +23,7 @@ const notificationLabels = {
   notifyLookup: "A license lookup fails",
 } as const;
 
-/** Desktop page title with the save button (frame 64). */
+/** Desktop page title with the save button. */
 export function SettingsPageHeader() {
   return (
     <PageHeader
@@ -46,7 +46,6 @@ export type SettingsValues = {
   organization: { name: string; callbackPhone: string | null; languages: string | null };
 };
 
-/** Profile, organization, notifications and security (Figma frames 64 desktop, 65 mobile). */
 export function SettingsForm({ settings }: { settings: SettingsValues }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(updateSettings, {});
   // After a failed save, keep what was typed; otherwise show what's saved.
@@ -252,7 +251,7 @@ export function SettingsFormSkeleton() {
 
 const rowClass = "flex items-center gap-3 border-b border-border-default px-4 py-3 last:border-b-0";
 
-/** A field's real label over a grey 42px input. */
+/** A field's real label over a grey input. */
 function FieldSkeleton({ label }: { label: string }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -349,7 +348,7 @@ function TextSetting({ label, name, defaultValue, locked = false, autoComplete, 
   );
 }
 
-/** Notification row with a 40×24 switch (a styled native checkbox). */
+/** Notification row with a switch (a styled native checkbox). */
 function ToggleRow({ name, defaultChecked, children }: { name: string; defaultChecked?: boolean; children: string }) {
   const id = `settings-${name}`;
   return (

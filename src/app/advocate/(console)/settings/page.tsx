@@ -6,7 +6,6 @@ import { requireAdvocate } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "Settings" };
 
-/** Advocate settings (Figma frames 64 desktop, 65 mobile). */
 export default async function SettingsPage() {
   const advocate = await requireAdvocate();
   return (

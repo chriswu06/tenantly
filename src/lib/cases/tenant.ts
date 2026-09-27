@@ -140,7 +140,7 @@ export async function addCaseEvent(caseId: string, actor: string, title: string,
   await createAdminClient().from("case_events").insert({ case_id: caseId, actor, title, advocate_id: advocateId ?? null });
 }
 
-/* Display helpers for tenant pages and PDFs ------------------------------------------------ */
+// Display helpers for tenant pages and PDFs
 
 /** Where tenants request the official license certification. */
 export const dhcdOffice = {

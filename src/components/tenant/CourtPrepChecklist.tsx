@@ -20,8 +20,8 @@ type CourtPrepChecklistProps = {
 };
 
 /**
- * "Documents" progress bar and checklist (Figma 08 and 20). Ticks save to the
- * case right away and show before the server confirms.
+ * "Documents" progress bar and checklist. Ticks save to the case right away and
+ * show before the server confirms.
  *
  * @example <CourtPrepChecklist items={view.checklist} />
  */
@@ -101,7 +101,7 @@ export function CourtPrepChecklist({ items, className }: CourtPrepChecklistProps
 
 const skeletonLabelWidths = ["w-44", "w-60", "w-20", "w-32", "w-40", "w-48"];
 
-/** Loading stand-in for `CourtPrepChecklist`: the real heading, an empty progress track and placeholder rows. */
+/** Loading state for `CourtPrepChecklist`: the real heading, an empty progress track and placeholder rows. */
 export function CourtPrepChecklistSkeleton({ rows = 6, className }: { rows?: number; className?: string }) {
   return (
     <div aria-hidden className={cn("flex flex-col gap-3.5 md:gap-5", className)}>
@@ -122,7 +122,7 @@ export function CourtPrepChecklistSkeleton({ rows = 6, className }: { rows?: num
             className="flex items-center gap-3 border-b border-border-default px-3.5 py-3 last:border-b-0 md:px-4 md:py-3.5"
           >
             <Skeleton className="size-5 shrink-0 rounded-sm" />
-            {/* 14px label: 19.6px lines on mobile, 20.3px from md. The long second item wraps on mobile. */}
+            {/* The long second item wraps on mobile. */}
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex h-[19.6px] items-center md:h-[20.3px]">
                 <Skeleton className={cn("h-3.5 max-w-full", skeletonLabelWidths[index % skeletonLabelWidths.length])} />

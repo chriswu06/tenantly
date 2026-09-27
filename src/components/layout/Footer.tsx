@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 import { advocateHref, isActive, legalLinks } from "./nav-links";
 
 /**
- * Desktop site footer (Figma 13 · Web — Start & upload). Hidden below `md`,
- * where each mobile screen ends in its own action bar.
+ * Desktop site footer. Hidden below `md`, where each mobile screen ends in its
+ * own action bar.
  */
 export function Footer() {
   const pathname = usePathname();

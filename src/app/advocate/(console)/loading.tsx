@@ -5,7 +5,6 @@ import { AttentionPanelSkeleton, HearingsPanelSkeleton, OverviewGreeting } from 
 import { StatGridSkeleton } from "@/components/advocate/StatCard";
 import { caseMetricLabels } from "@/components/advocate/display";
 
-/** Advocate overview while it loads: real greeting and panel titles; placeholder metrics and rows. */
 export default function OverviewLoading() {
   return (
     <>

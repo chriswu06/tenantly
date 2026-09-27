@@ -14,10 +14,9 @@ import { useConsoleSession } from "./ConsoleSession";
 import { CopyButton } from "./CopyButton";
 
 /**
- * "Invite member" button and dialog. `trigger`: full-width 44px button (mobile, frame 63),
- * the console `sm` button (desktop page header, frame 62), or a secondary "Invite a teammate"
- * button for the team list's empty state. There’s no Figma frame for the dialog,
- * so it reuses the console's field and button styles.
+ * "Invite member" button and dialog. `trigger`: a full-width button (mobile), the
+ * console `sm` button (desktop page header), or a secondary "Invite a teammate"
+ * button for the team list's empty state.
  *
  * Only admins see it. No email is sent: the dialog hands back a sign-up link to share.
  */

@@ -22,9 +22,8 @@ const options: { value: OutcomeOption; label: string }[] = [
 ];
 
 /**
- * Anonymous hearing outcome report (Figma 10 and 22). Mobile: full screen with
- * a bottom action bar. Desktop: centered 560px card. Posts to `reportOutcome`,
- * then thanks the tenant.
+ * Anonymous hearing outcome report. Mobile: full screen with a bottom action
+ * bar. Desktop: centered card. Posts to `reportOutcome`, then thanks the tenant.
  */
 export function OutcomeForm({ defaultValue }: { defaultValue?: OutcomeOption | null }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(reportOutcome, {});
@@ -131,7 +130,7 @@ function OutcomeThanks() {
   );
 }
 
-/** Loading stand-in for `OutcomeForm`: the real heading and note, placeholder options, a disabled submit. */
+/** Loading state for `OutcomeForm`: the real heading and note, placeholder options, a disabled submit. */
 export function OutcomeFormSkeleton() {
   const submitButton = (className: string) => (
     <Button disabled size="responsive" className={className}>
@@ -158,7 +157,6 @@ export function OutcomeFormSkeleton() {
           {["w-44", "w-28", "w-32", "w-40", "w-24"].map((width) => (
             <div key={width} className="flex items-center gap-3 border-b border-border-default px-4 py-3.5 last:border-b-0">
               <Skeleton className="size-[18px] shrink-0 rounded-full" />
-              {/* 14px label: 19.6px line on mobile, 20.3px from md. */}
               <div className="flex h-[19.6px] min-w-0 flex-1 items-center md:h-[20.3px]">
                 <Skeleton className={cn("h-3.5", width)} />
               </div>

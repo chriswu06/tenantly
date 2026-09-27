@@ -10,10 +10,7 @@ export const metadata: Metadata = { title: "License lookups" };
 
 const PER_PAGE = 10;
 
-/**
- * License lookup log (Figma frames 58 desktop, 59 mobile).
- * `?filter=failed` shows failed lookups only; `?page=` pages through them, 10 at a time.
- */
+/** `?filter=failed` shows failed lookups only; `?page=` pages through them, 10 at a time. */
 export default async function LookupsPage({ searchParams }: PageProps<"/advocate/lookups">) {
   const params = await searchParams;
   const failedOnly = params.filter === "failed";

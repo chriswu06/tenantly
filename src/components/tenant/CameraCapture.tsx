@@ -26,9 +26,9 @@ type CaptureProps = {
 };
 
 /**
- * Camera capture (frames 02 and 14). Opens the camera when the screen opens,
- * then "Take photo" / "Capture" uploads the current frame as a JPEG. The phone
- * layout and the webcam modal share one camera stream.
+ * Opens the camera when the screen opens, then "Take photo" / "Capture" uploads
+ * the current frame as a JPEG. The phone layout and the webcam modal share one
+ * camera stream.
  */
 export function CameraCapture({ backdrop }: { backdrop?: ReactNode }) {
   const camera = useCamera();
@@ -235,7 +235,7 @@ function WebcamModal({ camera, pending, onCapture, onFile }: CaptureProps) {
   );
 }
 
-// Illustration colors from the Figma viewfinder; they aren't design tokens.
+// Illustration colors for the viewfinder; they aren't design tokens.
 const viewfinderStyles = {
   mobile: {
     frame: "h-[460px] rounded-lg bg-[#1f293b]",

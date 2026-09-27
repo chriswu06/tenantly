@@ -27,7 +27,6 @@ const officeRows = [
 
 const actionClass = "min-w-0 flex-1 md:w-full md:flex-none";
 
-/** Request certification while the office and case details load. Mirrors `page.tsx`. */
 export default function CertificationLoading() {
   const directions = (
     <Button disabled variant="secondary" size="responsive" leadingIcon={MapPin} className={actionClass}>
@@ -77,7 +76,7 @@ export default function CertificationLoading() {
                     action={<Skeleton className="h-6 w-[68px] md:h-[22px]" />}
                     className="border-b-0 px-3.5 pt-3.5 pb-0 md:border-b md:px-4"
                   />
-                  {/* 13px mono lines: four on mobile (20.8px), two from md (22.1px). */}
+                  {/* Four lines on mobile, two from md, like the real text. */}
                   <div className="flex flex-col px-3.5 pt-2 pb-3.5 md:p-4">
                     {["w-48", "w-36", "w-40", "w-32"].map((width, index) => (
                       <div key={index} className={`flex h-[20.8px] items-center md:h-[22.1px] ${index > 1 ? "md:hidden" : ""}`}>

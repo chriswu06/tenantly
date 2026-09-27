@@ -67,7 +67,6 @@ export function MobileActionBar({ className, children }: { className?: string; c
   );
 }
 
-/** Screen heading: 22px on mobile, 28px on web. */
 export function PageHeading({ title, children }: { title: ReactNode; children?: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">

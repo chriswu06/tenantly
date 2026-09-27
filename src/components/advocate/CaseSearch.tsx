@@ -5,7 +5,7 @@ import { Funnel, Search } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { useCaseSearch } from "./useCaseSearch";
 
-/** Mobile search field with a filter button (frame 11m). Hidden from `lg` up, where the top bar has search. */
+/** Mobile search field with a filter button. Hidden from `lg` up, where the top bar has search. */
 export function CaseSearch() {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);

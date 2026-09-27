@@ -28,10 +28,7 @@ export const metadata: Metadata = { title: "Cases" };
 
 const CASES_HREF = "/advocate/cases";
 
-/**
- * Cases list (Figma frames 11 desktop, 11m mobile).
- * `?q=` searches, `?filter=` narrows the list and `?page=` pages through it, 8 at a time.
- */
+/** `?q=` searches, `?filter=` narrows the list and `?page=` pages through it, 8 at a time. */
 export default async function CasesPage({ searchParams }: PageProps<"/advocate/cases">) {
   const params = await searchParams;
   const q = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim() ?? "";

@@ -11,8 +11,8 @@ import { Logo } from "./Logo";
 import { advocateHref, homeLink, isActive, legalLinks, primaryLinks } from "./nav-links";
 
 /**
- * Full-screen mobile menu (Figma 49 · Menu — mobile). Uses a modal <dialog>,
- * which gives focus trapping, Escape to close and an inert background for free.
+ * Full-screen mobile menu. Uses a modal <dialog>, which gives focus trapping,
+ * Escape to close and an inert background for free.
  *
  * @example <MobileMenu open={open} onClose={() => setOpen(false)} />
  */
@@ -53,7 +53,6 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
           ))}
         </ul>
         <Divider />
-        {/* Placeholders until B's ReadAloudButton and LanguageSelect merge. */}
         <PrefRow icon={Volume2} label="Read pages aloud" value="Off" />
         <PrefRow icon={Globe} label="Language" value="English" />
       </nav>

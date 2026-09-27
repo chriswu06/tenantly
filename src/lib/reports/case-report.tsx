@@ -75,8 +75,6 @@ const s = StyleSheet.create({
   footer: { position: "absolute", bottom: 28, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between", fontSize: 8, color: color.tertiary, borderTopWidth: 1, borderTopColor: color.border, paddingTop: 8 },
 });
 
-/* ------------------------------------------------------------------------------------------------ */
-
 function Shell({ title, reference, children }: { title: string; reference: string; children: ReactNode }) {
   return (
     <Document title={`${title} · ${reference}`} author="Standing" creator="Standing">
@@ -227,8 +225,6 @@ const recordColumns: Column[] = [
   { header: "Valid to", width: "18%" },
   { header: "Source", width: "24%" },
 ];
-
-/* ------------------------------------------------------------------------------------------------ */
 
 function TenantSummary({ v }: { v: TenantView }) {
   const unverified = isUnverified(v.licenseResult);
@@ -428,8 +424,6 @@ function AdvocateCaseExport({ c, detail }: { c: AdvocateCase; detail: CaseDetail
     </Shell>
   );
 }
-
-/* ------------------------------------------------------------------------------------------------ */
 
 const FOOTER_BASELINE = 35; // points from the bottom, level with the footer's left text
 const MARGIN_X = 48;

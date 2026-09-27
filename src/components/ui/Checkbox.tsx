@@ -8,7 +8,7 @@ type CheckboxProps = Omit<ComponentPropsWithRef<"input">, "type" | "children"> &
 };
 
 /**
- * Native checkbox with the Figma box styling. `className` applies to the <label>;
+ * Native checkbox with a custom box. `className` applies to the <label>;
  * other props go to the <input>.
  *
  * @example <Checkbox checked={done} onChange={(e) => setDone(e.target.checked)}>Photo ID</Checkbox>

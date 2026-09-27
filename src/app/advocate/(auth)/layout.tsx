@@ -13,7 +13,6 @@ const points = [
 const inviteNote = "Access is by invitation from your organization.";
 
 /**
- * Advocate sign in, sign up and password reset (Figma 23–26).
  * Desktop: dark brand panel on the left, form centred on the right.
  * Mobile: brand header, form, and a tenant link bar at the bottom.
  */

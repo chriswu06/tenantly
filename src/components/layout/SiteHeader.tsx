@@ -12,9 +12,8 @@ import { MobileMenu } from "./MobileMenu";
 import { isActive, primaryLinks } from "./nav-links";
 
 /**
- * Desktop site header (Figma 13 · Web — Start & upload). Hidden below `md`,
- * where each mobile screen has its own app bar; the Start screen uses
- * `MobileSiteHeader` below.
+ * Desktop site header. Hidden below `md`, where each mobile screen has its own
+ * app bar; the Start screen uses `MobileSiteHeader` below.
  */
 export function SiteHeader() {
   const pathname = usePathname();
@@ -45,7 +44,6 @@ export function SiteHeader() {
         </ul>
       </nav>
 
-      {/* TODO: wire playback and language state once the i18n/read-aloud hooks land. */}
       <div className="flex items-center gap-2">
         <ReadAloudButton variant="pill" />
         <LanguageSelect variant="full" />
@@ -55,8 +53,8 @@ export function SiteHeader() {
 }
 
 /**
- * Mobile start-screen app bar with the menu (Figma 01 · Start, menu 49).
- * Hidden from `md` up, where `SiteHeader` takes over.
+ * Mobile start-screen app bar with the menu. Hidden from `md` up, where
+ * `SiteHeader` takes over.
  */
 export function MobileSiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);

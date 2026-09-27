@@ -119,7 +119,7 @@ export default async function LegalHelpPage() {
               </p>
             </>
           }
-          // Mobile: fill the screen so the disclaimer sits at the bottom (Figma 09 spacer).
+          // Mobile: fill the screen so the disclaimer sits at the bottom.
           className="flex flex-col md:block [&>div]:flex-1 [&_aside]:flex-1 md:[&_aside]:flex-none"
         />
       </main>

@@ -4,7 +4,6 @@ import { ConsentFormSkeleton } from "@/components/tenant/ConsentForm";
 import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
-/** Share with legal aid while the organizations and case details load. Mirrors `page.tsx`. */
 export default function ShareLoading() {
   return (
     <>
@@ -50,7 +49,6 @@ export default function ShareLoading() {
   );
 }
 
-/** A text line (13px/18.85px by default) holding a placeholder bar of the given width. */
 function SkeletonLine({ width = "w-full", lineClassName = "h-[18.85px]" }: { width?: string; lineClassName?: string }) {
   return (
     <div className={cn("flex items-center", lineClassName)}>

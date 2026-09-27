@@ -5,7 +5,6 @@ import { InfoPage, Panel, PanelItem } from "@/components/site/InfoPage";
 
 export const metadata: Metadata = { title: "How it works" };
 
-// Figma 40 · How it works — mobile, 39 · Web — How it works.
 export default function HowItWorksPage() {
   return (
     <InfoPage

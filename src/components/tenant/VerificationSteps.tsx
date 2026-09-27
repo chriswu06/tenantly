@@ -16,8 +16,8 @@ type VerificationStepsProps = {
 };
 
 /**
- * DHCD lookup progress (frames 05 and 17). The detail sits under the label
- * on mobile and at the end of the row on web.
+ * DHCD lookup progress. The detail sits under the label on mobile and at the
+ * end of the row on web.
  */
 export function VerificationSteps({ steps, className }: VerificationStepsProps) {
   return (

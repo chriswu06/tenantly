@@ -4,7 +4,6 @@ import { ContactCard, InfoPage, Panel, PanelItem } from "@/components/site/InfoP
 
 export const metadata: Metadata = { title: "Privacy" };
 
-// Figma 44 · Privacy — mobile, 43 · Web — Privacy.
 export default function PrivacyPage() {
   return (
     <InfoPage

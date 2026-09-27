@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 
-/** Legal assistance while the courthouse and contact details load. Mirrors `page.tsx`. */
 export default function LegalHelpLoading() {
   return (
     <>
