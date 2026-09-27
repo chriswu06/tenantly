@@ -60,7 +60,7 @@ export function SignInForm({ next, linkError }: { next?: string; linkError?: boo
 
   return (
     <form action={action} className="flex flex-col gap-4.5" noValidate>
-      <AuthHeading title="Sign in to Standing">Use the work email your organization invited.</AuthHeading>
+      <AuthHeading title="Sign in to Tenantly">Use the work email your organization invited.</AuthHeading>
       <FormError
         message={
           state.error ??

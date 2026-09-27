@@ -9,7 +9,7 @@ export default function PrivacyPage() {
     <InfoPage
       appBarTitle="Privacy"
       title="Privacy"
-      lead="Standing is built to collect as little as possible. No account, no tracking ads."
+      lead="Tenantly is built to collect as little as possible. No account, no tracking ads."
     >
       <Panel title="What we handle">
         <PanelItem icon={Camera} title="Your summons photo">

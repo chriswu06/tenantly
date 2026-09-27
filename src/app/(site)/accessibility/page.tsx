@@ -9,9 +9,9 @@ export default function AccessibilityPage() {
     <InfoPage
       appBarTitle="Accessibility"
       title="Accessibility"
-      lead="Standing should work for every tenant, on any device."
+      lead="Tenantly should work for every tenant, on any device."
     >
-      <Panel title="How Standing is built">
+      <Panel title="How Tenantly is built">
         <PanelItem icon={Volume2} title="Read-aloud on every page">
           Tap Listen to hear any page read out loud.
         </PanelItem>

@@ -49,7 +49,7 @@ export default async function OutsideAreaPage() {
       }
     >
       <PageHeading title="This check covers Baltimore City only">
-        The address on your summons is outside Baltimore City limits, so the rental license rule Standing
+        The address on your summons is outside Baltimore City limits, so the rental license rule Tenantly
         checks doesn’t apply to it.
       </PageHeading>
 

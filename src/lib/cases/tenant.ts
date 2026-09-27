@@ -177,9 +177,9 @@ export function hearingIcsHref(view: Pick<TenantView, "hearing" | "reference" | 
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Standing//EN",
+    "PRODID:-//Tenantly//EN",
     "BEGIN:VEVENT",
-    `UID:${view.reference}@standing`,
+    `UID:${view.reference}@tenantly`,
     `DTSTAMP:${icsStamp(new Date().toISOString())}`,
     `DTSTART:${hearing.startUtc}`,
     `DTEND:${hearing.endUtc}`,

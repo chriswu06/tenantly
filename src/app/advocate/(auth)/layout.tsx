@@ -48,7 +48,7 @@ export default function AdvocateAuthLayout({ children }: Readonly<{ children: Re
         <p className="absolute top-10 right-12 hidden items-center gap-1.5 text-13 lg:flex">
           <span className="text-text-tertiary">Looking for help as a tenant?</span>
           <Link href="/" className="flex items-center gap-1.5 rounded-md font-semibold text-accent">
-            Go to Standing
+            Go to Tenantly
             <Icon icon={ArrowRight} size={14} />
           </Link>
         </p>
@@ -61,7 +61,7 @@ export default function AdvocateAuthLayout({ children }: Readonly<{ children: Re
         <p className="flex items-center justify-center gap-1 border-t border-border-default bg-bg-app px-5 pt-3.5 pb-6.5 text-13 lg:hidden">
           <span className="text-text-tertiary">Looking for help as a tenant?</span>
           <Link href="/" className="rounded-md font-semibold text-accent">
-            Go to Standing
+            Go to Tenantly
           </Link>
         </p>
       </div>

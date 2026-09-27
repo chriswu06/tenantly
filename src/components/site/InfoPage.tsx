@@ -125,7 +125,7 @@ export function NoteCard({ icon, title, children }: { icon: LucideIcon; title: s
   );
 }
 
-const contactEmail = "hello@standing.example";
+const contactEmail = "hello@tenantly.example";
 
 /** Blue "Questions? Email us" card at the end of Privacy and Accessibility. */
 export function ContactCard({ title, children }: { title: string; children: ReactNode }) {

@@ -9,7 +9,7 @@ export async function GET() {
 
   const { reportMetrics, checksPerMonth, outcomesLast6Months, range } = await getReports();
   const rows = [
-    csvRow(["Standing impact report", advocate.organization.name, range]),
+    csvRow(["Tenantly impact report", advocate.organization.name, range]),
     "",
     csvRow(["Metric", "Value", "Note"]),
     ...reportMetrics.map((m) => csvRow([m.label, m.value, m.note])),
@@ -20,5 +20,5 @@ export async function GET() {
     csvRow(["Reported outcome", "Count"]),
     ...outcomesLast6Months.map((o) => csvRow([o.label, o.count])),
   ];
-  return csvResponse(`standing-impact-report-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+  return csvResponse(`tenantly-impact-report-${new Date().toISOString().slice(0, 10)}.csv`, rows);
 }

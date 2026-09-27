@@ -9,7 +9,7 @@ import { ReadAloudButton } from "@/components/tenant/ReadAloudButton";
 import { cn } from "@/lib/utils";
 
 type AppBarProps = {
-  /** Page title. Without one, the bar shows the Standing brand and the menu button (start screen). */
+  /** Page title. Without one, the bar shows the Tenantly brand and the menu button (start screen). */
   title?: string;
   backHref?: string;
   readingAloud?: boolean;
@@ -51,9 +51,9 @@ export function AppBar({
             aria-hidden
             className="flex size-7 shrink-0 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse"
           >
-            S
+            T
           </span>
-          <span className="text-17 font-semibold text-text-primary">Standing</span>
+          <span className="text-17 font-semibold text-text-primary">Tenantly</span>
         </Link>
       ) : (
         <>

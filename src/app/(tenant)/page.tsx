@@ -11,7 +11,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "Standing",
+  name: "Tenantly",
   url: siteUrl,
   applicationCategory: "LegalService",
   operatingSystem: "Any",

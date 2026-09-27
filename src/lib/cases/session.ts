@@ -16,7 +16,7 @@ import type { Database } from "@/types/database";
 export type CaseRow = Database["public"]["Tables"]["cases"]["Row"];
 type CaseInsert = Database["public"]["Tables"]["cases"]["Insert"];
 
-const COOKIE = "standing_case";
+const COOKIE = "tenantly_case";
 const MAX_AGE = 60 * 60 * 24 * 90; // 90 days: long enough to report the outcome after the hearing
 
 function hash(secret: string) {

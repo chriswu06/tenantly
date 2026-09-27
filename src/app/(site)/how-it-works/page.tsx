@@ -9,7 +9,7 @@ export default function HowItWorksPage() {
   return (
     <InfoPage
       appBarTitle="How it works"
-      title="How Standing works"
+      title="How Tenantly works"
       lead="A free tool for Baltimore City tenants with a failure-to-pay-rent case. It takes about 2 minutes and doesn’t need an account."
     >
       <Panel title="Four steps">
@@ -30,9 +30,9 @@ export default function HowItWorksPage() {
         </PanelItem>
       </Panel>
 
-      <Panel title="What Standing is not">
+      <Panel title="What Tenantly is not">
         <PanelItem icon={Ban} title="Not a lawyer or legal advice">
-          Standing gives information. A lawyer can tell you what it means for your case.
+          Tenantly gives information. A lawyer can tell you what it means for your case.
         </PanelItem>
         <PanelItem icon={FileText} title="Not official proof">
           Only a DHCD certification is accepted as evidence in court.

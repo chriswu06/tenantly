@@ -39,7 +39,7 @@ export function CasesPageHeader() {
   return (
     <PageHeader
       title="Cases"
-      description="Tenants checked through Standing and referred to your organization."
+      description="Tenants checked through Tenantly and referred to your organization."
       actions={
         <button
           type="button"
@@ -81,7 +81,7 @@ export function CasesEmptyState({ filtered = false, query }: CasesEmptyProps) {
     <EmptyState
       icon={FolderOpen}
       title="No cases yet"
-      description="Cases appear here when a tenant checks their landlord’s license with Standing and shares the case with your organization."
+      description="Cases appear here when a tenant checks their landlord’s license with Tenantly and shares the case with your organization."
     />
   );
 }

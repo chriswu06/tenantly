@@ -77,12 +77,12 @@ const s = StyleSheet.create({
 
 function Shell({ title, reference, children }: { title: string; reference: string; children: ReactNode }) {
   return (
-    <Document title={`${title} · ${reference}`} author="Standing" creator="Standing">
+    <Document title={`${title} · ${reference}`} author="Tenantly" creator="Tenantly">
       <Page size="LETTER" style={s.page}>
         <View style={s.header} fixed>
           <View style={s.brand}>
-            <Text style={s.logo}>S</Text>
-            <Text style={s.brandName}>Standing</Text>
+            <Text style={s.logo}>T</Text>
+            <Text style={s.brandName}>Tenantly</Text>
           </View>
           <Text style={s.headerMeta}>
             {title}
@@ -90,7 +90,7 @@ function Shell({ title, reference, children }: { title: string; reference: strin
             <Text style={s.mono}>{reference}</Text>
           </Text>
         </View>
-        {/* The right side of the footer ("Standing · ref · Page X of Y") is stamped by addPageNumbers:
+        {/* The right side of the footer ("Tenantly · ref · Page X of Y") is stamped by addPageNumbers:
             react-pdf's `render` prop draws nothing on a page with a lineHeight. */}
         <View style={s.footer} fixed>
           <Text>Informational only. Not legal advice.</Text>
@@ -428,13 +428,13 @@ function AdvocateCaseExport({ c, detail }: { c: AdvocateCase; detail: CaseDetail
 const FOOTER_BASELINE = 35; // points from the bottom, level with the footer's left text
 const MARGIN_X = 48;
 
-/** Stamps "Standing · ref · Page X of Y" on the right of each page's footer. */
+/** Stamps "Tenantly · ref · Page X of Y" on the right of each page's footer. */
 async function addPageNumbers(pdf: Buffer, reference: string) {
   const doc = await PDFDocument.load(pdf);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const pages = doc.getPages();
   pages.forEach((page, i) => {
-    const text = `Standing · ${reference} · Page ${i + 1} of ${pages.length}`;
+    const text = `Tenantly · ${reference} · Page ${i + 1} of ${pages.length}`;
     const size = 8;
     page.drawText(text, {
       x: page.getWidth() - MARGIN_X - font.widthOfTextAtSize(text, size),
@@ -456,13 +456,13 @@ export async function renderTenantReport(view: TenantView, type: string) {
   if (type === "summary") {
     return {
       buffer: await render(<TenantSummary v={view} />, view.reference),
-      filename: `standing-summary-${view.reference}.pdf`,
+      filename: `tenantly-summary-${view.reference}.pdf`,
     };
   }
   if (type === "checklist") {
     return {
       buffer: await render(<CourtChecklist v={view} />, view.reference),
-      filename: `standing-court-checklist-${view.reference}.pdf`,
+      filename: `tenantly-court-checklist-${view.reference}.pdf`,
     };
   }
   return null;
@@ -472,6 +472,6 @@ export async function renderTenantReport(view: TenantView, type: string) {
 export async function renderAdvocateReport(c: AdvocateCase, detail: CaseDetailData) {
   return {
     buffer: await render(<AdvocateCaseExport c={c} detail={detail} />, c.reference),
-    filename: `standing-case-${c.reference}.pdf`,
+    filename: `tenantly-case-${c.reference}.pdf`,
   };
 }

@@ -18,7 +18,7 @@ export function Footer() {
     <footer className="hidden shrink-0 border-t print:hidden border-border-default bg-bg-surface px-6 md:block">
       <div className="mx-auto flex max-w-page items-center gap-6 py-4.5 text-13 leading-[1.4]">
         <ul className="flex flex-1 flex-wrap items-center gap-5 text-text-tertiary">
-          <li>© {new Date().getFullYear()} Standing</li>
+          <li>© {new Date().getFullYear()} Tenantly</li>
           {legalLinks.map(({ href, label }) => {
             const active = isActive(pathname, href);
             return (

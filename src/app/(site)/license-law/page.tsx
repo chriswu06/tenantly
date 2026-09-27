@@ -20,7 +20,7 @@ export default function LicenseLawPage() {
         </PanelItem>
         <PanelItem icon={FileText} title="What counts as proof">
           Courts rely on an official certification from DHCD’s Property Registration and Licensing Division.
-          Standing’s result tells you whether it’s worth requesting one.
+          Tenantly’s result tells you whether it’s worth requesting one.
         </PanelItem>
         <PanelItem icon={Scale} title="What to do">
           Request the certification, bring it to your hearing, and ask the volunteer attorney at court to help you

@@ -22,22 +22,22 @@ const description =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Standing · Check your landlord’s rental license",
-    template: "%s · Standing",
+    default: "Tenantly · Check your landlord’s rental license",
+    template: "%s · Tenantly",
   },
   description,
-  applicationName: "Standing",
+  applicationName: "Tenantly",
   keywords: ["Baltimore", "rent court", "rental license", "tenant", "failure to pay rent", "DHCD", "eviction defense"],
   icons: { icon: "/logo.svg" },
   openGraph: {
     type: "website",
-    siteName: "Standing",
+    siteName: "Tenantly",
     locale: "en_US",
-    title: "Standing · Check your landlord’s rental license",
+    title: "Tenantly · Check your landlord’s rental license",
     description,
     url: "/",
   },
-  twitter: { card: "summary_large_image", title: "Standing · Check your landlord’s rental license", description },
+  twitter: { card: "summary_large_image", title: "Tenantly · Check your landlord’s rental license", description },
   alternates: { canonical: "/" },
   formatDetection: { telephone: false },
 };

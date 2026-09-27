@@ -1,6 +1,6 @@
-# Standing
+# Tenantly
 
-Standing helps Baltimore City tenants who've been taken to rent court check whether their landlord had the rental license the law requires to bring the case, and then shows them exactly what to do next.
+Tenantly helps Baltimore City tenants who've been taken to rent court check whether their landlord had the rental license the law requires to bring the case, and then shows them exactly what to do next.
 
 ## Live app
 
@@ -12,11 +12,11 @@ In Baltimore City, a landlord needs an active rental license to file a failure-t
 
 Most tenants never find out. In the Public Justice Center's study of more than 100 contested eviction cases in Baltimore City rent court, **over 70% of landlords either left the rental license information off the complaint or gave the court invalid information** ([_Justice Diverted_, Public Justice Center, 2015](https://abell.org/publication/justice-diverted-how-renters-are-processed-in-the-baltimore-city-rent-court/)). Tenants face these hearings with little time, usually without a lawyer, and with no easy way to check the city's license records themselves.
 
-Standing turns that check into a few minutes on a phone, and connects tenants who have a defense with legal aid organizations that can help them raise it.
+Tenantly turns that check into a few minutes on a phone, and connects tenants who have a defense with legal aid organizations that can help them raise it.
 
 ## What it does
 
-A tenant photographs or uploads their summons. Standing reads it, confirms the property is in Baltimore City, checks the landlord's rental license, and gives them a result, next steps, and documents to bring to court. Legal aid advocates get a console of the cases tenants choose to share with them.
+A tenant photographs or uploads their summons. Tenantly reads it, confirms the property is in Baltimore City, checks the landlord's rental license, and gives them a result, next steps, and documents to bring to court. Legal aid advocates get a console of the cases tenants choose to share with them.
 
 ### For tenants (no account needed)
 
@@ -91,7 +91,7 @@ _Slides coming soon._
 2. **Locked API.** The portal's records API answers `forbidden` to requests that don't come from a verified browser session, and Cloudflare rate-limits repeated requests.
 3. **Cloudflare human verification.** Every search triggers Cloudflare Turnstile ("Verify you are human"). It blocked us in headless Chromium, in a normal visible browser window, and even when a person ticked the box by hand inside the Playwright-controlled browser. Cloudflare detects the automation and fails the verification.
 
-Getting past it would have meant defeating a CAPTCHA, which we weren't willing to do. So Standing uses a guided check today: the tenant runs the official lookup themselves, with the address to copy, a direct link and step-by-step instructions, and reports what they found. The lookup is built behind a single interface (`src/lib/license/verify.ts`), so it can switch to fully automatic results without changing any pages once DHCD provides API access, a data export, or an exemption for our server. Playwright still does a lot of work in the project, as our end-to-end testing tool.
+Getting past it would have meant defeating a CAPTCHA, which we weren't willing to do. So Tenantly uses a guided check today: the tenant runs the official lookup themselves, with the address to copy, a direct link and step-by-step instructions, and reports what they found. The lookup is built behind a single interface (`src/lib/license/verify.ts`), so it can switch to fully automatic results without changing any pages once DHCD provides API access, a data export, or an exemption for our server. Playwright still does a lot of work in the project, as our end-to-end testing tool.
 
 **No public license dataset.** Baltimore's public ArcGIS services have a "Licenses" table, but it turned out to hold liquor licenses. The only rental registration layer has a few hundred rows, all marked "No". We verified this before designing the guided check.
 

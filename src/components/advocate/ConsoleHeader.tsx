@@ -143,10 +143,10 @@ function MobileAppBar({ title }: { title: string }) {
     <header className="flex items-center gap-2.5 border-b border-border-default bg-bg-surface px-4 py-2.5 lg:hidden print:hidden">
       <Link
         href="/advocate"
-        aria-label="Standing home"
+        aria-label="Tenantly home"
         className="flex size-7 shrink-0 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse"
       >
-        S
+        T
       </Link>
       <div className="flex min-w-0 flex-1 flex-col">
         <h1 className="text-16 leading-[1.2] font-semibold text-text-primary">{title}</h1>

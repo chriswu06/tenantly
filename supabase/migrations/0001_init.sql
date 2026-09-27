@@ -1,4 +1,4 @@
--- Standing: core schema.
+-- Tenantly: core schema.
 --
 -- Tenants have no account. The app's server creates and reads their case with
 -- the service-role key, after checking the case cookie (see src/lib/cases/session.ts).
