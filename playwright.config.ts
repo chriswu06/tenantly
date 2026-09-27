@@ -11,6 +11,9 @@ try {
  * End-to-end tests run against the real services in .env.local (Supabase,
  * Gemini, ArcGIS, ElevenLabs), so they create real tenant cases.
  */
+// Set E2E_BASE_URL to test a deployment (e.g. the Vercel URL) instead of a local dev server.
+const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
@@ -21,7 +24,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "retain-on-failure",
     permissions: ["camera"],
     launchOptions: { args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] },
@@ -30,10 +33,7 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
     { name: "mobile", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, isMobile: false, hasTouch: true } },
   ],
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: process.env.E2E_BASE_URL
+    ? undefined
+    : { command: "npm run dev", url: "http://localhost:3000", reuseExistingServer: !process.env.CI, timeout: 120_000 },
 });

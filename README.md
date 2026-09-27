@@ -4,7 +4,7 @@ Tenantly helps Baltimore City tenants who've been taken to rent court check whet
 
 ## Live app
 
-**Deployed on Vercel:** _link coming soon_
+**Deployed on Vercel:** [tenantly-blush.vercel.app](https://tenantly-blush.vercel.app)
 
 ## Why we built this
 
@@ -110,4 +110,4 @@ Getting past it would have meant defeating a CAPTCHA, which we weren't willing t
 3. **Set up the database:** `npm run db:push` applies the migrations and seed data to your Supabase project.
 4. **Create an advocate account:** either invite someone with `npm run invite -- --org pjc --email you@example.org --admin`, or load demo cases and an admin account with `npm run seed:demo -- --org pjc --email you@example.org --password '<12+ characters>'`.
 5. **Run it:** `npm run dev`, then open http://localhost:3000.
-6. **Run the tests:** `npm run test:e2e`, which needs `E2E_ADVOCATE_EMAIL` and `E2E_ADVOCATE_PASSWORD` in `.env.local`.
+6. **Run the tests:** `npm run test:e2e`, which needs `E2E_ADVOCATE_EMAIL` and `E2E_ADVOCATE_PASSWORD` in `.env.local`. To test a deployment instead of your machine, set `E2E_BASE_URL`, e.g. `E2E_BASE_URL=https://tenantly-blush.vercel.app npm run test:e2e`.
