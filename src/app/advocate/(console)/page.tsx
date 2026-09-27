@@ -1,9 +1,8 @@
 import { ConsoleHeader } from "@/components/advocate/ConsoleHeader";
 import { PageBody } from "@/components/advocate/ConsolePage";
 import { OutcomeBars } from "@/components/advocate/ImpactChart";
-import { AttentionPanel, HearingsPanel } from "@/components/advocate/OverviewPanels";
+import { AttentionPanel, HearingsPanel, OverviewGreeting } from "@/components/advocate/OverviewPanels";
 import { StatCard, StatGrid } from "@/components/advocate/StatCard";
-import { currentAdvocate } from "@/components/advocate/console-config";
 import { caseMetrics, hearingsThisWeek, needsAttention, outcomesLast30Days } from "@/lib/mock/advocate";
 
 /** Advocate console home (Figma frames 50 desktop, 51 mobile). */
@@ -12,14 +11,7 @@ export default function AdvocateOverviewPage() {
     <>
       <ConsoleHeader breadcrumbs={[{ label: "Overview" }]} title="Overview" />
       <PageBody>
-        <div className="flex flex-col gap-0.5 lg:gap-1">
-          {/* The mobile app bar already has the page's <h1>. */}
-          <p className="text-20 leading-[1.25] font-semibold text-text-primary lg:hidden">Good morning, Jordan</p>
-          <h1 className="hidden text-24 font-semibold text-text-primary lg:block">Good morning, Jordan</h1>
-          <p className="text-13 leading-[1.4] text-text-secondary lg:text-14">
-            <span className="hidden lg:inline">{currentAdvocate.organization} · </span>Sunday, September 27
-          </p>
-        </div>
+        <OverviewGreeting />
 
         <StatGrid>
           {caseMetrics.map((m) => (

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 export type NextStep = {
@@ -68,5 +69,60 @@ export function NextSteps({ steps, title = "Recommended next steps", className }
         ))}
       </ul>
     </section>
+  );
+}
+
+/** Loading stand-in for `NextSteps`: the real heading over placeholder rows. */
+export function NextStepsSkeleton({
+  rows = 3,
+  mobileRows = rows,
+  title = "Recommended next steps",
+  className,
+}: {
+  /** Rows from `md` up. */
+  rows?: number;
+  /** Rows on mobile, where mobile-only steps are included. */
+  mobileRows?: number;
+  title?: string;
+  className?: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "flex w-full flex-col overflow-hidden rounded-lg border border-border-default bg-bg-surface md:rounded-[10px]",
+        className,
+      )}
+    >
+      <p className="border-b border-border-default px-4 py-3 text-14 leading-[1.4] font-semibold text-text-primary md:flex md:h-12 md:items-center md:py-0 md:leading-[1.45]">
+        {title}
+      </p>
+      <ul>
+        {Array.from({ length: Math.max(rows, mobileRows) }, (_, index) => (
+          <li
+            key={index}
+            className={cn(
+              "flex items-center gap-3 border-border-default px-4 py-[11px] md:py-3",
+              index < mobileRows - 1 && "border-b",
+              index < rows - 1 ? "md:border-b" : "md:border-b-0",
+              index >= mobileRows && "hidden md:flex",
+              index >= rows && "md:hidden",
+            )}
+          >
+            <Skeleton className="size-[18px] shrink-0 rounded-sm" />
+            <div className="flex min-w-0 flex-1 flex-col gap-px">
+              {/* 14px label (21px line); 12px description (16.8px), md only. */}
+              <div className="flex h-[21px] items-center">
+                <Skeleton className={cn("h-3.5", index % 2 ? "w-44" : "w-52")} />
+              </div>
+              <div className="hidden h-[16.8px] items-center md:flex">
+                <Skeleton className={cn("h-3", index % 2 ? "w-24" : "w-36")} />
+              </div>
+            </div>
+            <Skeleton className="size-[18px] shrink-0 rounded-sm md:size-4" />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

@@ -5,7 +5,9 @@ import {
   Clock,
   Database,
   Download,
+  FileSearch,
   FileText,
+  History,
   MapPin,
   RefreshCw,
   ShieldAlert,
@@ -14,7 +16,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
+import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { Tabs } from "@/components/ui/Tabs";
 import { cn } from "@/lib/utils";
 import {
@@ -34,7 +38,7 @@ import { notFound } from "next/navigation";
 import { getAdvocateCase } from "@/lib/mock/advocate";
 import { Button, buttonClassName } from "@/components/ui/Button";
 import { ConsoleHeader } from "./ConsoleHeader";
-import { PageBody, Panel, PanelHeader } from "./ConsolePage";
+import { BadgeSkeleton, LineSkeleton, PageBody, Panel, PanelHeader } from "./ConsolePage";
 
 /*
  * Case detail pieces (Figma frames 12 desktop, 12m / 52 / 53 mobile).
@@ -148,19 +152,32 @@ export function CaseHeader({ caseData: c, tab }: { caseData: AdvocateCase; tab: 
   );
 }
 
-/** Mobile action bar pinned to the bottom (frame 12m). Takes the place of the tab bar. */
-export function CaseFooter({ reference }: { reference: string }) {
+/**
+ * Mobile action bar pinned to the bottom (frame 12m). Takes the place of the tab bar.
+ * Without a `reference` (while the case loads) both actions show but are disabled.
+ */
+export function CaseFooter({ reference }: { reference?: string }) {
+  const exportClass =
+    "flex size-12 shrink-0 items-center justify-center rounded-lg border border-border-strong bg-bg-surface text-text-primary";
   return (
     <>
       <div aria-hidden className="h-22 lg:hidden" />
       <div className="fixed inset-x-0 bottom-0 z-10 flex items-center gap-2.5 border-t border-border-default bg-bg-surface px-4 pt-3 pb-7 lg:hidden print:hidden">
-        <a href={casePdfHref(reference)} download
-          aria-label="Export case PDF"
-          className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border-strong bg-bg-surface text-text-primary hover:bg-bg-subtle"
-        >
-          <Icon icon={Download} size={20} />
-        </a>
-        <Button leadingIcon={FileText} className="flex-1">
+        {reference ? (
+          <a
+            href={casePdfHref(reference)}
+            download
+            aria-label="Export case PDF"
+            className={cn(exportClass, "hover:bg-bg-subtle")}
+          >
+            <Icon icon={Download} size={20} />
+          </a>
+        ) : (
+          <span role="link" aria-disabled="true" aria-label="Export case PDF" className={cn(exportClass, "opacity-50")}>
+            <Icon icon={Download} size={20} />
+          </span>
+        )}
+        <Button leadingIcon={FileText} className="flex-1" disabled={!reference}>
           Record certification
         </Button>
       </div>
@@ -299,6 +316,11 @@ export function LicenseVerificationPanel({ detail }: { detail: CaseDetailData })
       {/* Mobile (frame 52) */}
       <div className="flex flex-col gap-2.5 p-3.5 lg:hidden">
         <ResultStrip result={detail.result} text={detail.result.recordsText} compact />
+        {detail.records.length === 0 && (
+          <div className="rounded-lg border border-border-default bg-bg-app">
+            <NoRecordsState tone={detail.result.tone} />
+          </div>
+        )}
         {detail.records.map((r) => (
           <div key={r.number} className="flex flex-col gap-1.5 rounded-lg border border-border-default bg-bg-app p-3">
             <div className="flex items-center justify-between gap-2">
@@ -329,7 +351,11 @@ export function LicenseVerificationPanel({ detail }: { detail: CaseDetailData })
           <Icon icon={resultStyle[detail.result.tone].icon} size={18} className={resultStyle[detail.result.tone].iconClass} />
           <p className="min-w-0 flex-1 text-13 leading-[1.45] font-medium text-text-primary">{detail.result.text}</p>
         </div>
-        {detail.records.length > 0 && (
+        {detail.records.length === 0 ? (
+          <div className="rounded-md border border-border-default bg-bg-app">
+            <NoRecordsState tone={detail.result.tone} />
+          </div>
+        ) : (
           <div className="overflow-x-auto rounded-md border border-border-default">
             <table className="w-full min-w-[560px] table-fixed border-collapse text-left">
               <thead className="bg-bg-app">
@@ -383,6 +409,22 @@ export function LicenseVerificationPanel({ detail }: { detail: CaseDetailData })
   );
 }
 
+/** In place of the license records when DHCD returned none. */
+function NoRecordsState({ tone }: { tone: CaseDetailData["result"]["tone"] }) {
+  return (
+    <EmptyState
+      icon={FileSearch}
+      title="No license records found for this address"
+      description={
+        tone === "danger"
+          ? "The lookup didn’t return any records. Re-run the check to try again."
+          : "DHCD has no rental license on file that matches this address."
+      }
+      className="py-6"
+    />
+  );
+}
+
 function RecordBadge({ status }: { status: "Expired" | "Active" }) {
   return (
     <Badge tone={status === "Expired" ? "danger" : "neutral"} dot>
@@ -391,38 +433,45 @@ function RecordBadge({ status }: { status: "Expired" | "Active" }) {
   );
 }
 
+const summonsFields: { label: string; value: (c: AdvocateCase) => string; mono?: boolean }[] = [
+  { label: "Case number", value: (c) => c.caseNumber, mono: true },
+  { label: "Court", value: (c) => c.court },
+  { label: "Plaintiff", value: (c) => c.landlordName },
+  { label: "Filed", value: (c) => formatDate(c.filingDate, "long") },
+  { label: "Hearing", value: (c) => `${formatDate(c.hearingDate, "long")} · ${formatTime(c.hearingDate)}` },
+  { label: "License # on complaint", value: (c) => c.licenseNumberOnComplaint ?? "Not listed" },
+];
+
+const summonsListClass = "grid grid-cols-1 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-3.5 lg:p-4";
+const summonsRowClass =
+  "flex gap-3 border-b border-border-default px-3.5 py-2.5 text-13 leading-[1.4] last:border-b-0 lg:flex-col lg:gap-0.5 lg:border-b-0 lg:p-0 lg:leading-[1.45]";
+const summonsLabelClass = "w-30 shrink-0 text-text-secondary lg:w-auto lg:text-12 lg:text-text-tertiary";
+
+function SummonsPanelFrame({ aside, children }: { aside: ReactNode; children: ReactNode }) {
+  return (
+    <CasePanel title="Summons details" aside={aside}>
+      <dl className={summonsListClass}>{children}</dl>
+    </CasePanel>
+  );
+}
+
 /** Fields read from the summons. Key–value rows on mobile, a 3-column grid on desktop. */
 export function SummonsPanel({ caseData: c }: { caseData: AdvocateCase }) {
-  const fields: { label: string; value: string; mono?: boolean }[] = [
-    { label: "Case number", value: c.caseNumber, mono: true },
-    { label: "Court", value: c.court },
-    { label: "Plaintiff", value: c.landlordName },
-    { label: "Filed", value: formatDate(c.filingDate, "long") },
-    { label: "Hearing", value: `${formatDate(c.hearingDate, "long")} · ${formatTime(c.hearingDate)}` },
-    { label: "License # on complaint", value: c.licenseNumberOnComplaint ?? "Not listed" },
-  ];
-
   return (
-    <CasePanel
-      title="Summons details"
+    <SummonsPanelFrame
       aside={
         <Badge tone="accent" dot>
           Extracted
         </Badge>
       }
     >
-      <dl className="grid grid-cols-1 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-3.5 lg:p-4">
-        {fields.map((f) => (
-          <div
-            key={f.label}
-            className="flex gap-3 border-b border-border-default px-3.5 py-2.5 text-13 leading-[1.4] last:border-b-0 lg:flex-col lg:gap-0.5 lg:border-b-0 lg:p-0 lg:leading-[1.45]"
-          >
-            <dt className="w-30 shrink-0 text-text-secondary lg:w-auto lg:text-12 lg:text-text-tertiary">{f.label}</dt>
-            <dd className={cn("min-w-0 flex-1 text-text-primary", f.mono ? "font-mono" : "font-medium")}>{f.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </CasePanel>
+      {summonsFields.map((f) => (
+        <div key={f.label} className={summonsRowClass}>
+          <dt className={summonsLabelClass}>{f.label}</dt>
+          <dd className={cn("min-w-0 flex-1 text-text-primary", f.mono ? "font-mono" : "font-medium")}>{f.value(c)}</dd>
+        </div>
+      ))}
+    </SummonsPanelFrame>
   );
 }
 
@@ -473,21 +522,248 @@ export function NextActionsPanel({ actions }: { actions: NextAction[] }) {
   );
 }
 
+const activityListClass = "flex flex-col gap-4 p-3.5 lg:gap-3.5 lg:p-4";
+const activityDotClass = "mt-[5px] size-2 shrink-0 rounded-full bg-border-strong";
+
 /** Case timeline, oldest first. */
 export function ActivityPanel({ events }: { events: ActivityEvent[] }) {
   return (
     <CasePanel title="Activity">
-      <ol className="flex flex-col gap-4 p-3.5 lg:gap-3.5 lg:p-4">
-        {events.map((e) => (
-          <li key={`${e.title}-${e.meta}`} className="flex items-start gap-2.5">
-            <span aria-hidden className="mt-[5px] size-2 shrink-0 rounded-full bg-border-strong" />
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5 leading-[1.4] lg:leading-[1.45]">
-              <span className="text-13 font-medium text-text-primary">{e.title}</span>
-              <span className="text-12 text-text-tertiary">{e.meta}</span>
-            </span>
+      {events.length === 0 ? (
+        <EmptyState
+          icon={History}
+          title="No activity yet"
+          description="Updates to this case, like lookups, shares and assignments, will show up here."
+          className="py-8"
+        />
+      ) : (
+        <ol className={activityListClass}>
+          {events.map((e) => (
+            <li key={`${e.title}-${e.meta}`} className="flex items-start gap-2.5">
+              <span aria-hidden className={activityDotClass} />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5 leading-[1.4] lg:leading-[1.45]">
+                <span className="text-13 font-medium text-text-primary">{e.title}</span>
+                <span className="text-12 text-text-tertiary">{e.meta}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </CasePanel>
+  );
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Loading states. The case reference isn't known until the data arrives, so the header says "Case". */
+
+const caseTabLabels: { tab: CaseTab; label: string }[] = [
+  { tab: "overview", label: "Overview" },
+  { tab: "records", label: "Records" },
+  { tab: "activity", label: "Activity" },
+];
+
+/**
+ * Case detail frame while the case loads: generic "Case" header, placeholder title block,
+ * `children` (the tab's skeleton panels) and a disabled footer.
+ */
+export function CaseDetailLoadingShell({ tab, children }: { tab: CaseTab; children: ReactNode }) {
+  return (
+    <>
+      <ConsoleHeader
+        breadcrumbs={[{ label: "Cases", href: "/advocate/cases" }, { label: "Case" }]}
+        title="Case"
+        backHref="/advocate/cases"
+      />
+      <LoadingRegion label="Loading case" className="flex min-w-0 flex-col">
+        <CaseHeaderSkeleton tab={tab} />
+        <PageBody className="gap-3 lg:pt-5">{children}</PageBody>
+      </LoadingRegion>
+      <CaseFooter />
+    </>
+  );
+}
+
+/** <CaseHeader> with placeholders for the reference, badges, address and parties. */
+function CaseHeaderSkeleton({ tab }: { tab: CaseTab }) {
+  return (
+    <>
+      <div className="flex flex-col gap-1.5 border-b border-border-default bg-bg-surface px-4 pt-1 lg:hidden">
+        <div className="flex gap-1.5">
+          <BadgeSkeleton className="w-28" />
+          <BadgeSkeleton className="w-24" />
+        </div>
+        <LineSkeleton className="text-20 leading-[1.25]" barClassName="w-56" />
+        <LineSkeleton className="text-13 leading-[1.4]" barClassName="w-64 max-w-full" />
+        {/* Same look as <Tabs variant="underline">, but inert: the tab links need the case reference. */}
+        <ul className="flex items-center gap-5 pt-2.5 whitespace-nowrap">
+          {caseTabLabels.map((t) => (
+            <li
+              key={t.tab}
+              className={cn(
+                "flex border-b-2 pt-1.5 pb-2.5 text-14 leading-none",
+                t.tab === tab ? "border-accent font-semibold text-accent" : "border-transparent font-medium text-text-secondary",
+              )}
+            >
+              {t.label}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="hidden flex-col gap-4 px-6 pt-6 lg:flex">
+        <div className="flex items-end gap-4">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <div className="flex items-center gap-2.5">
+              <LineSkeleton className="w-28 font-mono text-13 leading-[1.45]" />
+              <BadgeSkeleton className="w-32" />
+              <BadgeSkeleton className="w-36" />
+            </div>
+            <LineSkeleton className="text-24" barClassName="w-80" />
+            <LineSkeleton className="text-14 leading-[1.45]" barClassName="w-96" />
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <Button variant="secondary" size="sm" leadingIcon={Download} disabled>
+              Export case PDF
+            </Button>
+            <Button size="sm" leadingIcon={FileText} disabled>
+              Record certification
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/** Frame 12 on desktop while loading. Hidden below `lg`, like <CaseDesktopView>. */
+export function CaseDesktopViewSkeleton() {
+  return (
+    <div className="hidden lg:block">
+      <CaseColumns
+        aside={
+          <>
+            <NextActionsPanelSkeleton />
+            <ActivityPanelSkeleton />
+          </>
+        }
+      >
+        <LicenseVerificationPanelSkeleton />
+        <SummonsPanelSkeleton />
+      </CaseColumns>
+    </div>
+  );
+}
+
+/** Mobile Overview tab (frame 12m) while loading: result strip, hearing card, next actions. */
+export function CaseOverviewSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 lg:hidden">
+      <Skeleton className="h-15 rounded-lg" />
+      <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-surface p-3">
+        <Skeleton className="h-10 w-10 shrink-0" />
+        <div className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
+          <LineSkeleton className="text-14" barClassName="w-32" />
+          <LineSkeleton className="text-12" barClassName="w-48" />
+        </div>
+      </div>
+      <NextActionsPanelSkeleton />
+    </div>
+  );
+}
+
+function NextActionsPanelSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <CasePanel title="Next actions" aside={<LineSkeleton className="w-10 shrink-0 text-12 leading-[1.4]" />}>
+      <ul className="lg:px-4 lg:py-1">
+        {Array.from({ length: rows }, (_, i) => (
+          <li
+            key={i}
+            className="flex items-center gap-2.5 border-b border-border-default px-3.5 py-2.75 last:border-b-0 lg:px-0 lg:py-2.5"
+          >
+            <Skeleton className="size-4 shrink-0 rounded-full" />
+            <LineSkeleton className="flex-1 text-13 leading-[1.4] lg:leading-[1.45]" barClassName={i % 2 ? "w-36" : "w-48"} />
+            <LineSkeleton className="w-14 shrink-0 text-12 leading-[1.4]" />
+          </li>
+        ))}
+      </ul>
+    </CasePanel>
+  );
+}
+
+/** Loading "Activity": dots and two lines per event. */
+export function ActivityPanelSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <CasePanel title="Activity">
+      <ol className={activityListClass}>
+        {Array.from({ length: rows }, (_, i) => (
+          <li key={i} className="flex items-start gap-2.5">
+            <span aria-hidden className={activityDotClass} />
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 leading-[1.4] lg:leading-[1.45]">
+              <LineSkeleton className="text-13" barClassName={i % 2 ? "w-40" : "w-52"} />
+              <LineSkeleton className="text-12" barClassName="w-28" />
+            </div>
           </li>
         ))}
       </ol>
     </CasePanel>
+  );
+}
+
+const lookupMetaWidths = ["w-40", "w-36", "w-44"];
+
+/** Loading "License verification": result strip, record placeholders and lookup details. */
+export function LicenseVerificationPanelSkeleton() {
+  return (
+    <CasePanel
+      title="License verification"
+      aside={
+        <>
+          <Skeleton className="h-6 w-18 rounded-md lg:hidden" />
+          <Button variant="secondary" size="sm" leadingIcon={RefreshCw} className="hidden lg:inline-flex" disabled>
+            Re-run
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-2.5 p-3.5 lg:hidden">
+        <Skeleton className="h-10 rounded-lg" />
+        <div className="flex flex-col gap-1.5 rounded-lg border border-border-default bg-bg-app p-3">
+          <div className="flex items-center justify-between gap-2">
+            <LineSkeleton className="w-32 text-13 leading-[1.4]" />
+            <BadgeSkeleton className="w-18" />
+          </div>
+          <LineSkeleton className="text-12 leading-[1.4]" barClassName="w-56" />
+        </div>
+        {lookupMetaWidths.map((w) => (
+          <LineSkeleton key={w} className="text-12 leading-[1.4]" barClassName={w} />
+        ))}
+      </div>
+
+      <div className="hidden flex-col gap-3 p-4 lg:flex">
+        <Skeleton className="h-11 rounded-md" />
+        <Skeleton className="h-[82px] rounded-md" />
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {lookupMetaWidths.map((w) => (
+            <LineSkeleton key={w} className="w-44 text-12 leading-[1.45]" barClassName={w} />
+          ))}
+        </div>
+      </div>
+    </CasePanel>
+  );
+}
+
+/** Loading "Summons details": the real field labels with placeholder values. */
+export function SummonsPanelSkeleton() {
+  return (
+    <SummonsPanelFrame aside={<BadgeSkeleton className="w-22" />}>
+      {summonsFields.map((f, i) => (
+        <div key={f.label} className={summonsRowClass}>
+          <dt className={summonsLabelClass}>{f.label}</dt>
+          <dd className="min-w-0 flex-1">
+            <LineSkeleton barClassName={i % 2 ? "w-32" : "w-24"} />
+          </dd>
+        </div>
+      ))}
+    </SummonsPanelFrame>
   );
 }

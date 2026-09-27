@@ -5,9 +5,33 @@ import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { memberRoles } from "@/lib/mock/advocate";
 import { Button } from "@/components/ui/Button";
-import { Panel } from "./ConsolePage";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { LineSkeleton, PageHeader, Panel } from "./ConsolePage";
 
 export const SETTINGS_FORM_ID = "advocate-settings";
+
+const ORGANIZATION_DESCRIPTION = "Shown to tenants when they choose who to share their case with.";
+
+const notificationLabels = {
+  notifyShared: "A tenant shares a case with your organization",
+  notifyHearing: "A hearing is 3 days away and certification isn’t recorded",
+  notifyLookup: "A license lookup fails",
+} as const;
+
+/** Desktop page title with the save button (frame 64). */
+export function SettingsPageHeader() {
+  return (
+    <PageHeader
+      title="Settings"
+      description="Your profile, notifications and security."
+      actions={
+        <Button type="submit" form={SETTINGS_FORM_ID} size="sm">
+          Save changes
+        </Button>
+      }
+    />
+  );
+}
 
 /** Profile, organization, notifications and security (Figma frames 64 desktop, 65 mobile). */
 export function SettingsForm() {
@@ -44,7 +68,7 @@ export function SettingsForm() {
 
       <SettingsPanel
         title="Organization"
-        description="Shown to tenants when they choose who to share their case with."
+        description={ORGANIZATION_DESCRIPTION}
         aside={<Badge tone="neutral">Admin only</Badge>}
       >
         <FieldRow>
@@ -57,12 +81,12 @@ export function SettingsForm() {
       <SettingsPanel title="Email notifications">
         <ul>
           <ToggleRow name="notifyShared" defaultChecked>
-            A tenant shares a case with your organization
+            {notificationLabels.notifyShared}
           </ToggleRow>
           <ToggleRow name="notifyHearing" defaultChecked>
-            A hearing is 3 days away and certification isn’t recorded
+            {notificationLabels.notifyHearing}
           </ToggleRow>
-          <ToggleRow name="notifyLookup">A license lookup fails</ToggleRow>
+          <ToggleRow name="notifyLookup">{notificationLabels.notifyLookup}</ToggleRow>
         </ul>
       </SettingsPanel>
 
@@ -73,6 +97,14 @@ export function SettingsForm() {
         </ul>
       </SettingsPanel>
 
+      <FormFooter />
+    </form>
+  );
+}
+
+function FormFooter() {
+  return (
+    <>
       <button
         type="button"
         className="flex items-center gap-2 self-start text-14 leading-[1.4] font-semibold text-danger-fg hover:underline"
@@ -84,7 +116,73 @@ export function SettingsForm() {
       <Button type="submit" className="h-11 w-full text-14 lg:hidden">
         Save changes
       </Button>
-    </form>
+    </>
+  );
+}
+
+/** Settings while they load: the real panels and labels, placeholders for the saved values. */
+export function SettingsFormSkeleton() {
+  return (
+    <div className="flex flex-col gap-3.5 lg:gap-5">
+      <SettingsPanel title="Profile">
+        <FieldRow>
+          <FieldSkeleton label="Full name" />
+          <FieldSkeleton label="Work email" />
+          <FieldSkeleton label="Role" />
+        </FieldRow>
+      </SettingsPanel>
+
+      <SettingsPanel
+        title="Organization"
+        description={ORGANIZATION_DESCRIPTION}
+        aside={<Badge tone="neutral">Admin only</Badge>}
+      >
+        <FieldRow>
+          <FieldSkeleton label="Organization name" />
+          <FieldSkeleton label="Callback number" />
+          <FieldSkeleton label="Languages" />
+        </FieldRow>
+      </SettingsPanel>
+
+      <SettingsPanel title="Email notifications">
+        <ul>
+          {Object.values(notificationLabels).map((label) => (
+            <li key={label} className={rowClass}>
+              <p className="min-w-0 flex-1 text-14 leading-[1.4] text-text-primary">{label}</p>
+              <Skeleton className="h-6 w-10 shrink-0 rounded-full" />
+            </li>
+          ))}
+        </ul>
+      </SettingsPanel>
+
+      <SettingsPanel title="Security">
+        <ul>
+          {["Password", "Single sign-on"].map((title) => (
+            <li key={title} className={rowClass}>
+              <div className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
+                <p className="text-14 font-medium text-text-primary">{title}</p>
+                <LineSkeleton className="text-12" barClassName="w-40" />
+              </div>
+              <Skeleton className="h-9 w-20 shrink-0" />
+            </li>
+          ))}
+        </ul>
+      </SettingsPanel>
+
+      <FormFooter />
+    </div>
+  );
+}
+
+const rowClass = "flex items-center gap-3 border-b border-border-default px-4 py-3 last:border-b-0";
+
+/** A field's real label over a grey 42px input. */
+function FieldSkeleton({ label }: { label: string }) {
+  return (
+    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+      <p className="text-13 leading-[1.4] font-medium text-text-secondary">{label}</p>
+      <Skeleton className="h-10.5 rounded-lg" />
+    </div>
   );
 }
 
@@ -169,7 +267,7 @@ function TextSetting({ label, name, defaultValue, locked = false, autoComplete }
 function ToggleRow({ name, defaultChecked, children }: { name: string; defaultChecked?: boolean; children: string }) {
   const id = `settings-${name}`;
   return (
-    <li className="flex items-center gap-3 border-b border-border-default px-4 py-3 last:border-b-0">
+    <li className={rowClass}>
       <label htmlFor={id} className="min-w-0 flex-1 text-14 leading-[1.4] text-text-primary">
         {children}
       </label>
@@ -193,7 +291,7 @@ function ToggleRow({ name, defaultChecked, children }: { name: string; defaultCh
 
 function SecurityRow({ title, detail, action }: { title: string; detail: string; action: string }) {
   return (
-    <li className="flex items-center gap-3 border-b border-border-default px-4 py-3 last:border-b-0">
+    <li className={rowClass}>
       <div className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
         <p className="text-14 font-medium text-text-primary">{title}</p>
         <p className="text-12 text-text-tertiary">{detail}</p>

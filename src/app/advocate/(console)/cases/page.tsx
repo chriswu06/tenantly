@@ -1,10 +1,8 @@
-import { ChevronDown } from "lucide-react";
-import { CaseCards, CaseSearch, CasesTable } from "@/components/advocate/CasesTable";
+import { CaseCards, caseFilterTabs, CaseSearch, CasesPageHeader, CasesTable } from "@/components/advocate/CasesTable";
 import { ConsoleHeader } from "@/components/advocate/ConsoleHeader";
-import { PageBody, PageHeader } from "@/components/advocate/ConsolePage";
+import { PageBody } from "@/components/advocate/ConsolePage";
 import { StatCard, StatGrid } from "@/components/advocate/StatCard";
-import { Icon } from "@/components/ui/Icon";
-import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import { Tabs } from "@/components/ui/Tabs";
 import { advocateCases, caseFilters, caseMetrics, filterCases, parseCaseFilter } from "@/lib/mock/advocate";
 
 type CasesPageProps = {
@@ -16,32 +14,15 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
   const filter = parseCaseFilter((await searchParams).filter);
   const cases = filterCases(advocateCases, filter);
   const active = caseFilters.find((f) => f.key === filter)!;
-
-  const filterTabs: TabItem[] = caseFilters.map((f) => ({
-    href: f.key === "all" ? "/advocate/cases" : `/advocate/cases?filter=${f.key}`,
-    label: f.label,
-    shortLabel: f.shortLabel,
-    count: f.count,
-    active: f.key === filter,
-  }));
+  // An empty list means "nothing matches" when a filter is on, "no cases yet" when it isn't.
+  const filtered = filter !== "all";
+  const filterTabs = caseFilterTabs(filter);
 
   return (
     <>
       <ConsoleHeader breadcrumbs={[{ label: "Cases" }]} title="Cases" />
       <PageBody>
-        <PageHeader
-          title="Cases"
-          description="Tenants checked through Standing and referred to your organization."
-          actions={
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-md border border-border-strong bg-bg-surface px-3 py-2 text-13 leading-[1.4] font-medium text-text-primary hover:bg-bg-subtle"
-            >
-              Last 30 days
-              <Icon icon={ChevronDown} size={16} />
-            </button>
-          }
-        />
+        <CasesPageHeader />
         <CaseSearch />
 
         <StatGrid>
@@ -51,8 +32,8 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
         </StatGrid>
 
         <Tabs items={filterTabs} label="Case filters" className="-mx-4 px-4 lg:hidden" />
-        <CaseCards cases={cases} />
-        <CasesTable cases={cases} filterTabs={filterTabs} total={active.count} />
+        <CaseCards cases={cases} filtered={filtered} />
+        <CasesTable cases={cases} filterTabs={filterTabs} total={active.count} filtered={filtered} />
       </PageBody>
     </>
   );

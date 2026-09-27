@@ -1,22 +1,21 @@
 import { ConsoleHeader } from "@/components/advocate/ConsoleHeader";
-import { PageBody } from "@/components/advocate/ConsolePage";
+import { LoadingPageBody } from "@/components/advocate/ConsolePage";
 import { InviteMemberDialog } from "@/components/advocate/InviteMemberDialog";
-import { TeamNote, TeamPageHeader, TeamTable } from "@/components/advocate/TeamTable";
-import { teamMembers } from "@/lib/mock/advocate";
+import { TeamNote, TeamPageHeader, TeamTableSkeleton } from "@/components/advocate/TeamTable";
 
-/** Team members and invitations (Figma frames 62 desktop, 63 mobile). */
-export default function TeamPage() {
+/** Team while it loads: real header, invite button and note; placeholder members. */
+export default function TeamLoading() {
   return (
     <>
       <ConsoleHeader breadcrumbs={[{ label: "Team" }]} title="Team" />
-      <PageBody>
+      <LoadingPageBody label="Loading team">
         <TeamPageHeader />
         <div className="lg:hidden">
           <InviteMemberDialog trigger="mobile" />
         </div>
-        <TeamTable members={teamMembers} />
+        <TeamTableSkeleton />
         <TeamNote />
-      </PageBody>
+      </LoadingPageBody>
     </>
   );
 }

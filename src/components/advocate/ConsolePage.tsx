@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 /*
@@ -9,6 +10,38 @@ import { cn } from "@/lib/utils";
 /** Page content: 16px padding and 14px gaps on mobile, 24px padding and 20px gaps on desktop. */
 export function PageBody({ className, ...props }: ComponentProps<"main">) {
   return <main className={cn("flex min-w-0 flex-col gap-3.5 p-4 lg:gap-5 lg:p-6", className)} {...props} />;
+}
+
+/**
+ * <PageBody> for a loading.tsx: announces `label` once and keeps the page's gaps,
+ * so the placeholders sit exactly where the real content will.
+ */
+export function LoadingPageBody({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+  return (
+    <PageBody className={className}>
+      <LoadingRegion label={label} className="flex min-w-0 flex-col gap-[inherit]">
+        {children}
+      </LoadingRegion>
+    </PageBody>
+  );
+}
+
+/**
+ * Placeholder for one line of text. Give it the same text size and leading classes as the
+ * text it replaces (e.g. "text-14 leading-[1.4]") and a width; it takes exactly one line's height.
+ * `barClassName` narrows the grey bar inside a wider slot (e.g. "w-3/5" in a flex-1 column).
+ */
+export function LineSkeleton({ className, barClassName }: { className?: string; barClassName?: string }) {
+  return (
+    <div aria-hidden className={cn("flex h-[1lh] min-w-0 items-center", className)}>
+      <Skeleton className={cn("h-[0.8em] w-full rounded", barClassName)} />
+    </div>
+  );
+}
+
+/** Placeholder the size of a <Badge> (22px tall). */
+export function BadgeSkeleton({ className }: { className?: string }) {
+  return <Skeleton className={cn("h-[22.4px] w-24 shrink-0 rounded-md", className)} />;
 }
 
 type PageHeaderProps = {

@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 type Highlight = { top: number; width: number; tag: string; tone: "warn" | "accent" };
@@ -119,6 +120,36 @@ function PageSheet() {
             style={{ top: top - 1, width }}
           />
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Loading stand-in for `SummonsPreview`, at the same size on both breakpoints. Pass the same `className`. */
+export function SummonsPreviewSkeleton({ className }: { className?: string }) {
+  return (
+    <div aria-hidden className={className}>
+      <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-surface py-2.5 pr-3.5 pl-2.5 md:hidden">
+        <Skeleton className="h-[52px] w-10 shrink-0 rounded-sm" />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex h-[21px] items-center">
+            <Skeleton className="h-3.5 w-36" />
+          </div>
+          <div className="flex h-[16.8px] items-center">
+            <Skeleton className="h-3 w-52 max-w-full" />
+          </div>
+        </div>
+        <Skeleton className="h-4 w-8" />
+      </div>
+
+      <div className="hidden flex-col overflow-hidden rounded-[10px] border border-border-default bg-bg-surface md:flex">
+        <div className="flex items-center justify-between gap-3 border-b border-border-default px-4 py-3">
+          <div className="flex h-[18.85px] items-center">
+            <Skeleton className="h-3.5 w-32" />
+          </div>
+          <Skeleton className="h-3.5 w-20" />
+        </div>
+        <Skeleton className="h-[600px] rounded-none" />
       </div>
     </div>
   );

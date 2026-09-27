@@ -9,11 +9,12 @@ import { IconButton } from "@/components/ui/IconButton";
 import { memberRoles } from "@/lib/mock/advocate";
 
 /**
- * "Invite member" button and dialog. `trigger`: full-width 44px button (mobile, frame 63)
- * or the console `sm` button (desktop page header, frame 62). There’s no Figma frame for the dialog,
+ * "Invite member" button and dialog. `trigger`: full-width 44px button (mobile, frame 63),
+ * the console `sm` button (desktop page header, frame 62), or a secondary "Invite a teammate"
+ * button for the team list's empty state. There’s no Figma frame for the dialog,
  * so it reuses the console's field and button styles. Nothing is sent yet.
  */
-export function InviteMemberDialog({ trigger }: { trigger: "mobile" | "desktop" }) {
+export function InviteMemberDialog({ trigger }: { trigger: "mobile" | "desktop" | "empty" }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const roleId = useId();
@@ -40,6 +41,10 @@ export function InviteMemberDialog({ trigger }: { trigger: "mobile" | "desktop" 
       {trigger === "mobile" ? (
         <Button leadingIcon={Plus} onClick={open} className="h-11 w-full text-14">
           Invite member
+        </Button>
+      ) : trigger === "empty" ? (
+        <Button variant="secondary" size="sm" leadingIcon={Plus} onClick={open}>
+          Invite a teammate
         </Button>
       ) : (
         <Button size="sm" leadingIcon={Plus} onClick={open}>

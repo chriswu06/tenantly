@@ -1,7 +1,12 @@
 import type { ReactNode } from "react";
-import { Mail, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, Mail, type LucideIcon } from "lucide-react";
 import { AppBar } from "@/components/layout/AppBar";
+import { LanguageSelect } from "@/components/tenant/LanguageSelect";
+import { ReadAloudButton } from "@/components/tenant/ReadAloudButton";
 import { Icon } from "@/components/ui/Icon";
+import { iconButtonClassName } from "@/components/ui/IconButton";
+import { LoadingRegion, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 /*
@@ -136,5 +141,66 @@ export function ContactCard({ title, children }: { title: string; children: Reac
         {contactEmail}
       </a>
     </section>
+  );
+}
+
+/** Placeholder panel: header row and `items` icon rows, sized like <Panel> + <PanelItem>. */
+function PanelSkeleton({ items }: { items: number }) {
+  return (
+    <div className="overflow-hidden rounded-[10px] border border-border-default bg-bg-surface">
+      <div className="border-b border-border-default px-4 pt-3.5 pb-3">
+        <Skeleton className="my-[3px] h-4 w-40" />
+      </div>
+      <div className="divide-y divide-border-default">
+        {Array.from({ length: items }, (_, i) => (
+          <div key={i} className="flex items-start gap-3.5 px-4 py-3.5">
+            <Skeleton className="size-8 shrink-0 rounded-lg" />
+            <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
+              <Skeleton className="my-[3px] h-3.5 w-1/2" />
+              <Skeleton className="my-1 h-3 w-4/5" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Loading state for the info pages: the <InfoPage> layout with placeholder
+ * title, intro and panels. The mobile bar mirrors <AppBar> with the title
+ * replaced by a placeholder, since the page title isn't known yet.
+ */
+export function InfoPageSkeleton() {
+  return (
+    <>
+      <header className="flex shrink-0 items-center gap-1 border-b border-border-default bg-bg-surface py-2 pr-3 pl-1 md:hidden print:hidden">
+        <Link href="/" aria-label="Back" className={iconButtonClassName("ghost")}>
+          <Icon icon={ChevronLeft} size={20} />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <Skeleton className="h-4 w-32" />
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <ReadAloudButton />
+          <LanguageSelect />
+        </div>
+      </header>
+      <LoadingRegion
+        label="Loading page"
+        className="flex w-full flex-col gap-4 p-5 md:mx-auto md:max-w-[848px] md:gap-6 md:px-6 md:pt-14 md:pb-18"
+      >
+        <div className="flex flex-col gap-2">
+          <Skeleton className="my-0.5 h-6 w-48 md:my-1 md:h-9 md:w-80" />
+          {/* The intro wraps to two lines on mobile and fits on one in the 800px column. */}
+          <div className="flex flex-col">
+            <Skeleton className="my-[3.25px] h-4 md:my-[3.75px] md:h-[18px] md:w-3/4" />
+            <Skeleton className="my-[3.25px] h-4 w-3/5 md:hidden" />
+          </div>
+        </div>
+        <PanelSkeleton items={3} />
+        <PanelSkeleton items={2} />
+      </LoadingRegion>
+    </>
   );
 }

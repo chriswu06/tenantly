@@ -7,7 +7,8 @@ import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import type { OutcomeOption } from "@/types/case";
 import { MobileActionBar } from "./MobileActionBar";
-import { buttonClassName } from "@/components/ui/Button";
+import { Button, buttonClassName } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const options: { value: OutcomeOption; label: string }[] = [
   { value: "raised_license_defense", label: "Raised the license defense" },
@@ -96,5 +97,53 @@ export function OutcomeForm() {
 
       <MobileActionBar>{submitButton("w-full")}</MobileActionBar>
     </form>
+  );
+}
+
+/** Loading stand-in for `OutcomeForm`: the real heading and note, placeholder options, a disabled submit. */
+export function OutcomeFormSkeleton() {
+  const submitButton = (className: string) => (
+    <Button disabled size="responsive" className={className}>
+      Submit anonymously
+    </Button>
+  );
+
+  return (
+    <div className="flex flex-1 flex-col md:items-center md:px-6 md:pt-14 md:pb-12">
+      <div className="flex flex-1 flex-col gap-3.5 p-5 md:w-full md:max-w-[560px] md:flex-none md:gap-5 md:rounded-xl md:border md:border-border-default md:bg-bg-surface md:p-8">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-22 leading-[1.25] font-semibold text-text-primary md:text-24 md:leading-[1.25]">
+            How did your hearing go?
+          </h1>
+          <p className="text-15 leading-[1.45] text-text-secondary">
+            Anonymous. Used only to measure how often the license defense is raised.
+          </p>
+        </div>
+
+        <div
+          aria-hidden
+          className="overflow-hidden rounded-lg border border-border-default bg-bg-surface md:rounded-[10px]"
+        >
+          {["w-44", "w-28", "w-32", "w-40", "w-24"].map((width) => (
+            <div key={width} className="flex items-center gap-3 border-b border-border-default px-4 py-3.5 last:border-b-0">
+              <Skeleton className="size-[18px] shrink-0 rounded-full" />
+              {/* 14px label: 19.6px line on mobile, 20.3px from md. */}
+              <div className="flex h-[19.6px] min-w-0 flex-1 items-center md:h-[20.3px]">
+                <Skeleton className={cn("h-3.5", width)} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="flex items-center gap-2 text-12 leading-[1.45] text-text-tertiary">
+          <Icon icon={Lock} size={14} />
+          No name, address, or case number is attached to this response.
+        </p>
+
+        {submitButton("hidden md:flex w-full")}
+      </div>
+
+      <MobileActionBar>{submitButton("w-full")}</MobileActionBar>
+    </div>
   );
 }

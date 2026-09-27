@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 export type CourtPrepItem = {
@@ -90,5 +91,47 @@ export function CourtPrepChecklist({ items, className }: CourtPrepChecklistProps
         })}
       </ul>
     </section>
+  );
+}
+
+const skeletonLabelWidths = ["w-44", "w-60", "w-20", "w-32", "w-40", "w-48"];
+
+/** Loading stand-in for `CourtPrepChecklist`: the real heading, an empty progress track and placeholder rows. */
+export function CourtPrepChecklistSkeleton({ rows = 6, className }: { rows?: number; className?: string }) {
+  return (
+    <div aria-hidden className={cn("flex flex-col gap-3.5 md:gap-5", className)}>
+      <div className="flex flex-col gap-1.5 md:gap-2">
+        <div className="flex items-start justify-between leading-[1.4] whitespace-nowrap md:leading-[1.45]">
+          <p className="text-14 font-semibold text-text-primary">Documents</p>
+          <div className="flex h-[18.2px] items-center md:h-[18.85px]">
+            <Skeleton className="h-3 w-[70px]" />
+          </div>
+        </div>
+        <div className="h-1.5 w-full rounded-[3px] bg-bg-subtle" />
+      </div>
+
+      <ul className="overflow-hidden rounded-lg border border-border-default bg-bg-surface md:rounded-[10px]">
+        {Array.from({ length: rows }, (_, index) => (
+          <li
+            key={index}
+            className="flex items-center gap-3 border-b border-border-default px-3.5 py-3 last:border-b-0 md:px-4 md:py-3.5"
+          >
+            <Skeleton className="size-5 shrink-0 rounded-sm" />
+            {/* 14px label: 19.6px lines on mobile, 20.3px from md. The long second item wraps on mobile. */}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <div className="flex h-[19.6px] items-center md:h-[20.3px]">
+                <Skeleton className={cn("h-3.5 max-w-full", skeletonLabelWidths[index % skeletonLabelWidths.length])} />
+              </div>
+              {index === 1 && (
+                <div className="flex h-[19.6px] items-center md:hidden">
+                  <Skeleton className="h-3.5 w-24" />
+                </div>
+              )}
+            </div>
+            {index % 4 === 1 && <Skeleton className="h-[22.4px] w-16 md:h-[20.4px]" />}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

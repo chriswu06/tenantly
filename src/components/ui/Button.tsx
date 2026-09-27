@@ -1,6 +1,7 @@
 import type { ComponentPropsWithRef } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
+import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary";
@@ -11,6 +12,8 @@ type ButtonProps = ComponentPropsWithRef<"button"> & {
   size?: ButtonSize;
   leadingIcon?: LucideIcon;
   trailingIcon?: LucideIcon;
+  /** Shows a spinner in place of the leading icon and ignores clicks until done. */
+  loading?: boolean;
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -61,6 +64,7 @@ export function Button({
   size = "lg",
   leadingIcon,
   trailingIcon,
+  loading = false,
   disabled,
   type = "button",
   className,
@@ -71,21 +75,28 @@ export function Button({
   // aria-disabled instead of native `disabled` keeps the button focusable,
   // so screen reader users can still discover it and its label. Dropping
   // onClick while disabled stops activation without a wrapper handler.
+  // While loading, a submit button becomes type="button" so the form can't be sent twice.
+  const inactive = disabled || loading;
   return (
     <button
-      type={type}
-      aria-disabled={disabled || undefined}
-      onClick={disabled ? undefined : onClick}
+      type={loading && type === "submit" ? "button" : type}
+      aria-disabled={inactive || undefined}
+      aria-busy={loading || undefined}
+      onClick={inactive ? undefined : onClick}
       className={cn(
         "inline-flex shrink-0 items-center justify-center font-semibold leading-none whitespace-nowrap transition-colors",
         variantClasses[variant],
         sizeClasses[size],
-        disabled ? "cursor-not-allowed opacity-50" : hoverClasses[variant],
+        disabled ? "cursor-not-allowed opacity-50" : loading ? "cursor-wait" : hoverClasses[variant],
         className,
       )}
       {...props}
     >
-      {leadingIcon && <Icon icon={leadingIcon} size={iconSize[size]} />}
+      {loading ? (
+        <Spinner size={iconSize[size]} />
+      ) : (
+        leadingIcon && <Icon icon={leadingIcon} size={iconSize[size]} />
+      )}
       {children}
       {trailingIcon && <Icon icon={trailingIcon} size={iconSize[size]} />}
     </button>

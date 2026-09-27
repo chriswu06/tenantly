@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { useId, useState, type ComponentProps, type ReactNode } from "react";
 import { ChevronDown, ChevronLeft, Lock, ShieldCheck, Users } from "lucide-react";
 import { AuthHeading, authLinkClass } from "@/components/advocate/auth/AuthHeading";
 import { Button } from "@/components/ui/Button";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 /*
  * Advocate sign in, invitation sign up and password reset forms (Figma 23–26, 54 and 56).
- * Nothing is submitted yet: each form just moves on to the next screen.
+ * Nothing is submitted yet: each form shows its pending state briefly, then moves on to the next screen.
  */
 
 // Inputs are 46px / 15px on mobile and 44px / 14px on desktop in these frames.
@@ -24,12 +24,24 @@ const checkboxClass = "items-start gap-2 text-13 leading-[1.45] text-text-second
 
 type SubmitHandler = NonNullable<ComponentProps<"form">["onSubmit"]>;
 
-function useNavigateOnSubmit(href: string): SubmitHandler {
+// Stand-in for the Supabase auth call; remove once the forms submit for real.
+const SIMULATED_REQUEST_MS = 800;
+
+/**
+ * Submit handler plus a `pending` flag: while pending, the submit button shows a
+ * spinner and the inputs are disabled. Pending stays on through navigation.
+ */
+function usePendingSubmit(href: string): { pending: boolean; onSubmit: SubmitHandler } {
   const router = useRouter();
-  return (event) => {
+  const [pending, setPending] = useState(false);
+  const onSubmit: SubmitHandler = (event) => {
     event.preventDefault();
-    router.push(href);
+    if (pending) return;
+    setPending(true);
+    // TODO: replace the delay with the Supabase request and handle its errors.
+    window.setTimeout(() => router.push(href), SIMULATED_REQUEST_MS);
   };
+  return { pending, onSubmit };
 }
 
 function InlineLink({ prompt, href, children }: { prompt: string; href: string; children: ReactNode }) {
@@ -45,7 +57,7 @@ function InlineLink({ prompt, href, children }: { prompt: string; href: string; 
 
 /** Figma 25 (mobile) and 23 (desktop). */
 export function SignInForm() {
-  const onSubmit = useNavigateOnSubmit("/advocate");
+  const { pending, onSubmit } = usePendingSubmit("/advocate");
   const router = useRouter();
 
   return (
@@ -57,6 +69,7 @@ export function SignInForm() {
         name="email"
         autoComplete="email"
         defaultValue="jrivera@publicjustice.org"
+        disabled={pending}
         className={authFieldClass}
       />
       <Field
@@ -70,13 +83,14 @@ export function SignInForm() {
             Forgot password?
           </Link>
         }
+        disabled={pending}
         className={authFieldClass}
       />
-      <Checkbox name="remember" className={checkboxClass}>
+      <Checkbox name="remember" disabled={pending} className={checkboxClass}>
         Keep me signed in on this device
       </Checkbox>
-      <Button type="submit" className={submitClass}>
-        Sign in
+      <Button type="submit" loading={pending} className={submitClass}>
+        {pending ? "Signing in…" : "Sign in"}
       </Button>
       <div className="flex items-center gap-3" role="separator" aria-label="or">
         <span className="h-px flex-1 bg-border-default" />
@@ -88,6 +102,7 @@ export function SignInForm() {
       <Button
         variant="secondary"
         leadingIcon={ShieldCheck}
+        disabled={pending}
         className={submitClass}
         onClick={() => router.push("/advocate")}
       >
@@ -104,7 +119,7 @@ const roles = ["Staff attorney", "Paralegal", "Intake specialist", "Supervising 
 
 /** Figma 26 (mobile) and 24 (desktop). */
 export function SignUpForm() {
-  const onSubmit = useNavigateOnSubmit("/advocate");
+  const { pending, onSubmit } = usePendingSubmit("/advocate");
   const roleId = useId();
 
   return (
@@ -119,6 +134,7 @@ export function SignUpForm() {
         name="name"
         autoComplete="name"
         defaultValue="Jordan Rivera"
+        disabled={pending}
         className={authFieldClass}
       />
       <Field
@@ -127,6 +143,7 @@ export function SignUpForm() {
         name="email"
         readOnly
         aria-readonly
+        disabled={pending}
         defaultValue="jrivera@publicjustice.org"
         trailingIcon={Lock}
         className={cn(authFieldClass, "[&>div:nth-child(2)]:bg-bg-subtle [&_input]:text-text-secondary")}
@@ -135,12 +152,13 @@ export function SignUpForm() {
         <label htmlFor={roleId} className="text-13 font-medium text-text-secondary">
           Role
         </label>
-        <div className="relative flex h-[46px] items-center rounded-lg border border-border-strong bg-bg-surface has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent lg:h-11">
+        <div className="relative flex h-[46px] items-center rounded-lg border border-border-strong bg-bg-surface has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:bg-bg-subtle lg:h-11">
           <select
             id={roleId}
             name="role"
             defaultValue={roles[0]}
-            className="h-full w-full cursor-pointer appearance-none bg-transparent pr-9 pl-3 text-15 leading-none text-text-primary focus-visible:outline-none lg:text-14"
+            disabled={pending}
+            className="h-full w-full cursor-pointer appearance-none disabled:cursor-not-allowed bg-transparent pr-9 pl-3 text-15 leading-none text-text-primary focus-visible:outline-none lg:text-14"
           >
             {roles.map((role) => (
               <option key={role}>{role}</option>
@@ -156,14 +174,15 @@ export function SignUpForm() {
         autoComplete="new-password"
         minLength={12}
         placeholder="Create a password"
+        disabled={pending}
         hint="At least 12 characters. Use a passphrase you don’t use elsewhere."
         className={cn(authFieldClass, "[&>p]:leading-[1.45]")}
       />
-      <Checkbox name="agree" defaultChecked required className={checkboxClass}>
+      <Checkbox name="agree" defaultChecked required disabled={pending} className={checkboxClass}>
         I agree to the Terms of Use and will keep tenant information confidential.
       </Checkbox>
-      <Button type="submit" className={submitClass}>
-        Create account
+      <Button type="submit" loading={pending} className={submitClass}>
+        {pending ? "Creating account…" : "Create account"}
       </Button>
       <InlineLink prompt="Already have an account?" href="/advocate/sign-in">
         Sign in
@@ -174,7 +193,7 @@ export function SignUpForm() {
 
 /** Figma 56 (mobile) and 54 (desktop). */
 export function ResetPasswordForm() {
-  const onSubmit = useNavigateOnSubmit("/advocate/reset-password/sent");
+  const { pending, onSubmit } = usePendingSubmit("/advocate/reset-password/sent");
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4.5">
@@ -187,10 +206,11 @@ export function ResetPasswordForm() {
         name="email"
         autoComplete="email"
         defaultValue="jrivera@publicjustice.org"
+        disabled={pending}
         className={authFieldClass}
       />
-      <Button type="submit" className={cn(submitClass, "h-[46px]")}>
-        Send reset link
+      <Button type="submit" loading={pending} className={cn(submitClass, "h-[46px]")}>
+        {pending ? "Sending link…" : "Send reset link"}
       </Button>
       <Link
         href="/advocate/sign-in"

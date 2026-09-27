@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 /** White bordered card. 8px radius on mobile, 10px in the web frames. */
@@ -63,6 +64,44 @@ export function KeyValue({
     >
       <dt className={cn("w-[110px] shrink-0 text-text-secondary", labelClassName)}>{label}</dt>
       <dd className="min-w-0 flex-1 font-medium text-text-primary">{children}</dd>
+    </div>
+  );
+}
+
+/**
+ * Loading stand-in for `PanelHeader` when the title comes from data. Pass the
+ * same `className` as the real header; `action` holds e.g. a badge placeholder.
+ */
+export function PanelHeaderSkeleton({
+  titleClassName = "w-48",
+  mobileLines = 1,
+  action,
+  className,
+}: {
+  /** Width of the title placeholder. */
+  titleClassName?: string;
+  /** Title lines on mobile, where long titles wrap. */
+  mobileLines?: number;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={cn("flex items-center gap-2 border-b border-border-default px-4 py-3 md:h-12 md:py-0", className)}
+    >
+      {/* 14px title: 19.6px lines on mobile, 20.3px from md. */}
+      <div className="flex min-w-0 flex-1 flex-col md:h-[20.3px] md:justify-center">
+        {Array.from({ length: mobileLines }, (_, index) => (
+          <div
+            key={index}
+            className={cn("flex h-[19.6px] items-center md:h-auto", index > 0 && "md:hidden")}
+          >
+            <Skeleton className={cn("h-3.5", index === mobileLines - 1 && index > 0 ? "w-1/3" : titleClassName)} />
+          </div>
+        ))}
+      </div>
+      {action}
     </div>
   );
 }
