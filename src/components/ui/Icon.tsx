@@ -1,9 +1,9 @@
 import type { LucideIcon, LucideProps } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// The Figma icons are Lucide at 14, 16, 18, 20 and 22px. Lucide scales the
+// The Figma icons are Lucide at 12, 14, 16, 18, 20 and 22px. Lucide scales the
 // stroke with size, which matches the design (1.5px at 18, 1.67px at 20).
-type IconSize = 14 | 16 | 18 | 20 | 22;
+type IconSize = 12 | 14 | 16 | 18 | 20 | 22;
 
 type IconProps = Omit<LucideProps, "size" | "ref"> & {
   icon: LucideIcon;

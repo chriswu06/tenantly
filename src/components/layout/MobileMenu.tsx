@@ -2,83 +2,74 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
-import { ArrowRight, ChevronDown, ChevronRight, Globe, Menu, Volume2, X, type LucideIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ArrowRight, ChevronDown, ChevronRight, Globe, Volume2, X, type LucideIcon } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
+import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/utils";
 import { Logo } from "./Logo";
 import { advocateHref, homeLink, isActive, legalLinks, primaryLinks } from "./nav-links";
 
 /**
- * Menu button plus the full-screen mobile menu (Figma 49 · Menu — mobile).
- * Uses a modal <dialog>, which gives focus trapping, Escape to close and
- * an inert background for free.
+ * Full-screen mobile menu (Figma 49 · Menu — mobile). Uses a modal <dialog>,
+ * which gives focus trapping, Escape to close and an inert background for free.
+ *
+ * @example <MobileMenu open={open} onClose={() => setOpen(false)} />
  */
-export function MobileMenu() {
+export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
   const close = () => dialogRef.current?.close();
 
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
   return (
-    <>
-      <button
-        type="button"
-        aria-label="Open menu"
-        aria-haspopup="dialog"
-        onClick={() => dialogRef.current?.showModal()}
-        className="flex size-10 items-center justify-center rounded-lg text-text-primary hover:bg-bg-subtle"
-      >
-        <Icon icon={Menu} size={20} />
-      </button>
+    <dialog
+      ref={dialogRef}
+      aria-label="Menu"
+      onClose={onClose}
+      className="m-0 h-dvh max-h-none w-full max-w-none bg-bg-surface p-0 text-text-primary backdrop:bg-transparent open:flex open:flex-col"
+    >
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border-default py-2 pr-3 pl-4">
+        <Logo className="flex-1" onClick={close} />
+        <IconButton icon={X} label="Close menu" onClick={close} />
+      </div>
 
-      <dialog
-        ref={dialogRef}
-        aria-label="Menu"
-        className="m-0 h-dvh max-h-none w-full max-w-none bg-bg-surface p-0 text-text-primary backdrop:bg-transparent open:flex open:flex-col"
-      >
-        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border-default py-2 pr-3 pl-4">
-          <Logo className="flex-1" onClick={close} />
-          <button
-            type="button"
-            aria-label="Close menu"
-            onClick={close}
-            className="flex size-10 items-center justify-center rounded-lg text-text-primary hover:bg-bg-subtle"
-          >
-            <Icon icon={X} size={20} />
-          </button>
-        </div>
+      <nav aria-label="Main" className="flex flex-1 flex-col overflow-y-auto pt-2 pb-4">
+        <ul>
+          {[homeLink, ...primaryLinks].map((link) => (
+            <MenuLink key={link.href} {...link} active={isActive(pathname, link.href)} onNavigate={close} />
+          ))}
+        </ul>
+        <Divider />
+        <ul>
+          {legalLinks.map((link) => (
+            <MenuLink key={link.href} {...link} active={isActive(pathname, link.href)} onNavigate={close} />
+          ))}
+        </ul>
+        <Divider />
+        {/* Placeholders until B's ReadAloudButton and LanguageSelect merge. */}
+        <PrefRow icon={Volume2} label="Read pages aloud" value="Off" />
+        <PrefRow icon={Globe} label="Language" value="English" />
+      </nav>
 
-        <nav aria-label="Main" className="flex flex-1 flex-col overflow-y-auto pt-2 pb-4">
-          <ul>
-            {[homeLink, ...primaryLinks].map((link) => (
-              <MenuLink key={link.href} {...link} active={isActive(pathname, link.href)} onNavigate={close} />
-            ))}
-          </ul>
-          <Divider />
-          <ul>
-            {legalLinks.map((link) => (
-              <MenuLink key={link.href} {...link} active={isActive(pathname, link.href)} onNavigate={close} />
-            ))}
-          </ul>
-          <Divider />
-          {/* Placeholders until B's ReadAloudButton and LanguageSelect merge. */}
-          <PrefRow icon={Volume2} label="Read pages aloud" value="Off" />
-          <PrefRow icon={Globe} label="Language" value="English" />
-        </nav>
-
-        <div className="flex shrink-0 flex-col gap-1.5 border-t border-border-default bg-bg-app px-5 pt-4 pb-7">
-          <Link
-            href={advocateHref}
-            onClick={close}
-            className="flex items-center gap-1.5 self-start rounded-md text-14 leading-[1.4] font-semibold text-accent"
-          >
-            For legal aid organizations
-            <Icon icon={ArrowRight} size={16} />
-          </Link>
-          <p className="text-12 text-text-tertiary">Informational only. Not legal advice.</p>
-        </div>
-      </dialog>
-    </>
+      <div className="flex shrink-0 flex-col gap-1.5 border-t border-border-default bg-bg-app px-5 pt-4 pb-7">
+        <Link
+          href={advocateHref}
+          onClick={close}
+          className="flex items-center gap-1.5 self-start rounded-md text-14 leading-[1.4] font-semibold text-accent"
+        >
+          For legal aid organizations
+          <Icon icon={ArrowRight} size={16} />
+        </Link>
+        <p className="text-12 text-text-tertiary">Informational only. Not legal advice.</p>
+      </div>
+    </dialog>
   );
 }
 

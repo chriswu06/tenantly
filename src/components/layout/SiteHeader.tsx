@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Volume2 } from "lucide-react";
-import { Icon } from "@/components/ui/Icon";
+import { useState } from "react";
+import { AppBar } from "@/components/layout/AppBar";
+import { LanguageSelect } from "@/components/tenant/LanguageSelect";
+import { ReadAloudButton } from "@/components/tenant/ReadAloudButton";
 import { cn } from "@/lib/utils";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
@@ -43,54 +45,26 @@ export function SiteHeader() {
         </ul>
       </nav>
 
-      {/* Placeholders until B's ReadAloudButton and LanguageSelect merge. */}
+      {/* TODO: wire playback and language state once the i18n/read-aloud hooks land. */}
       <div className="flex items-center gap-2">
-        <UtilityButton icon={Volume2} label="Listen" />
-        <UtilityButton icon={Globe} label="English" />
+        <ReadAloudButton variant="pill" />
+        <LanguageSelect variant="full" />
       </div>
     </header>
   );
 }
 
 /**
- * Mobile app bar with the brand, Listen, language and menu
- * (Figma 01 · Start). Hidden from `md` up, where `SiteHeader` takes over.
+ * Mobile start-screen app bar with the menu (Figma 01 · Start, menu 49).
+ * Hidden from `md` up, where `SiteHeader` takes over.
  */
 export function MobileSiteHeader() {
-  return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border-default bg-bg-surface py-2 pr-3 pl-4 md:hidden">
-      <Logo className="flex-1" />
-      <div className="flex items-center gap-1">
-        {/* Placeholders until B's ReadAloudButton and LanguageSelect merge. */}
-        <button
-          type="button"
-          aria-label="Listen"
-          className="flex size-10 items-center justify-center rounded-lg text-text-secondary hover:bg-bg-subtle"
-        >
-          <Icon icon={Volume2} size={20} />
-        </button>
-        <button
-          type="button"
-          aria-label="Language: English"
-          className="flex items-center gap-1.5 rounded-lg border border-border-default py-1.5 pr-2.5 pl-2 text-13 leading-none font-medium text-text-secondary"
-        >
-          <Icon icon={Globe} size={16} />
-          EN
-        </button>
-        <MobileMenu />
-      </div>
-    </header>
-  );
-}
+  const [menuOpen, setMenuOpen] = useState(false);
 
-function UtilityButton({ icon, label }: { icon: typeof Globe; label: string }) {
   return (
-    <button
-      type="button"
-      className="flex items-center gap-1.5 rounded-lg border border-border-default py-2 pr-3 pl-2.5 text-13 leading-none font-medium text-text-secondary hover:bg-bg-subtle"
-    >
-      <Icon icon={icon} size={16} />
-      {label}
-    </button>
+    <>
+      <AppBar className="shrink-0 md:hidden" onMenuClick={() => setMenuOpen(true)} />
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>
   );
 }
