@@ -59,10 +59,6 @@ A tenant photographs or uploads their summons. Tenantly reads it, confirms the p
 
 https://github.com/user-attachments/assets/7b2454f1-0add-486b-87b1-47d42dcb53e8
 
-## Slides
-
-_Slides coming soon._
-
 ## Tech stack
 
 | Technology | How we use it |
