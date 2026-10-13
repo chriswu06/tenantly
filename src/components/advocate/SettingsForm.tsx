@@ -43,7 +43,14 @@ export type SettingsValues = {
   email: string;
   role: AdvocateRole;
   notify: { shared: boolean; hearing: boolean; lookup: boolean };
-  organization: { name: string; callbackPhone: string | null; languages: string | null };
+  isAdmin: boolean;
+  organization: {
+    name: string;
+    description: string | null;
+    callbackPhone: string | null;
+    languages: string | null;
+    acceptsReferrals: boolean;
+  };
 };
 
 export function SettingsForm({ settings }: { settings: SettingsValues }) {
@@ -125,16 +132,7 @@ export function SettingsForm({ settings }: { settings: SettingsValues }) {
         description={ORGANIZATION_DESCRIPTION}
         aside={<Badge tone="neutral">Admin only</Badge>}
       >
-        <FieldRow>
-          <TextSetting label="Organization name" name="orgName" defaultValue={settings.organization.name} locked />
-          <TextSetting
-            label="Callback number"
-            name="callback"
-            defaultValue={settings.organization.callbackPhone ?? "Not set"}
-            locked
-          />
-          <TextSetting label="Languages" name="languages" defaultValue={settings.organization.languages ?? "Not set"} locked />
-        </FieldRow>
+        <OrganizationFields settings={settings} values={values} errors={state.fieldErrors} checked={checked} />
       </SettingsPanel>
 
       <SettingsPanel title="Email notifications">
@@ -168,6 +166,66 @@ export function SettingsForm({ settings }: { settings: SettingsValues }) {
 
       <FormFooter pending={pending} />
     </form>
+  );
+}
+
+/** Editable for admins; everyone else sees the saved values, locked. */
+function OrganizationFields({
+  settings,
+  values,
+  errors,
+  checked,
+}: {
+  settings: SettingsValues;
+  values: FormState["values"];
+  errors: FormState["fieldErrors"];
+  checked: (name: string, saved: boolean) => boolean;
+}) {
+  const org = settings.organization;
+  const locked = !settings.isAdmin;
+  const shown = (name: string, saved: string | null) => values?.[name] ?? (locked ? saved || "Not set" : (saved ?? ""));
+  return (
+    <>
+      <FieldRow>
+        <TextSetting
+          label="Organization name"
+          name="orgName"
+          defaultValue={shown("orgName", org.name)}
+          locked={locked}
+          error={errors?.orgName?.[0]}
+        />
+        <TextSetting
+          label="Callback number"
+          name="callback"
+          type="tel"
+          defaultValue={shown("callback", org.callbackPhone)}
+          locked={locked}
+          error={errors?.callback?.[0]}
+        />
+        <TextSetting label="Languages" name="languages" defaultValue={org.languages ?? "Not set"} locked />
+      </FieldRow>
+      <div className="px-4 pb-4">
+        <TextSetting
+          label="Description"
+          name="orgDescription"
+          defaultValue={shown("orgDescription", org.description)}
+          placeholder="Tenant advocacy · Responds by phone"
+          hint="One short line tenants see under your name."
+          locked={locked}
+          error={errors?.orgDescription?.[0]}
+        />
+      </div>
+      <ul className="border-t border-border-default">
+        <ToggleRow
+          name="acceptsReferrals"
+          defaultChecked={checked("acceptsReferrals", org.acceptsReferrals)}
+          disabled={locked}
+          detail="When off, tenants won’t see your organization when they share a case."
+        >
+          Accepting cases from tenants
+        </ToggleRow>
+      </ul>
+    </>
   );
 }
 
@@ -217,6 +275,15 @@ export function SettingsFormSkeleton() {
           <FieldSkeleton label="Callback number" />
           <FieldSkeleton label="Languages" />
         </FieldRow>
+        <div className="px-4 pb-4">
+          <FieldSkeleton label="Description" />
+        </div>
+        <ul className="border-t border-border-default">
+          <li className={rowClass}>
+            <p className="min-w-0 flex-1 text-14 leading-[1.4] text-text-primary">Accepting cases from tenants</p>
+            <Skeleton className="h-6 w-10 shrink-0 rounded-full" />
+          </li>
+        </ul>
       </SettingsPanel>
 
       <SettingsPanel title="Email notifications">
@@ -298,12 +365,27 @@ type TextSettingProps = {
   /** Read-only, on a grey fill with a lock icon. */
   locked?: boolean;
   autoComplete?: string;
+  type?: "text" | "tel";
+  placeholder?: string;
+  hint?: string;
   error?: string;
 };
 
-function TextSetting({ label, name, defaultValue, locked = false, autoComplete, error }: TextSettingProps) {
+function TextSetting({
+  label,
+  name,
+  defaultValue,
+  locked = false,
+  autoComplete,
+  type = "text",
+  placeholder,
+  hint,
+  error,
+}: TextSettingProps) {
   const id = `settings-${name}`;
-  const describedBy = [locked && `${id}-locked`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
+  const describedBy =
+    [locked && `${id}-locked`, hint && !locked && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") ||
+    undefined;
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       <label htmlFor={id} className="text-13 leading-[1.4] font-medium text-text-secondary">
@@ -320,7 +402,9 @@ function TextSetting({ label, name, defaultValue, locked = false, autoComplete, 
           id={id}
           // Locked fields are for show; they aren't part of the saved settings.
           name={locked ? undefined : name}
+          type={type}
           defaultValue={defaultValue}
+          placeholder={locked ? undefined : placeholder}
           readOnly={locked}
           autoComplete={autoComplete}
           aria-invalid={error ? true : undefined}
@@ -339,6 +423,11 @@ function TextSetting({ label, name, defaultValue, locked = false, autoComplete, 
           </>
         )}
       </div>
+      {hint && !locked && !error && (
+        <p id={`${id}-hint`} className="text-12 text-text-tertiary">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={`${id}-error`} className="text-12 text-danger-fg">
           {error}
@@ -349,13 +438,33 @@ function TextSetting({ label, name, defaultValue, locked = false, autoComplete, 
 }
 
 /** Notification row with a switch (a styled native checkbox). */
-function ToggleRow({ name, defaultChecked, children }: { name: string; defaultChecked?: boolean; children: string }) {
+function ToggleRow({
+  name,
+  defaultChecked,
+  disabled = false,
+  detail,
+  children,
+}: {
+  name: string;
+  defaultChecked?: boolean;
+  /** Shows the saved state without submitting it. */
+  disabled?: boolean;
+  detail?: string;
+  children: string;
+}) {
   const id = `settings-${name}`;
   return (
     <li className={rowClass}>
-      <label htmlFor={id} className="min-w-0 flex-1 text-14 leading-[1.4] text-text-primary">
-        {children}
-      </label>
+      <div className="flex min-w-0 flex-1 flex-col gap-px leading-[1.4]">
+        <label htmlFor={id} className="text-14 text-text-primary">
+          {children}
+        </label>
+        {detail && (
+          <p id={`${id}-detail`} className="text-12 text-text-tertiary">
+            {detail}
+          </p>
+        )}
+      </div>
       <span className="relative flex h-6 w-10 shrink-0">
         <input
           id={id}
@@ -363,7 +472,9 @@ function ToggleRow({ name, defaultChecked, children }: { name: string; defaultCh
           type="checkbox"
           role="switch"
           defaultChecked={defaultChecked}
-          className="peer h-6 w-10 cursor-pointer appearance-none rounded-full bg-border-strong transition-colors checked:bg-accent"
+          disabled={disabled}
+          aria-describedby={detail ? `${id}-detail` : undefined}
+          className="peer h-6 w-10 cursor-pointer appearance-none rounded-full bg-border-strong transition-colors checked:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
         />
         <span
           aria-hidden

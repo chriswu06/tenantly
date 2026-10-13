@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "invite": "node --env-file=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/invite.mjs",
+    "org": "node --env-file=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/org.mjs",
     "db:push": "set -a && . ./.env.local && set +a && npx -y supabase@2 db push --db-url \"$SUPABASE_DB_URL\" --include-seed",
     "db:types": "set -a && . ./.env.local && set +a && npx -y supabase@2 gen types typescript --db-url \"$SUPABASE_DB_URL\" --schema public > src/types/database.ts",
     "seed:demo": "node --env-file=.env.local scripts/seed-demo.mjs",

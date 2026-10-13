@@ -6,6 +6,7 @@ import { requireAdvocate } from "@/lib/auth";
 import { sendInviteEmail } from "@/lib/email/invite-email";
 import { licenseProvider } from "@/lib/license/verify";
 import { siteUrl } from "@/lib/site-url";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { advocateRoles, fieldErrorsOf, inviteSchema, type FormState } from "@/lib/validation/schemas";
 
@@ -114,11 +115,40 @@ const settingsSchema = z.object({
   notifyLookup: z.literal("on").optional(),
 });
 
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max, `Keep it under ${max} characters.`)
+    .transform((v) => v || null);
+
+/** The organization fields an admin can edit. Shown to tenants on the share screen. */
+const organizationSchema = z.object({
+  orgName: z.string().trim().min(2, "Enter your organization’s name.").max(120),
+  orgDescription: optionalText(80),
+  callback: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || v.replace(/\D/g, "").length >= 10, "Enter a 10-digit phone number.")
+    .transform((v) => v || null),
+  acceptsReferrals: z.literal("on").optional(),
+});
+
 export async function updateSettings(_prev: FormState, formData: FormData): Promise<FormState> {
   const me = await requireAdvocate();
   const raw = Object.fromEntries(formData) as Record<string, string>;
   const parsed = settingsSchema.safeParse(raw);
-  if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error), values: raw };
+  // Only admins' forms carry the organization fields, and only admins may save them.
+  const org = me.isAdmin && "orgName" in raw ? organizationSchema.safeParse(raw) : undefined;
+  if (!parsed.success || (org && !org.success)) {
+    return {
+      fieldErrors: {
+        ...(parsed.success ? {} : fieldErrorsOf(parsed.error)),
+        ...(org && !org.success ? fieldErrorsOf(org.error) : {}),
+      },
+      values: raw,
+    };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -132,6 +162,22 @@ export async function updateSettings(_prev: FormState, formData: FormData): Prom
     })
     .eq("id", me.id);
   if (error) return { error: "We couldn’t save your settings. Try again.", values: raw };
+
+  if (org?.success) {
+    // Advocates can't write organizations under row-level security, so this goes
+    // through the admin client, limited to the admin's own organization.
+    const { error: orgError } = await createAdminClient()
+      .from("organizations")
+      .update({
+        name: org.data.orgName,
+        description: org.data.orgDescription,
+        short_description: org.data.orgDescription,
+        callback_phone: org.data.callback,
+        accepts_referrals: org.data.acceptsReferrals === "on",
+      })
+      .eq("id", me.organization.id);
+    if (orgError) return { error: "We couldn’t save your organization’s details. Try again.", values: raw };
+  }
   revalidatePath("/advocate", "layout");
   return { ok: true };
 }

@@ -87,12 +87,12 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           {values.sent ? (
             <>
               We emailed an invitation to <span className="font-medium text-text-primary">{values.email}</span>. If it
-              doesn’t arrive, ask them to check spam or send them this link. It expires after 7 days.
+              doesn’t arrive, ask them to check spam or send them this link. It expires after 14 days.
             </>
           ) : (
             <>
               Invitation created for <span className="font-medium text-text-primary">{values.email}</span>. Send them
-              this sign-up link. It expires after 7 days.
+              this sign-up link. It expires after 14 days.
             </>
           )}
         </p>

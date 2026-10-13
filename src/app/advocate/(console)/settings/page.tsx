@@ -19,10 +19,13 @@ export default async function SettingsPage() {
             email: advocate.email,
             role: advocate.role,
             notify: advocate.notify,
+            isAdmin: advocate.isAdmin,
             organization: {
               name: advocate.organization.name,
+              description: advocate.organization.description,
               callbackPhone: advocate.organization.callbackPhone,
               languages: advocate.organization.languages,
+              acceptsReferrals: advocate.organization.acceptsReferrals,
             },
           }}
         />

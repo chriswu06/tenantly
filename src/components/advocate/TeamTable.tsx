@@ -32,7 +32,7 @@ export function TeamPageHeader() {
 export function TeamNote() {
   return (
     <p className="text-12 leading-[1.4] text-text-tertiary">
-      Only admins can invite or remove members. Invitations expire after 7 days.
+      Only admins can invite or remove members. Invitations expire after 14 days.
     </p>
   );
 }

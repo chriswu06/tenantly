@@ -11,7 +11,15 @@ export type CurrentAdvocate = {
   role: "staff_attorney" | "supervising_attorney" | "paralegal" | "intake_specialist";
   isAdmin: boolean;
   notify: { shared: boolean; hearing: boolean; lookup: boolean };
-  organization: { id: string; slug: string; name: string; callbackPhone: string | null; languages: string | null };
+  organization: {
+    id: string;
+    slug: string;
+    name: string;
+    description: string | null;
+    callbackPhone: string | null;
+    languages: string | null;
+    acceptsReferrals: boolean;
+  };
 };
 
 export function initialsOf(name: string) {
@@ -31,7 +39,7 @@ export const getAdvocate = cache(async (): Promise<CurrentAdvocate | null> => {
 
   const { data } = await supabase
     .from("advocates")
-    .select("id, full_name, email, role, is_admin, notify_shared, notify_hearing, notify_lookup, organizations(id, slug, name, callback_phone, languages)")
+    .select("id, full_name, email, role, is_admin, notify_shared, notify_hearing, notify_lookup, organizations(id, slug, name, description, callback_phone, languages, accepts_referrals)")
     .eq("id", userId)
     .maybeSingle();
   if (!data || !data.organizations) return null;
@@ -48,8 +56,10 @@ export const getAdvocate = cache(async (): Promise<CurrentAdvocate | null> => {
       id: data.organizations.id,
       slug: data.organizations.slug,
       name: data.organizations.name,
+      description: data.organizations.description,
       callbackPhone: data.organizations.callback_phone,
       languages: data.organizations.languages,
+      acceptsReferrals: data.organizations.accepts_referrals,
     },
   };
 });
