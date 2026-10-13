@@ -9,7 +9,8 @@ import { ReadAloudButton } from "@/components/tenant/ReadAloudButton";
 import { cn } from "@/lib/utils";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
-import { isActive, primaryLinks } from "./nav-links";
+import { buttonClassName } from "@/components/ui/Button";
+import { homeLink, isActive, primaryLinks } from "./nav-links";
 
 /**
  * Desktop site header. Hidden below `md`, where each mobile screen has its own
@@ -19,7 +20,7 @@ export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="hidden h-16 shrink-0 print:hidden items-center gap-8 border-b border-border-default bg-bg-surface px-6 md:flex lg:px-12">
+    <header className="sticky top-0 z-30 hidden h-16 shrink-0 print:hidden items-center gap-8 border-b border-border-default/70 bg-bg-surface/75 px-6 backdrop-blur-md md:flex lg:px-12">
       <Logo />
 
       <nav aria-label="Main" className="flex-1">
@@ -47,6 +48,11 @@ export function SiteHeader() {
       <div className="flex items-center gap-2">
         <ReadAloudButton variant="pill" />
         <LanguageSelect variant="full" />
+        {pathname !== homeLink.href && (
+          <Link href={homeLink.href} className={buttonClassName("primary", "sm", "ml-2 hidden px-3.5 lg:inline-flex")}>
+            {homeLink.label}
+          </Link>
+        )}
       </div>
     </header>
   );

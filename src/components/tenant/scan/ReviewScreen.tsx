@@ -45,7 +45,7 @@ export function ReviewScreen({ values, confidence, source }: ReviewScreenProps) 
   return (
     <FlowLayout
       title="Review details"
-      backHref="/"
+      backHref="/check"
       step={1}
       width="wide"
       className="gap-2.5 p-5 md:gap-8 md:px-0 lg:flex-row lg:items-start"
@@ -93,7 +93,7 @@ export function ReviewScreen({ values, confidence, source }: ReviewScreenProps) 
           <ExtractedFieldsForm defaultValues={values} confidence={confidence} errors={state.fieldErrors} />
 
           <div className="hidden justify-end gap-3 pt-2 md:flex">
-            <Link href="/" className={buttonClassName("secondary", "md")}>
+            <Link href="/check" className={buttonClassName("secondary", "md")}>
               Back
             </Link>
             <SubmitButton pending={pending} trailingIcon={<Icon icon={ArrowRight} size={18} />} className={buttonClassName("primary", "md")}>

@@ -1,4 +1,18 @@
-import { Document, Font, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import {
+  Defs,
+  Document,
+  Font,
+  LinearGradient,
+  Page,
+  Path,
+  Rect,
+  Stop,
+  StyleSheet,
+  Svg,
+  Text,
+  View,
+  renderToBuffer,
+} from "@react-pdf/renderer";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { ReactNode } from "react";
 import "server-only";
@@ -49,7 +63,6 @@ const s = StyleSheet.create({
   page: { paddingTop: 44, paddingBottom: 64, paddingHorizontal: 48, fontFamily: "Helvetica", fontSize: 10, color: color.text, lineHeight: 1.45 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: color.border, marginBottom: 20 },
   brand: { flexDirection: "row", alignItems: "center", gap: 8 },
-  logo: { width: 20, height: 20, borderRadius: 4, backgroundColor: color.accent, color: "#ffffff", fontFamily: "Helvetica-Bold", fontSize: 11, textAlign: "center", paddingTop: 4 },
   brandName: { fontFamily: "Helvetica-Bold", fontSize: 12 },
   headerMeta: { fontSize: 9, color: color.tertiary, textAlign: "right" },
   eyebrow: { fontSize: 9, color: color.tertiary, fontFamily: "Courier", marginBottom: 4 },
@@ -75,13 +88,36 @@ const s = StyleSheet.create({
   footer: { position: "absolute", bottom: 28, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between", fontSize: 8, color: color.tertiary, borderTopWidth: 1, borderTopColor: color.border, paddingTop: 8 },
 });
 
+/** The Tenantly mark, same artwork as `public/logo.svg`. */
+function LogoMark() {
+  return (
+    <Svg viewBox="0 0 32 32" width={20} height={20}>
+      <Defs>
+        <LinearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#2563eb" />
+          <Stop offset="1" stopColor="#4338ca" />
+        </LinearGradient>
+      </Defs>
+      <Rect width="32" height="32" rx="8" fill="url(#mark)" />
+      <Path
+        d="M8.5 15 16 8.5 23.5 15v8.25a1.75 1.75 0 0 1-1.75 1.75h-11.5a1.75 1.75 0 0 1-1.75-1.75Z"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth={2.25}
+        strokeLinejoin="round"
+      />
+      <Path d="m12.5 18.75 2.5 2.5 4.75-4.75" fill="none" stroke="#5eead4" strokeWidth={2.25} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 function Shell({ title, reference, children }: { title: string; reference: string; children: ReactNode }) {
   return (
     <Document title={`${title} · ${reference}`} author="Tenantly" creator="Tenantly">
       <Page size="LETTER" style={s.page}>
         <View style={s.header} fixed>
           <View style={s.brand}>
-            <Text style={s.logo}>T</Text>
+            <LogoMark />
             <Text style={s.brandName}>Tenantly</Text>
           </View>
           <Text style={s.headerMeta}>

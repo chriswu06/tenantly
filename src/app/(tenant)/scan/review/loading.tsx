@@ -9,7 +9,7 @@ export default function ReviewLoading() {
   return (
     <FlowLayout
       title="Review details"
-      backHref="/"
+      backHref="/check"
       step={1}
       width="wide"
       className="gap-2.5 p-5 md:gap-8 md:px-0 lg:flex-row lg:items-start"

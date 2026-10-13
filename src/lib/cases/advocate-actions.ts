@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdvocate } from "@/lib/auth";
+import { sendInviteEmail } from "@/lib/email/invite-email";
 import { licenseProvider } from "@/lib/license/verify";
 import { siteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
@@ -87,8 +88,15 @@ export async function inviteMember(_prev: FormState, formData: FormData): Promis
     return { error: duplicate ? "That email already has an open invitation." : "We couldn’t create the invitation. Try again.", values: raw };
   }
   revalidatePath("/advocate/team");
-  const site = await siteUrl();
-  return { ok: true, values: { link: `${site}/advocate/sign-up?invite=${data.token}`, email: parsed.data.email } };
+  const link = `${await siteUrl()}/advocate/sign-up?invite=${data.token}`;
+  const sent = await sendInviteEmail({
+    to: parsed.data.email,
+    link,
+    organization: me.organization.name,
+    inviter: me.fullName,
+    isAdmin: parsed.data.admin === "on",
+  });
+  return { ok: true, values: { link, email: parsed.data.email, sent: sent ? "yes" : "" } };
 }
 
 export async function withdrawInvitation(id: string) {

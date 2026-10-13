@@ -33,6 +33,13 @@
   --color-accent-subtle: #eff6ff;
   --color-accent-border: #bfdbfe;
 
+  /* Brand: the logo gradient and the dark hero */
+  --color-brand-blue: #2563eb;
+  --color-brand-indigo: #4338ca;
+  --color-brand-teal: #5eead4;
+  --color-brand-night: #0b1437;
+  --color-brand-mist: #eef2ff;
+
   /* Status */
   --color-success-fg: #15803d;
   --color-success-bg: #f0fdf4;
@@ -99,9 +106,36 @@
 
   /* Elevation */
   --shadow-card: 0 4px 16px 0 rgb(15 23 41 / 0.06);
+  --shadow-float: 0 24px 60px -12px rgb(11 20 55 / 0.35);
 
   /* Layout: desktop content width */
   --container-page: 1152px;
+}
+
+/* Soft blue/indigo/teal wash behind the tenant and public pages. */
+@utility bg-aurora {
+  background-color: var(--color-bg-app);
+  background-image:
+    radial-gradient(60rem 32rem at 0% -10%, rgb(37 99 235 / 0.22), transparent 65%),
+    radial-gradient(50rem 30rem at 100% 0%, rgb(94 234 212 / 0.28), transparent 65%),
+    radial-gradient(44rem 30rem at 100% 70%, rgb(67 56 202 / 0.10), transparent 65%),
+    radial-gradient(52rem 30rem at 0% 100%, rgb(37 99 235 / 0.10), transparent 65%);
+}
+
+/* Faint blue grid lines for light backgrounds. */
+@utility bg-grid-ink {
+  background-image:
+    linear-gradient(to right, rgb(37 99 235 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(37 99 235 / 0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* Faint grid lines for the dark hero. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
 }
 
 @layer base {

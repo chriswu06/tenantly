@@ -60,7 +60,7 @@ export async function startManually() {
 /** "Start over": forget this browser's case. */
 export async function startOver() {
   await clearTenantCase();
-  redirect("/");
+  redirect("/check");
 }
 
 // 2. Read the summons

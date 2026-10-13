@@ -43,7 +43,7 @@ export default function HowItWorksPage() {
       </Panel>
 
       <Link
-        href="/"
+        href="/check"
         className="flex h-12 items-center justify-center rounded-lg bg-accent px-4.5 text-14 leading-none font-semibold text-text-inverse hover:bg-accent/90 md:h-[46px] md:self-start"
       >
         Check my landlord

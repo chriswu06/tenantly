@@ -18,7 +18,8 @@ import { CopyButton } from "./CopyButton";
  * console `sm` button (desktop page header), or a secondary "Invite a teammate"
  * button for the team list's empty state.
  *
- * Only admins see it. No email is sent: the dialog hands back a sign-up link to share.
+ * Only admins see it. The invitation is emailed when SMTP is set up; either way the
+ * dialog also shows the sign-up link, to share by hand if the email goes astray.
  */
 export function InviteMemberDialog({ trigger }: { trigger: "mobile" | "desktop" | "empty" }) {
   const { isAdmin } = useConsoleSession();
@@ -83,8 +84,17 @@ function InviteForm({ onDone }: { onDone: () => void }) {
     return (
       <div className="flex flex-col gap-4 p-5">
         <p role="status" className="text-14 leading-[1.5] text-text-secondary">
-          Invitation created for <span className="font-medium text-text-primary">{values.email}</span>. Send them this
-          sign-up link. It expires after 7 days.
+          {values.sent ? (
+            <>
+              We emailed an invitation to <span className="font-medium text-text-primary">{values.email}</span>. If it
+              doesn’t arrive, ask them to check spam or send them this link. It expires after 7 days.
+            </>
+          ) : (
+            <>
+              Invitation created for <span className="font-medium text-text-primary">{values.email}</span>. Send them
+              this sign-up link. It expires after 7 days.
+            </>
+          )}
         </p>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`${roleId}-link`} className="text-13 font-medium text-text-secondary">
@@ -172,7 +182,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           Cancel
         </Button>
         <Button type="submit" size="sm" loading={pending}>
-          Create invite
+          Send invite
         </Button>
       </div>
     </form>

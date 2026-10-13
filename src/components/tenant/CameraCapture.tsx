@@ -66,7 +66,7 @@ function MobileCameraCapture({ camera, pending, onCapture, onFile }: CaptureProp
     <div className="flex flex-1 flex-col bg-bg-inverse md:hidden">
       <header className="flex h-14 shrink-0 items-center justify-between py-2 pr-3 pl-1">
         <Link
-          href="/"
+          href="/check"
           aria-label="Close camera"
           className={iconButtonClassName("ghost", "text-text-inverse hover:bg-white/10")}
         >
@@ -142,7 +142,7 @@ function WebcamModal({ camera, pending, onCapture, onFile }: CaptureProps) {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") router.push("/");
+      if (event.key === "Escape") router.push("/check");
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -184,7 +184,7 @@ function WebcamModal({ camera, pending, onCapture, onFile }: CaptureProps) {
               )}
             </select>
           </label>
-          <Link href="/" aria-label="Close" className={iconButtonClassName("ghost", "size-9 rounded-md")}>
+          <Link href="/check" aria-label="Close" className={iconButtonClassName("ghost", "size-9 rounded-md")}>
             <Icon icon={X} size={18} />
           </Link>
         </div>
@@ -216,7 +216,7 @@ function WebcamModal({ camera, pending, onCapture, onFile }: CaptureProps) {
               }}
             />
           </label>
-          <Link href="/" className={buttonClassName("secondary", "md")}>
+          <Link href="/check" className={buttonClassName("secondary", "md")}>
             Cancel
           </Link>
           <button

@@ -6,6 +6,7 @@ import { LogOut } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { signOut } from "@/lib/auth-actions";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/layout/LogoMark";
 import { consoleNav, isNavActive, settingsNav, type ConsoleNavItem } from "./console-config";
 import { useConsoleSession } from "./ConsoleSession";
 
@@ -17,9 +18,7 @@ export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-dvh print:hidden w-60 shrink-0 flex-col gap-1 border-r border-border-default bg-bg-surface px-3 py-4 lg:flex">
       <Link href="/advocate" className="flex items-center gap-2.5 rounded-md px-2 pt-1 pb-4">
-        <span className="flex size-7 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse">
-          T
-        </span>
+        <LogoMark />
         <span className="flex flex-col leading-[1.2]">
           <span className="text-15 leading-[1.2] font-semibold text-text-primary">Tenantly</span>
           <span className="text-12 leading-[1.2] text-text-tertiary">Advocate console</span>

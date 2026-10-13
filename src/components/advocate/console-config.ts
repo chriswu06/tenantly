@@ -31,4 +31,4 @@ export function isNavActive(pathname: string, href: string) {
 }
 
 /** Where "New check" goes: the tenant flow's start, to run a check on a tenant's behalf. */
-export const NEW_CHECK_HREF = "/";
+export const NEW_CHECK_HREF = "/check";

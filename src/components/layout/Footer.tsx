@@ -5,20 +5,28 @@ import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "./LogoMark";
 import { advocateHref, isActive, legalLinks } from "./nav-links";
 
 /**
- * Desktop site footer. Hidden below `md`, where each mobile screen ends in its
- * own action bar.
+ * Site footer. Below `md` it shows only on the landing page; every other mobile
+ * screen ends in its own action bar.
  */
 export function Footer() {
   const pathname = usePathname();
 
   return (
-    <footer className="hidden shrink-0 border-t print:hidden border-border-default bg-bg-surface px-6 md:block">
-      <div className="mx-auto flex max-w-page items-center gap-6 py-4.5 text-13 leading-[1.4]">
-        <ul className="flex flex-1 flex-wrap items-center gap-5 text-text-tertiary">
-          <li>© {new Date().getFullYear()} Tenantly</li>
+    <footer
+      className={cn(
+        "shrink-0 bg-brand-night px-5 text-white/60 print:hidden md:block md:px-6",
+        pathname === "/" ? "block" : "hidden",
+      )}
+    >
+      <div className="mx-auto flex max-w-page flex-col gap-4 py-6 text-13 leading-[1.4] md:flex-row md:items-center md:gap-6 md:py-4.5">
+        <ul className="flex flex-1 flex-wrap items-center gap-x-5 gap-y-2">
+          <li className="flex items-center gap-2 font-semibold text-white">
+            <LogoMark className="size-5" />© {new Date().getFullYear()} Tenantly
+          </li>
           {legalLinks.map(({ href, label }) => {
             const active = isActive(pathname, href);
             return (
@@ -26,7 +34,7 @@ export function Footer() {
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={cn("rounded-md hover:text-text-primary", active && "font-semibold text-text-primary")}
+                  className={cn("rounded-md hover:text-white", active && "font-semibold text-white")}
                 >
                   {label}
                 </Link>
@@ -35,7 +43,7 @@ export function Footer() {
           })}
           <li>Not legal advice</li>
         </ul>
-        <Link href={advocateHref} className="flex items-center gap-1.5 rounded-md font-semibold text-accent">
+        <Link href={advocateHref} className="flex items-center gap-1.5 rounded-md font-semibold text-brand-teal hover:text-white">
           For legal aid organizations
           <Icon icon={ArrowRight} size={14} />
         </Link>

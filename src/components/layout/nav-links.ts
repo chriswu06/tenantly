@@ -9,7 +9,7 @@ export const primaryLinks: NavLink[] = [
   { href: "/license-law", label: "About the license law", icon: Book },
 ];
 
-export const homeLink: NavLink = { href: "/", label: "Check my landlord", icon: House };
+export const homeLink: NavLink = { href: "/check", label: "Check my landlord", icon: House };
 
 export const legalLinks: NavLink[] = [
   { href: "/privacy", label: "Privacy", icon: Lock },

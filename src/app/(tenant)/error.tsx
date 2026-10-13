@@ -29,7 +29,7 @@ export default function TenantError({ error, retry }: { error: Error & { digest?
             <Icon icon={RotateCcw} size={18} />
             Try again
           </button>
-          <Link href="/" className={buttonClassName("secondary", "responsive")}>
+          <Link href="/check" className={buttonClassName("secondary", "responsive")}>
             Start over
           </Link>
         </div>

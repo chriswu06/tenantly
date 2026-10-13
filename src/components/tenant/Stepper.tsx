@@ -20,7 +20,7 @@ export function Stepper({ current, steps = TENANT_STEPS, className }: StepperPro
     <nav
       aria-label="Progress"
       className={cn(
-        "border-b border-border-default bg-bg-surface px-4 pt-3 pb-3.5 md:px-6 md:pt-3.5 md:pb-4",
+        "border-b border-border-default/70 bg-bg-surface/70 backdrop-blur-md px-4 pt-3 pb-3.5 md:px-6 md:pt-3.5 md:pb-4",
         className,
       )}
     >

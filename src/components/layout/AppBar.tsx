@@ -7,6 +7,7 @@ import { IconButton, iconButtonClassName } from "@/components/ui/IconButton";
 import { LanguageSelect, type LanguageCode } from "@/components/tenant/LanguageSelect";
 import { ReadAloudButton } from "@/components/tenant/ReadAloudButton";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "./LogoMark";
 
 type AppBarProps = {
   /** Page title. Without one, the bar shows the Tenantly brand and the menu button (start screen). */
@@ -40,19 +41,14 @@ export function AppBar({
   return (
     <header
       className={cn(
-        "flex items-center border-b border-border-default bg-bg-surface py-2 pr-3 print:hidden",
+        "flex items-center border-b border-border-default/70 bg-bg-surface/80 py-2 pr-3 backdrop-blur-md print:hidden",
         isHome ? "gap-2 pl-4" : "gap-1 pl-1",
         className,
       )}
     >
       {isHome ? (
         <Link href="/" className="flex min-w-0 flex-1 items-center gap-2 rounded-md">
-          <span
-            aria-hidden
-            className="flex size-7 shrink-0 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse"
-          >
-            T
-          </span>
+          <LogoMark />
           <span className="text-17 font-semibold text-text-primary">Tenantly</span>
         </Link>
       ) : (

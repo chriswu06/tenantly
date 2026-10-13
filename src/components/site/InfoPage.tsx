@@ -49,9 +49,10 @@ export function InfoPage({ appBarTitle, title, lead, children }: InfoPageProps) 
 /** White card with an optional header row and divided items. */
 export function Panel({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-[10px] border border-border-default bg-bg-surface">
+    <section className="overflow-hidden rounded-xl border border-border-default bg-bg-surface shadow-card">
       {title && (
-        <h2 className="border-b border-border-default px-4 pt-3.5 pb-3 text-15 leading-[1.45] font-semibold">
+        <h2 className="flex items-center gap-2.5 border-b border-border-default bg-linear-to-r from-brand-mist to-bg-surface px-4 pt-3.5 pb-3 text-15 leading-[1.45] font-semibold">
+          <span aria-hidden className="h-4 w-1 rounded-full bg-linear-to-b from-brand-blue to-brand-indigo" />
           {title}
         </h2>
       )}
@@ -77,12 +78,12 @@ export function PanelItem({ icon, step, title, children, href }: PanelItemProps)
       {step !== undefined ? (
         <span
           aria-hidden
-          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-subtle text-13 leading-none font-semibold text-accent"
+          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-blue to-brand-indigo text-13 leading-none font-semibold text-text-inverse"
         >
           {step}
         </span>
       ) : icon ? (
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-bg-subtle text-text-secondary">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-subtle text-accent">
           <Icon icon={icon} size={18} />
         </span>
       ) : null}

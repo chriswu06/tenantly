@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { fillDetails } from "./helpers";
 
 test("manual entry shows field errors, then routes an out-of-city address", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/check");
   await page.getByRole("button", { name: "Enter details manually" }).first().click();
   await page.waitForURL("**/scan/review");
 
@@ -23,11 +23,11 @@ test("upload failures explain what went wrong", async ({ page }) => {
 });
 
 test("an expired session is explained on the start screen", async ({ page }) => {
-  await page.goto("/?expired=1");
+  await page.goto("/check?expired=1");
   await expect(page.getByText("Your previous session ended").filter({ visible: true }).first()).toBeVisible();
 });
 
 test("case pages need a case", async ({ page }) => {
   await page.goto("/results");
-  await page.waitForURL("**/?expired=1");
+  await page.waitForURL("**/check?expired=1");
 });

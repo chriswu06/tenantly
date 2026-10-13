@@ -24,7 +24,7 @@ export default async function ExtractingPage() {
   await requireTenantCase();
 
   return (
-    <FlowLayout title="Scan summons" backHref="/" step={0} className="gap-4 p-5 md:gap-5 md:px-0">
+    <FlowLayout title="Scan summons" backHref="/check" step={0} className="gap-4 p-5 md:gap-5 md:px-0">
       <RunOnce
         action={readSummons}
         fallback={
@@ -52,7 +52,7 @@ export default async function ExtractingPage() {
             <p className="text-12 text-text-tertiary">Uploaded securely</p>
           </div>
           <Link
-            href="/"
+            href="/check"
             className="hidden rounded-md text-13 leading-[1.45] font-semibold text-accent hover:underline md:block"
           >
             Cancel

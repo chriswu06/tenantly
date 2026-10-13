@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "./LogoMark";
 
 type LogoProps = {
   /** Second line under the wordmark, e.g. "For legal aid organizations". */
@@ -11,16 +12,11 @@ type LogoProps = {
   onClick?: () => void;
 };
 
-/** The "T" mark and Tenantly wordmark. Links home. */
+/** The house mark and Tenantly wordmark. Links home. */
 export function Logo({ subtitle, inverse, href = "/", className, onClick }: LogoProps) {
   return (
     <Link href={href} onClick={onClick} className={cn("flex items-center gap-2.5 rounded-md", className)}>
-      <span
-        aria-hidden
-        className="flex size-7 shrink-0 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse"
-      >
-        T
-      </span>
+      <LogoMark />
       {subtitle ? (
         <span className="flex flex-col leading-[1.2]">
           <span

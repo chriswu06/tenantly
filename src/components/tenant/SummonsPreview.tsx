@@ -25,7 +25,7 @@ export function SummonsPreview({ className }: SummonsPreviewProps) {
     >
       <div className="hidden items-center justify-between gap-3 border-b border-border-default px-4 py-3 text-13 leading-[1.45] md:flex">
         <p className="truncate font-medium">Your summons</p>
-        <Link href="/" className="shrink-0 rounded-md font-semibold text-accent hover:underline">
+        <Link href="/check" className="shrink-0 rounded-md font-semibold text-accent hover:underline">
           Replace file
         </Link>
       </div>

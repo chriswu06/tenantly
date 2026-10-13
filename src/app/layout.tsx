@@ -29,7 +29,6 @@ export const metadata: Metadata = {
   description,
   applicationName: "Tenantly",
   keywords: ["Baltimore", "rent court", "rental license", "tenant", "failure to pay rent", "DHCD", "eviction defense"],
-  icons: { icon: "/logo.svg" },
   openGraph: {
     type: "website",
     siteName: "Tenantly",
@@ -46,7 +45,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#ffffff",
+  themeColor: "#f8fafc",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

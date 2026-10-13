@@ -64,7 +64,7 @@ export const getTenantCase = cache(async (): Promise<CaseRow | null> => {
 /** For tenant pages past the start screen: the case, or back to the start. */
 export async function requireTenantCase(): Promise<CaseRow> {
   const found = await getTenantCase();
-  if (!found) redirect("/?expired=1");
+  if (!found) redirect("/check?expired=1");
   return found;
 }
 

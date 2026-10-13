@@ -4,6 +4,7 @@ import { Fragment, useEffect, useId, useRef } from "react";
 import Link from "next/link";
 import { Bell, ChevronDown, ChevronLeft, Ellipsis, Plus, Search } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
+import { LogoMark } from "@/components/layout/LogoMark";
 import { NEW_CHECK_HREF } from "./console-config";
 import { useConsoleSession } from "./ConsoleSession";
 import { useCaseSearch } from "./useCaseSearch";
@@ -144,9 +145,9 @@ function MobileAppBar({ title }: { title: string }) {
       <Link
         href="/advocate"
         aria-label="Tenantly home"
-        className="flex size-7 shrink-0 items-center justify-center rounded-md bg-accent text-15 leading-none font-bold text-text-inverse"
+        className="shrink-0 rounded-md"
       >
-        T
+        <LogoMark />
       </Link>
       <div className="flex min-w-0 flex-1 flex-col">
         <h1 className="text-16 leading-[1.2] font-semibold text-text-primary">{title}</h1>

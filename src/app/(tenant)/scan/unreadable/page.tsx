@@ -20,7 +20,7 @@ export default function UnreadablePage() {
   return (
     <FlowLayout
       title="Scan summons"
-      backHref="/"
+      backHref="/check"
       step={0}
       className="gap-3.5 p-5 md:gap-5 md:px-0"
       mobileFooter={
@@ -71,7 +71,7 @@ export default function UnreadablePage() {
           <Icon icon={Pencil} size={18} />
           Enter details manually
         </Link>
-        <Link href="/" className={buttonClassName("primary", "md", "h-11.5")}>
+        <Link href="/check" className={buttonClassName("primary", "md", "h-11.5")}>
           <Icon icon={Upload} size={18} />
           Upload another file
         </Link>

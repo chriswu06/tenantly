@@ -3,7 +3,7 @@ import { SUMMONS } from "./helpers";
 
 // The main path: upload → Gemini reads it → confirm → license check → results → next steps.
 test("tenant checks their landlord's license and prepares for court", async ({ page, request }) => {
-  await page.goto("/");
+  await page.goto("/check");
   await page.locator("input[type=file][name=summons]").first().setInputFiles(SUMMONS);
   await page.waitForURL("**/scan/extracting");
   await page.waitForURL("**/scan/review", { timeout: 90_000 });
